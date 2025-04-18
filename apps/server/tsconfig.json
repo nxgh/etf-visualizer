@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "NodeNext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/*"],
+      "#utils/*": ["src/utils/*"],
+      "#types/*": ["src/types/*"],
+      "#fetcher/*": ["src/fetcher/*"],
+      "#routers/*": ["src/routers/*"],
+      "#sql": ["sql/index.ts"],
+      "#logger": ["src/utils/logger.ts"],
+      "#services/*": ["src/services/*"],
+      "#db/*": ["src/db/*"]
+    }
+  },
+
+  "include": ["src/**/*.ts", "mock/**/*.ts"]
+}
