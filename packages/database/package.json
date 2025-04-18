@@ -1,0 +1,32 @@
+{
+  "name": "@etf-visualizer/database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "pkgroll --clean-dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^3.14.0"
+  },
+  "peerDependencies": {
+    "@etf-visualizer/shared": "workspace:*"
+  }
+}

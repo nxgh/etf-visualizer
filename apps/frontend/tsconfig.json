@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "#components/*": ["./components/*"],
+      "#styles/*": ["./styles/*"],
+      "#app/*": ["./app/*"],
+      "#lib/*": ["./lib/*"],
+      "#hooks/*": ["./hooks/*"],
+      "#types/*": ["./types/*"],
+      "#utils/*": ["./utils/*"],
+      "#helper": ["./utils/helper.ts"],
+      "#servers/*": ["./servers/*"],
+      "#api": ["./servers/api/index.ts"],
+      "#api/*": ["./servers/api/*"],
+      "#actions": ["./servers/actions/index.ts"],
+      "#actions/*": ["./servers/actions/*"],
+      "#prisma": ["./prisma/index.ts"],
+      "@shadcn/*": ["./@shadcn/*"],
+      "#logger": ["./servers/logger.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/global.d.ts"],
+  "exclude": ["node_modules"]
+}

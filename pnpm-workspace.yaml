@@ -1,0 +1,4 @@
+packages:
+  - 'apps/**'      # 应用入口项目
+  - 'packages/**'  # 共享模块
+  - '!**/node_modules' 
