@@ -13,9 +13,9 @@ import {
   GetTransactionHostController,
 } from "./stock.controller.ts";
 
-const StockRoute = new Hono().basePath("/stock");
-
-StockRoute.get("/detail", ...GetDetailController)
+export default new Hono()
+  .basePath("/stock")
+  .get("/detail", ...GetDetailController)
   .get("/favorite", ...GetFavoriteController)
   .post("/favorite", ...PostFavoriteController)
   .delete("/favorite", ...DeleteFavoriteController)
@@ -25,5 +25,3 @@ StockRoute.get("/detail", ...GetDetailController)
   .delete("/transaction", ...DeleteTransactionController)
   .get("/transaction/host", ...GetTransactionHostController)
   .post("/transaction/host", ...PostTransactionHostController);
-
-export default StockRoute;

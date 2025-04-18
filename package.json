@@ -6,9 +6,14 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "pnpm --filter @etf-visualizer/server run dev",
-    "ui": "pnpm --filter @etf-visualizer/frontend run dev",
-    "build": "rollup -c"
+    "dev:server": "pnpm --filter @etf-visualizer/server run dev",
+    "dev:web": "pnpm --filter @etf-visualizer/frontend run dev",
+    "build": "pnpm --filter '@etf-visualizer/*' run build",
+    "build:server": "pnpm --filter @etf-visualizer/server run build",
+    "build:db": "pnpm --filter @etf-visualizer/database run build",
+    "build:shared": "pnpm --filter @etf-visualizer/shared run build",
+    "build:spider": "pnpm --filter @etf-visualizer/spider run build",
+    "build:web": "pnpm --filter @etf-visualizer/frontend run build"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +21,7 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
+    "hono": "^4.7.6",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

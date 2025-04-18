@@ -4,9 +4,7 @@ import ResponseResult from "#utils/ResponseResult.ts";
 import { logger } from "@etf-visualizer/shared";
 import SearchService from "./search.service.ts";
 
-const SearchRoute = new Hono();
-
-SearchRoute.get("/search", async (c) => {
+export default new Hono().get("/search", async (c) => {
   const { keyword } = c.req.query();
 
   if (!keyword) {
@@ -22,5 +20,3 @@ SearchRoute.get("/search", async (c) => {
     return c.json(ResponseResult.fail("查询失败", 500));
   }
 });
-
-export default SearchRoute;

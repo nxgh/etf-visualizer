@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
-import Fetcher from "#/fetcher.ts";
-import type { V5StockQuoteJson, StockKlineParams, StockChartKline } from "#types";
+import type Fetcher from "./fetcher.ts";
+import type { V5StockQuoteJson, StockKlineParams, StockChartKline } from "./types/types.d.ts";
 
 class XueQiu {
-  private fetcher: Fetcher;
+  fetcher: Fetcher;
 
   constructor(fetcher: Fetcher) {
     this.fetcher = fetcher;
