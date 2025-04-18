@@ -1,7 +1,10 @@
-import Fetcher from "#/fetcher.ts";
+import type Fetcher from "./fetcher.ts";
 
 class DanJuan {
-  constructor(private fetcher: Fetcher) {}
+  fetcher: Fetcher;
+  constructor(fetcher: Fetcher) {
+    this.fetcher = fetcher;
+  }
 
   async search_by_keyword(keyword: string) {
     return this.fetcher.asyncWrapper<Response[]>(async () => {

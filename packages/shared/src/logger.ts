@@ -31,10 +31,38 @@ const winstonLogger = createLogger({
 
 const info = (message: string, rest: Record<string, unknown> = {}) => {
   const restStr = isEmpty(rest) ? "" : JSON.stringify(rest);
-  if (message.startsWith("!")) {
-    winstonLogger.info(`🔵【${message}】${restStr} ${process.env.PORT}`);
-  } else {
-    winstonLogger.info(`🔷 ${message} ${restStr}`);
+
+  // 定义消息前缀和对应的emoji映射
+  const prefixEmojiMap: Record<string, string> = {
+    "(": "🔴",
+    "*": "🟢",
+    "#": "🔷",
+    ">": "🟧",
+    "-": "🟨",
+    "+": "🟩",
+    "=": "🟦",
+    x: "⛔️",
+    X: "❌",
+    "/": "🚫",
+    o: "⭕️",
+    "!": "❗️",
+    "?": "❓",
+  };
+
+  const hasLeadingEmoji = /^\p{Emoji}/u.test(message);
+  if (hasLeadingEmoji) {
+    winstonLogger.info(`${message} ${restStr} ${process.env.PORT}`);
+    return;
+  }
+
+  // 获取消息的第一个字符
+  const prefix = message[0];
+  const emoji = prefixEmojiMap[prefix];
+
+  if (emoji) {
+    const shouldIncludePort = prefix === "!";
+    const portSuffix = shouldIncludePort ? ` ${process.env.PORT}` : "";
+    winstonLogger.info(`${emoji} ${message}${restStr}${portSuffix}`);
   }
 };
 

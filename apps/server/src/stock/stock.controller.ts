@@ -11,22 +11,11 @@ import ResponseResult from "#utils/ResponseResult.ts";
 
 const factory = createFactory();
 
-const middleware = factory.createMiddleware(async (c, next) => {
-  logger.info("🔴 [Request]", {
-    path: c.req.path,
-    method: c.req.method,
-    query: c.req.query(),
-    body: c.req.raw.body,
-    params: c.req.param(),
-  });
-  await next();
-});
-
 /**
  * @description 获取详情数据
  * @route GET /stock/detail
  */
-export const GetDetailController = factory.createHandlers(middleware, async (c) => {
+export const GetDetailController = factory.createHandlers(async (c) => {
   const { code } = c.req.query();
   logger.info("获取详情数据", { code });
   if (!code) {
