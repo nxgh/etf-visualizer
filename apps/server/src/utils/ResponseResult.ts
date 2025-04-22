@@ -19,3 +19,9 @@ const ResponseResult = {
 };
 
 export default ResponseResult;
+
+export interface ResponseResultType<T> {
+  code: number;
+  data: T;
+  message: string;
+}

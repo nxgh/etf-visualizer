@@ -15,4 +15,5 @@ async function SearchService(keyword: string) {
   }
 }
 
+export type SearchServiceResponse = Awaited<ReturnType<typeof SearchService>>;
 export default SearchService;

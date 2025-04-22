@@ -7,7 +7,7 @@ class DanJuan {
   }
 
   async search_by_keyword(keyword: string) {
-    return this.fetcher.asyncWrapper<Response[]>(async () => {
+    return this.fetcher.asyncWrapper<{ code: string; name: string }[]>(async () => {
       const resp = await this.fetcher.danJuan(
         `https://danjuanfunds.com/djapi/v2/search?key=${keyword}&xq_access_token=bd704c01c13b89ae8fb96b6b04e321ba1f60f3a0&source=index`
       );

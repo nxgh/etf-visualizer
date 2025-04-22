@@ -1,28 +1,15 @@
-import { Button } from "@shadcn/ui/button";
-import { Calendar } from "@shadcn/ui/calendar";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@shadcn/ui/command";
+import SearchSecurityTrigger from "./components/search-security/client/trigger";
+import FavoriteList from "./components/favorite-list";
 
-import SearchSecurity from "#components/search-security";
-
-import localforage from "localforage";
-
-export default async function Home({ operation }: { operation: React.ReactNode }) {
-  // const posts = await getPosts("1599");
-  // console.log(posts);
+export default async function Home() {
   return (
-    <div className="w-full h-full">
-      <main className="flex-1" />
-      <div className="w-[270px] h-full border-l border-gray-200">{operation}</div>
+    <div className="w-full h-full flex">
+      <aside className="w-[300px] h-full border-l border-gray-200 p-4">
+        <SearchSecurityTrigger />
+        <FavoriteList />
+      </aside>
+      <main className="flex-1 p-4">{/* <SearchSecurityList keyword={(searchParams?.sk as string) || ""} /> */}</main>
+      <div className="w-[300px] h-full border-l border-gray-200 p-4" />
     </div>
   );
 }
