@@ -5,7 +5,9 @@ import { z } from "zod";
 
 import { logger } from "@etf-visualizer/shared";
 import { xueQiu } from "#utils/fetcher.ts";
-import * as db from "@etf-visualizer/database";
+import db from "#utils/db.ts";
+
+import type { QueryStockHistoryParams } from "@etf-visualizer/database";
 
 import ResponseResult from "#utils/ResponseResult.ts";
 
@@ -28,7 +30,7 @@ export const GetDetailController = factory.createHandlers(async (c) => {
     return c.json(ResponseResult.fail("获取详情数据失败", 500));
   }
 
-  await db.insertStockDetail({
+  await db.insertSecurityDetail({
     code,
     name: data.quote.name,
     issue_date: dayjs(data.quote.issue_date).toDate(),
@@ -42,7 +44,7 @@ export const GetDetailController = factory.createHandlers(async (c) => {
  * @route GET /stock/favorite
  */
 export const GetFavoriteController = factory.createHandlers(async (c) => {
-  const data = await db.queryStockFavorite();
+  const data = await db.querySecurityFavorite();
 
   return c.json(ResponseResult.success(data));
 });
@@ -58,7 +60,7 @@ export const PostFavoriteController = factory.createHandlers(async (c) => {
     return c.json(ResponseResult.fail("参数错误", 400));
   }
 
-  const data = await db.queryStockDetail(code);
+  const data = await db.querySecurityDetail(code);
 
   if (!data) {
     return c.json(ResponseResult.fail("代码不存在", 400));
@@ -84,7 +86,7 @@ export const DeleteFavoriteController = factory.createHandlers(async (c) => {
     return c.json(ResponseResult.fail("参数错误", 400));
   }
 
-  const data = await db.queryStockDetail(code);
+  const data = await db.querySecurityDetail(code);
 
   if (!data) {
     return c.json(ResponseResult.fail("代码不存在", 400));
@@ -128,7 +130,7 @@ export const GetHistoryController = factory.createHandlers(async (c) => {
       }
     }
 
-    const detailData = await db.queryStockDetail(code);
+    const detailData = await db.querySecurityDetail(code);
     const issue_date = detailData?.issue_date;
 
     const _begin = lastData?.timestamp || issue_date;
@@ -144,7 +146,7 @@ export const GetHistoryController = factory.createHandlers(async (c) => {
       return c.json(ResponseResult.fail("获取K线数据失败", 500));
     }
 
-    await db.insertFinancialHistory(data as unknown as db.QueryStockHistoryParams[]);
+    await db.insertFinancialHistory(data as unknown as QueryStockHistoryParams[]);
 
     return c.json(ResponseResult.success(data.length));
   } catch (error) {

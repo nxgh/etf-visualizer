@@ -1,4 +1,4 @@
-export interface QueryStockDetailResult {
+export interface QuerySecurityDetailResult {
   code: string;
   name: string;
   issue_date: string;
@@ -27,7 +27,6 @@ export type Close = number;
 export type Code = string;
 export type Timestamp = string;
 
-
 export interface Transaction {
   id?: number;
   code: string;
@@ -37,4 +36,23 @@ export interface Transaction {
   volume: number;
   profit?: number;
   profit_rate?: number;
+}
+
+export interface Logger {
+  info: (message: string, rest?: Record<string, unknown>) => void;
+  error: (message: string, rest?: Record<string, unknown> | unknown) => void;
+}
+
+export interface DatabaseConfig {
+  host: string;
+  user: string;
+  password: string;
+  database: string;
+  waitForConnections?: boolean;
+  connectionLimit?: number;
+  maxIdle?: number;
+  idleTimeout?: number;
+  queueLimit?: number;
+  enableKeepAlive?: boolean;
+  keepAliveInitialDelay?: number;
 }

@@ -10,7 +10,7 @@ class XueQiu {
   }
 
   async search_by_keyword(keyword: string) {
-    return this.fetcher.asyncWrapper<Response[]>(async () => {
+    return this.fetcher.asyncWrapper<{ code: string; name: string }[]>(async () => {
       const resp = await this.fetcher.xueqiu(`https://xueqiu.com/query/v1/suggest_stock.json?q=${keyword}&count=5`);
       const data = await resp.json();
       if (data.code !== 200 && !data.success) {
