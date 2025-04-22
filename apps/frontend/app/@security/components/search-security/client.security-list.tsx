@@ -1,24 +1,13 @@
-"use client";
-
 import type { SearchServiceResponse } from "@etf-visualizer/server";
-import { Button } from "@shadcn/ui/button";
-import { Card, CardContent } from "@shadcn/ui/card";
-import { Command, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
+import { Command, CommandList, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
 
-import { isEmpty } from "lodash-es";
-import { DiamondPlus } from "lucide-react";
-import { addFavorite } from "../action";
-function AddFavorite({ code, name }: { code: string; name: string }) {
-  return (
-    <Button variant="ghost" size="icon" className="hover:bg-gray-200 rounded-full" onClick={() => {
-      addFavorite(code, name);
-    }}>
-      <DiamondPlus className="hover:text-red-500" />
-    </Button>
-  );
-}
+import AddFavorite from "./client.add-favorite";
+import { getFavorites } from "./action";
 
-export default function SearchSecurityList({ list }: { list: SearchServiceResponse | null }) {
+// TODO:
+type itemType = { code: string; name: string; isFavorite?: boolean };
+
+export default function SearchSecurityList({ list }: { list: { stock?: itemType[]; fund: itemType[] } | null }) {
   const { stock, fund } = list || {};
 
   return (
@@ -30,7 +19,8 @@ export default function SearchSecurityList({ list }: { list: SearchServiceRespon
               <span className="text-sm">{item.code}</span>
               <span className="text-sm flex items-center gap-2">
                 {item.name}
-                <AddFavorite code={item.code} name={item.name} />
+
+                {item?.isFavorite ? <span className="text-red-500">❤️</span> : <AddFavorite code={item.code} name={item.name} />}
               </span>
             </CommandItem>
           ))}
@@ -42,7 +32,8 @@ export default function SearchSecurityList({ list }: { list: SearchServiceRespon
               <span className="text-sm">{item.code}</span>
               <span className="text-sm flex items-center gap-2">
                 {item.name}
-                <AddFavorite code={item.code} name={item.name} />
+
+                {item?.isFavorite ? <span className="text-red-500">❤️</span> : <AddFavorite code={item.code} name={item.name} />}
               </span>
             </CommandItem>
           ))}

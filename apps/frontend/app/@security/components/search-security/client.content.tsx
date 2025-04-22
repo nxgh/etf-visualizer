@@ -4,10 +4,22 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 
 import { Input } from "@shadcn/ui/input";
 
-import { searchSecurity } from "../action";
-import SecurityList from "./security-list";
-import type { SearchServiceResponse, ResponseResultType } from "@etf-visualizer/server";
+import { searchSecurity } from "./action";
+import SecurityList from "./client.security-list";
+import type { ResponseResultType } from "@etf-visualizer/server";
 import { debounce } from "lodash-es";
+
+// TODO:
+type SearchServiceResponseItem = {
+  code: string;
+  name: string;
+  isFavorite?: boolean;
+};
+
+type SearchServiceResponse = {
+  stock: SearchServiceResponseItem[];
+  fund: SearchServiceResponseItem[];
+};
 
 export default function SearchSecurityContent() {
   const [keyword, setKeyword] = useState("");
@@ -22,7 +34,7 @@ export default function SearchSecurityContent() {
           return;
         }
         searchSecurity(kw).then((res) => {
-          setData(res);
+          setData(res as unknown as SearchServiceResponse);
         });
       }, 1000),
     []
@@ -34,7 +46,6 @@ export default function SearchSecurityContent() {
     };
   }, [debouncedSearch]);
 
-  // 直接在 onChange 事件中使用防抖函数
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setKeyword(value);
