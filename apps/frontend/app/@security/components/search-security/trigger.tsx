@@ -1,8 +1,5 @@
-"use client";
-
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@shadcn/ui/dialog";
-import { Input } from "@shadcn/ui/input";
-import SearchSecurityContent from "./content";
+import SearchSecurityContent from "./client.content";
 
 export default function SearchSecurity() {
   return (
@@ -18,11 +15,11 @@ export default function SearchSecurity() {
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent >
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Search Security</DialogTitle>
         </DialogHeader>
-        <SearchSecurityContent  />
+        <SearchSecurityContent />
       </DialogContent>
     </Dialog>
   );

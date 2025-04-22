@@ -1,5 +1,7 @@
-import { logger } from "@etf-visualizer/shared";
-import Database from "@etf-visualizer/database";
+import 'dotenv/config'
+
+import { logger } from '@etf-visualizer/shared'
+import Database from '@etf-visualizer/database'
 
 const db = new Database(
   {
@@ -9,6 +11,6 @@ const db = new Database(
     database: process.env.DB_NAME!,
   },
   logger
-);
+)
 
-export default db;
+export default db

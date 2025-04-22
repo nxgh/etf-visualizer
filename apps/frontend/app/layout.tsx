@@ -10,15 +10,16 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-  operation,
+  security,
 }: Readonly<{
   children: React.ReactNode;
-  operation: React.ReactNode;
+  security: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className="flex w-screen h-screen overflow-hidden">
         <NuqsAdapter>
+          {security}
           <main className="flex-1">{children}</main>
         </NuqsAdapter>
       </body>
