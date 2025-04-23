@@ -6,8 +6,8 @@ async function SearchService(keyword: string) {
     const stockList = await xueQiu.search_by_keyword(keyword);
     const fundList = await danJuan.search_by_keyword(keyword);
     return {
-      stock: stockList,
-      fund: fundList,
+      stock: stockList!,
+      fund: fundList!,
     };
   } catch (error) {
     logger.error(`Get SearchList ${keyword} Failed`, error);

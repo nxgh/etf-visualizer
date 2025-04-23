@@ -290,26 +290,11 @@ AND timestamp between ? and ?;
    */
   async queryTransaction(code?: string) {
     try {
-      const select = "SELECT id, code, timestamp, type, price, volume FROM transactions ";
-      const sql = code ? `${select} WHERE is_host = 0 AND code = ?` : select;
+      const sql = "SELECT id, code, timestamp, type, price, volume, profit, profit_rate, is_host FROM transactions WHERE code = ?";
       const [result] = await this.pool.query(sql, [code]);
       return result as Transaction[];
     } catch (error) {
       this.logger.error("查询交易数据失败", { error });
-      throw error;
-    }
-  }
-
-  /**
-   * @description 查询主理人交易数据
-   */
-  async queryTransactionHost(code?: string) {
-    try {
-      const sql = `SELECT id, code, timestamp, type, price, volume FROM transactions WHERE is_host = 1 AND code = ?`;
-      const [result] = await this.pool.query(sql, [code]);
-      return result as Transaction[];
-    } catch (error) {
-      this.logger.error("查询主理人交易数据失败", { error });
       throw error;
     }
   }
