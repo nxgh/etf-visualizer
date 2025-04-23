@@ -1,4 +1,5 @@
-import "./env-config.ts";
+// import "./env-config.ts";
+// import "dotenv/config";
 
 import DataBase from "@etf-visualizer/database";
 import { logger } from "@etf-visualizer/shared";

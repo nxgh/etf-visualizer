@@ -36,6 +36,7 @@ export interface Transaction {
   volume: number;
   profit?: number;
   profit_rate?: number;
+  is_host?: boolean;
 }
 
 export interface Logger {

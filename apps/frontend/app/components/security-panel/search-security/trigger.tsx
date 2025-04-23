@@ -1,9 +1,18 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@shadcn/ui/dialog";
-import SearchSecurityContent from "./client.content";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@shadcn/ui/dialog";
 
-export default function SearchSecurity() {
+import { useSecurityStore } from "../use-store";
+
+export default function SearchSecurity({ children }: { children: React.ReactNode }) {
+  const setSearchData = useSecurityStore((state) => state.setSearchData);
+
+  function onOpenChange(open: boolean) {
+    if (!open) {
+      setSearchData();
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger>
         <div className="flex items-center gap-2 relative">
           <div className="inline-flex items-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground px-4 py-2 relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-56 xl:w-64">
@@ -19,7 +28,7 @@ export default function SearchSecurity() {
         <DialogHeader>
           <DialogTitle>Search Security</DialogTitle>
         </DialogHeader>
-        <SearchSecurityContent />
+        {children}
       </DialogContent>
     </Dialog>
   );
