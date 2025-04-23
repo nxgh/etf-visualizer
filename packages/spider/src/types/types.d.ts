@@ -1,19 +1,25 @@
-import type { ConfigType } from "dayjs";
+import type { ConfigType } from 'dayjs'
 
-export type * from "./stock-quote-json.d.ts";
+export type * from './stock-quote-json.d.ts'
 
 export type StockKlineParams = {
-  code: string;
-  begin: ConfigType;
-  end: ConfigType;
-};
+  code: string
+  begin: ConfigType
+  end: ConfigType
+}
 
 export type StockChartKline = {
-  code: string;
-  timestamp: Date;
-  volume: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-};
+  code: string
+  timestamp: Date
+  volume: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+export interface StockItem {
+  name: string
+  code: string
+}
+export type FundItem = StockItem

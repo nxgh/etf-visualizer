@@ -22,21 +22,11 @@
     "baseUrl": ".",
     "paths": {
       "#components/*": ["./components/*"],
-      "#styles/*": ["./styles/*"],
-      "#app/*": ["./app/*"],
-      "#lib/*": ["./lib/*"],
-      "#hooks/*": ["./hooks/*"],
-      "#types/*": ["./types/*"],
-      "#utils/*": ["./utils/*"],
-      "#helper": ["./utils/helper.ts"],
-      "#servers/*": ["./servers/*"],
-      "#api": ["./servers/api/index.ts"],
-      "#api/*": ["./servers/api/*"],
-      "#actions": ["./servers/actions/index.ts"],
-      "#actions/*": ["./servers/actions/*"],
-      "#prisma": ["./prisma/index.ts"],
+      "#actions/*": ["./actions/*"],
       "@shadcn/*": ["./@shadcn/*"],
-      "#logger": ["./servers/logger.ts"]
+      "#store": ["./stores/index.ts"],
+      "#styles/*": ["./styles/*"],
+      "#utils/*": ["./utils/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/global.d.ts"],
