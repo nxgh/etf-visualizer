@@ -1,26 +1,27 @@
-import type Fetcher from "./fetcher.ts";
+import type Fetcher from './fetcher.ts'
+import type { FundItem } from './types/types.js'
 
 class DanJuan {
-  fetcher: Fetcher;
+  fetcher: Fetcher
   constructor(fetcher: Fetcher) {
-    this.fetcher = fetcher;
+    this.fetcher = fetcher
   }
 
   async search_by_keyword(keyword: string) {
-    return this.fetcher.asyncWrapper<{ code: string; name: string }[]>(async () => {
+    return this.fetcher.asyncWrapper<FundItem[]>(async () => {
       const resp = await this.fetcher.danJuan(
         `https://danjuanfunds.com/djapi/v2/search?key=${keyword}&xq_access_token=bd704c01c13b89ae8fb96b6b04e321ba1f60f3a0&source=index`
-      );
-      const data = await resp.json();
+      )
+      const data = await resp.json()
       if (data.result_code !== 0) {
-        return data;
+        return data
       }
       return data?.data.items.map((i: { scode: string; sname: string }) => ({
         code: i.scode,
         name: i.sname,
-      }));
-    }, "获取基金列表");
+      }))
+    }, '获取基金列表')
   }
 }
 
-export default DanJuan;
+export default DanJuan

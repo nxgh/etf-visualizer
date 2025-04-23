@@ -2,23 +2,21 @@
 
 import { Command, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
 
-import { useSecurityStore } from "../use-store";
-import { removeFavorite } from "../action";
+import { useWatchListStore } from "#store";
 import { useRouter } from "next/navigation";
 
-export default function FavoriteList() {
+export default function WatchList() {
   const router = useRouter();
-  const favoriteList = useSecurityStore((state) => state.favoriteList);
+  const watchList = useWatchListStore((state) => state.watchList);
 
-  const removeFavoriteList = useSecurityStore((state) => state.removeFavoriteList);
+  const removeFavoriteList = useWatchListStore((state) => state.removeFromWatchList);
 
   const handleRemoveFavorite = (code: string) => {
-    removeFavorite(code);
     removeFavoriteList(code);
   };
 
   const handleClickItem = (code: string) => {
-    router.push(`/security/${code}`);
+    router.push(`?code=${code}`);
   };
 
   return (
@@ -26,7 +24,7 @@ export default function FavoriteList() {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Favorite">
-          {favoriteList?.map((item) => (
+          {watchList?.map((item) => (
             <CommandItem key={item.code} className="flex justify-between cursor-pointer">
               <div className="text-sm flex items-center justify-between gap-2 w-full" onClick={() => handleClickItem(item.code)}>
                 <span>{item.code}</span>
