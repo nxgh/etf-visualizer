@@ -25,6 +25,7 @@
       "#actions/*": ["./actions/*"],
       "@shadcn/*": ["./@shadcn/*"],
       "#store": ["./stores/index.ts"],
+      "#store/*": ["./stores/*"],
       "#styles/*": ["./styles/*"],
       "#utils/*": ["./utils/*"]
     }
