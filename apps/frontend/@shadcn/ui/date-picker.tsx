@@ -12,9 +12,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@shadcn/ui/popover";
 export function DatePicker({
   onSelect = (date: Date) => {},
   value = new Date(),
+  className,
 }: {
   onSelect: (date: Date) => void;
   value: Date;
+  className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -23,7 +25,7 @@ export function DatePicker({
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
-          className={cn("justify-start text-left font-normal", !value && "text-muted-foreground")}
+          className={cn("justify-start text-left font-normal", !value && "text-muted-foreground", className)}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? format(value, "yyyy-MM-dd") : <span>Pick a date</span>}

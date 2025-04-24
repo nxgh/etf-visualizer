@@ -5,7 +5,11 @@ export default async function Home() {
   return (
     <div className="w-full h-full flex">
       <WatchList />
-      <TransactionTable />
+
+      <div className="h-full flex-1">
+        <div className="h-1/2"></div>
+        <TransactionTable className="h-1/2" />
+      </div>
     </div>
   );
 }
