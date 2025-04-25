@@ -27,8 +27,10 @@ export default function WatchList() {
           {watchList?.map((item) => (
             <CommandItem key={item.code} className="flex justify-between cursor-pointer">
               <div className="text-sm flex items-center justify-between gap-2 w-full" onClick={() => handleClickItem(item.code)}>
-                <span>{item.code}</span>
-                <span>{item.name}</span>
+                <span>
+                  {item.name}
+                  <span className="text-xs text-gray-500"> [{item.code}]</span>
+                </span>
               </div>
               <span className="text ml-2 hover:bg-gray-200 rounded-full p-1" onClick={() => handleRemoveFavorite(item.code)}>
                 ❌

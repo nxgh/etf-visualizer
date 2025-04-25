@@ -6,7 +6,7 @@
  * @param {T} data - 枚举对象，例如 {apple: '苹果', banana: '🍌' }
  * @returns {{ [K in keyof T]: { value: T[K]; key: K;  } }}
  * @example
- * const TabEnum = createEnums({apple: '苹果', banana: '🍌' });
+ * const TabEnum = createEnums({apple: '苹果', banana: '🍌' } as const);
  *
  * TabEnum.apple.value // '苹果'
  * TabEnum.apple.key // 'apple'
