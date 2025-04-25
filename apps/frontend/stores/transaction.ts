@@ -36,7 +36,7 @@ export const getRowData = (): TransactionType => ({
 
 interface TransactionState {
   transactions: TransactionType[];
-  insertTransactions: (transactions: TransactionType[]) => void;
+  initTransactions: (transactions: TransactionType[]) => void;
   insertTransaction: () => void;
   updateTransaction: (transaction: TransactionType) => void;
   removeTransaction: (transaction: TransactionType) => void;
@@ -46,7 +46,7 @@ export const useTransactionStore = create<TransactionState>()(
   persist(
     (set, get) => ({
       transactions: [],
-      insertTransactions: (transactions: TransactionType[]) => {
+      initTransactions: (transactions: TransactionType[]) => {
         set({ transactions });
       },
       insertTransaction: () => {

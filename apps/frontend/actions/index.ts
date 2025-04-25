@@ -1,8 +1,7 @@
 "use server";
 import { xueQiu, danJuan } from "#utils/fetcher";
-import type { StockItem, FundItem } from "@etf-visualizer/spider";
 
-export type SearchResponse = (StockItem & { type: "stock" | "fund" })[];
+export type SearchResponse = { name: string; code: string; type: "stock" | "fund" }[];
 
 export async function searchSecurityAction(keyword: string) {
   if (!keyword) return null;
