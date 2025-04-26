@@ -8,11 +8,10 @@ import { Input } from "@shadcn/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shadcn/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@shadcn/ui/tooltip";
 
-import { Show } from "#components/show";
+import { Show } from "@shadcn/component/show";
+import SimpleTable from "@shadcn/component/table";
 
 import type { TransactionType } from "#store/transaction";
-
-import SimpleTable from "#components/table";
 
 import { cn } from "@shadcn/lib/utils";
 export interface IProps {
