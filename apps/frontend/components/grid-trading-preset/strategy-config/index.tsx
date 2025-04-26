@@ -12,7 +12,7 @@ import SimpleSelect from "@shadcn/component/select";
 import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 import { omit } from "lodash-es";
 import { useQueryState, parseAsString } from "nuqs";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 interface FormRowsType {
   label: string;
@@ -24,31 +24,20 @@ interface FormRowsType {
 }
 
 export default function TransactionPresetSetting() {
-  const watchList = useWatchListStore((state) => state.watchList);
-
   const searchParams = useSearchParams();
+  const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
-  const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") || ""));
+  const watchList = useWatchListStore((state) => state.watchList);
   const strategyStore = useGridTradeStrategyStore((state) => state.presetList);
+  const insert = useGridTradeStrategyStore((state) => state.insert);
+  const update = useGridTradeStrategyStore((state) => state.update);
 
   const [form, setForm] = useState<GridTradeStrategyConfigType>(GridTradeStrategyConfig.craete());
 
-  const insert = useGridTradeStrategyStore((state) => state.insert);
-  const update = useGridTradeStrategyStore((state) => state.update);
-  console.log(
-    "strategy 》》》》》》》》??????",
-    strategyStore.find((item) => String(item.id) === String(strategyId))
-  );
-
   useEffect(() => {
-    console.log("strategyId", strategyId);
-    if (strategyId) {
-      const strategy = strategyStore.find((item) => String(item.id) === String(strategyId));
-
-      console.log("strategy ?????????", strategy, strategyStore);
-      if (strategy) {
-        setForm(strategy);
-      }
+    const strategy = strategyStore.find((item) => item.id === Number(strategyId));
+    if (strategyId && strategy) {
+      setForm(strategy);
     }
   }, [strategyId, strategyStore]);
 
@@ -63,7 +52,6 @@ export default function TransactionPresetSetting() {
       update(form);
       return;
     }
-    // const transactions = generateTransactionPreset(Number(form.basePrice), Number(form.priceIncrease), Number(form.priceDecline));
     insert(form);
   };
 
@@ -90,12 +78,10 @@ export default function TransactionPresetSetting() {
           <SimpleSelect
             placeholder="请选择交易品种"
             options={options}
-            value={form.tradingPair}
+            value={form.tradingPair ?? ""}
             onValueChange={(e, option) => {
-              if (!form.gridName) {
-                updateForm("gridName", `${option.label}`);
-              }
-              updateForm("tradingPair", option?.value);
+              !form.gridName && updateForm("gridName", `${option.label}`);
+              option?.value && updateForm("tradingPair", option.value);
             }}
           />
         );
