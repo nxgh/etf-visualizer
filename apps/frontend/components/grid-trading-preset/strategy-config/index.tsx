@@ -1,0 +1,205 @@
+import { useEffect, useMemo, useState } from "react";
+
+import { Button } from "@shadcn/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@shadcn/ui/card";
+import { Input } from "@shadcn/ui/input";
+import { Label } from "@shadcn/ui/label";
+
+import type GridTradeStrategyConfigType from "./strategy-config.type";
+import GridTradeStrategyConfig from "./strategy-config.helper";
+import SimpleSelect from "@shadcn/component/select";
+
+import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
+import { omit } from "lodash-es";
+import { useQueryState, parseAsString } from "nuqs";
+import { usePathname, useSearchParams } from "next/navigation";
+
+interface FormRowsType {
+  label: string;
+  key: keyof GridTradeStrategyConfigType;
+  type?: "text" | "number" | "switch";
+  value?: string | number | boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  render?: (row: FormRowsType) => React.ReactNode;
+}
+
+export default function TransactionPresetSetting() {
+  const watchList = useWatchListStore((state) => state.watchList);
+
+  const searchParams = useSearchParams();
+
+  const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") || ""));
+  const strategyStore = useGridTradeStrategyStore((state) => state.presetList);
+
+  const [form, setForm] = useState<GridTradeStrategyConfigType>(GridTradeStrategyConfig.craete());
+
+  const insert = useGridTradeStrategyStore((state) => state.insert);
+  const update = useGridTradeStrategyStore((state) => state.update);
+  console.log(
+    "strategy 》》》》》》》》??????",
+    strategyStore.find((item) => String(item.id) === String(strategyId))
+  );
+
+  useEffect(() => {
+    console.log("strategyId", strategyId);
+    if (strategyId) {
+      const strategy = strategyStore.find((item) => String(item.id) === String(strategyId));
+
+      console.log("strategy ?????????", strategy, strategyStore);
+      if (strategy) {
+        setForm(strategy);
+      }
+    }
+  }, [strategyId, strategyStore]);
+
+  const updateForm = (key: keyof GridTradeStrategyConfigType, value: string | number | boolean) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const isExist = useMemo(() => strategyStore.find((item) => item.id === form.id), [form, strategyStore]);
+
+  const setDetail = () => {
+    if (isExist) {
+      update(form);
+      return;
+    }
+    // const transactions = generateTransactionPreset(Number(form.basePrice), Number(form.priceIncrease), Number(form.priceDecline));
+    insert(form);
+  };
+
+  const options = watchList.map((item) => {
+    return {
+      label: item.name,
+      value: item.code,
+    };
+  });
+
+  const FormRows: FormRowsType[] = [
+    {
+      label: "网格名称",
+      key: "gridName",
+      type: "text",
+      value: form.gridName,
+      onChange: (e) => updateForm("gridName", e.target.value),
+    },
+    {
+      label: "交易品种",
+      key: "tradingPair",
+      render: () => {
+        return (
+          <SimpleSelect
+            placeholder="请选择交易品种"
+            options={options}
+            value={form.tradingPair}
+            onValueChange={(e, option) => {
+              if (!form.gridName) {
+                updateForm("gridName", `${option.label}`);
+              }
+              updateForm("tradingPair", option?.value);
+            }}
+          />
+        );
+      },
+    },
+    {
+      label: "基准价格",
+      key: "basePrice",
+      type: "number",
+      value: form.basePrice,
+      onChange: (e) => updateForm("basePrice", Number(e.target.valueAsNumber)),
+    },
+    {
+      label: "涨幅 (%)",
+      key: "priceIncrease",
+      type: "number",
+      value: form.priceIncrease,
+      onChange: (e) => updateForm("priceIncrease", Number(e.target.valueAsNumber)),
+    },
+    {
+      label: "跌幅 (%)",
+      key: "priceDecline",
+      type: "number",
+      value: form.priceDecline,
+      onChange: (e) => updateForm("priceDecline", Number(e.target.valueAsNumber)),
+    },
+    {
+      label: "压力测试",
+      key: "stressTest",
+      type: "number",
+      value: form.stressTest,
+      onChange: (e) => updateForm("stressTest", Number(e.target.valueAsNumber)),
+    },
+    {
+      label: "逐格加码",
+      key: "gridStepIncrement",
+      type: "number",
+      value: form.gridStepIncrement,
+      onChange: (e) => updateForm("gridStepIncrement", Number(e.target.valueAsNumber)),
+    },
+    {
+      label: "利润留存 (%)",
+      key: "profitRetention",
+      type: "number",
+      value: form.profitRetention,
+      onChange: (e) => updateForm("profitRetention", Number(e.target.valueAsNumber)),
+    },
+  ];
+
+  const formComplete = useMemo(() => {
+    const requiredFields = omit(form, ["stressTest", "gridStepIncrement", "profitRetention"]);
+    const res = Object.values(requiredFields).every((item) => {
+      if (typeof item === "number") {
+        return item > 0;
+      }
+      return item !== "" && item !== undefined;
+    });
+
+    return !res;
+  }, [form]);
+
+  function onCancel() {
+    setStrategyId(null);
+    setForm(GridTradeStrategyConfig.craete());
+  }
+
+  return (
+    <Card className="w-[350px]">
+      <CardHeader>
+        <CardTitle>网格交易预设</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div className="grid w-full items-center gap-4">
+            {FormRows.map((row) => (
+              <div key={row.key} className="flex flex-col space-y-1.5">
+                <Label htmlFor={row.key}>{row.label}</Label>
+                {row?.render ? (
+                  row?.render(row)
+                ) : (
+                  <Input
+                    id={row.key}
+                    type={row.type}
+                    placeholder={row.type === "text" ? `${row.label}` : undefined}
+                    value={row.value as string}
+                    onChange={row.onChange}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button variant="outline" onClick={onCancel}>
+          取消
+        </Button>
+        <Button disabled={formComplete} onClick={setDetail}>
+          {isExist ? "更新" : "添加"}预设
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+export type { GridTradeStrategyConfigType };
+export { GridTradeStrategyConfig };

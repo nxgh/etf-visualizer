@@ -1,4 +1,4 @@
-import { storage } from "#store";
+import storage from "./idb-storage";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import dayjs from "dayjs";

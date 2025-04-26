@@ -1,4 +1,4 @@
-@import url("https://chinese-fonts-cdn.deno.dev/packages/lxgwwenkai/dist/lxgwwenkai-light/result.css");
+/* @import url("https://chinese-fonts-cdn.deno.dev/packages/lxgwwenkai/dist/lxgwwenkai-light/result.css"); */
 
 @tailwind base;
 @tailwind components;
@@ -77,8 +77,6 @@ body {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -87,4 +85,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-

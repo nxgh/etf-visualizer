@@ -1,13 +1,20 @@
 "use client";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@shadcn/ui/card";
 
 import WatchList from "./watch-list";
 import SearchDialog from "./search-dialog";
+import { Car } from "lucide-react";
 
-export default function Page() {
+export default function WatchListIndex() {
   return (
-    <aside className="w-[300px] h-full border-l border-gray-200 p-4">
-      <SearchDialog />
-      <WatchList />
-    </aside>
+    <Card className="h-[600px]">
+      <CardHeader>
+        <CardTitle>Watch List</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <SearchDialog />
+        <WatchList />
+      </CardContent>
+    </Card>
   );
 }

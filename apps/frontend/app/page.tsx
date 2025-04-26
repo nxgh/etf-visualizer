@@ -9,8 +9,8 @@ export default async function Home() {
 
       <div className="h-full flex-1">
         {/* <div className="h-1/2"></div> */}
-        <GridTradingPreset className="h-1/2" />
-        <TransactionTable className="h-1/2" />
+        <GridTradingPreset className="h-full" />
+        {/* <TransactionTable className="h-1/2" /> */}
       </div>
     </div>
   );

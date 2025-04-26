@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenvx run -f ../../.env -- next dev -p 3001",
+    "dev": "dotenvx run -f ../../.env -- next dev --turbo -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
