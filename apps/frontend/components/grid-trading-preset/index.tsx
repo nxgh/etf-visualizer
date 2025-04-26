@@ -17,32 +17,34 @@ export default function GridTradingPreset({ className }: { className?: string })
 
   const router = useRouter();
 
-  useEffect(() => {
-    try {
-      const search = window.location.search;
-      const searchParams = new URLSearchParams(search);
-      const strategy = searchParams.get("strategy");
-      if (strategy) {
-        console.log("strategy", strategy);
-        setStrategyId(strategy);
-      }
-    } catch (error) {}
-  }, []);
+  // useEffect(() => {
+  //   try {
+  //     const search = window.location.search;
+  //     const searchParams = new URLSearchParams(search);
+  //     const strategy = searchParams.get("strategy");
+  //     if (strategy) {
+  //       console.log("strategy", strategy);
+  //       setStrategyId(strategy);
+  //     }
+  //   } catch (error) {}
+  // }, []);
 
   return (
     <div className={cn("w-full flex  gap-2", className)}>
-      <GridTradingPresetList
-        list={strategyConfig}
-        className="w-[300px] !w-min-[300px]  h-[400px]"
-        onRemove={(item) => {
-          if (String(item.id) === String(strategyId)) setStrategyId(null);
-          remove(item);
-        }}
-        onClick={(id) => setStrategyId(id)}
-      />
+      <div className="flex flex-col">
+        <GridTradingPresetList
+          list={strategyConfig}
+          className="w-[300px] !w-min-[300px]  h-[400px]"
+          onRemove={(item) => {
+            if (String(item.id) === String(strategyId)) setStrategyId(null);
+            remove(item);
+          }}
+          onClick={(id) => setStrategyId(id)}
+        />
+        <GridTradingPresetSetting />
+      </div>
       <div>
         <div className="flex gap-2">
-          <GridTradingPresetSetting />
           <GridTradingPresetTable />
         </div>
       </div>

@@ -21,7 +21,7 @@ export default function SimpleSelect(props: SimpleSelectProps) {
     onValueChange(e, options?.find((option) => option.value === e)!);
   }
   return (
-    <Select value={value} onValueChange={onChange} defaultValue={defaultValue}>
+    <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={cn(className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
