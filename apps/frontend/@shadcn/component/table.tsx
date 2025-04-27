@@ -16,29 +16,43 @@ interface SimpleTableProps {
   data: unknown[];
 }
 
+export function SimpleTableHeader({ columns }: { columns: SimpleTableProps["columns"] }) {
+  return (
+    <TableHeader>
+      <TableRow>
+        {columns.map((column) => (
+          <TableHead key={column.key} className={cn(column?.headerClassName)}>
+            {column.headerRender ? column.headerRender() : column.label}
+          </TableHead>
+        ))}
+      </TableRow>
+    </TableHeader>
+  );
+}
+
+export function SimpleTableBody({ columns, data }: SimpleTableProps) {
+  return (
+    <TableBody>
+      {data.map((item, index) => (
+        <TableRow key={get(item, "id", index)}>
+          {columns.map((column) => (
+            <TableCell key={column.key} className={cn(column?.cellClassName)}>
+              {column.render ? column.render(item, index) : (item as any)[column.key]}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+    </TableBody>
+  );
+}
+
 export default function SimpleTable({ columns, data }: SimpleTableProps) {
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
-          {columns.map((column) => (
-            <TableHead key={column.key} className={cn(column?.headerClassName)}>
-              {column.headerRender ? column.headerRender() : column.label}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((item, index) => (
-          <TableRow key={get(item, "id", index)}>
-            {columns.map((column) => (
-              <TableCell key={column.key} className={cn(column?.cellClassName)}>
-                {column.render ? column.render(item, index) : (item as any)[column.key]}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
+      <SimpleTableHeader columns={columns} />
+      <SimpleTableBody columns={columns} data={data} />
     </Table>
   );
 }
+
+export { Table, TableHeader, TableBody, TableHead, TableRow, TableCell, SimpleTable };

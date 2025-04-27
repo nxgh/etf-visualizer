@@ -22,6 +22,11 @@ export default interface GridTradeStrategyConfig {
   basePrice: number;
 
   /**
+   * @description 买入数量 (Buy quantity)
+   */
+  buyVolume: number;
+
+  /**
    * @description 涨幅 (Price increase percentage threshold)
    */
   priceIncrease: number;
