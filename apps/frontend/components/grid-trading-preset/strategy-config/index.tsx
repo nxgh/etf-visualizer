@@ -1,24 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-
-import { Button } from "@shadcn/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@shadcn/ui/card";
-import { Input } from "@shadcn/ui/input";
-import { Label } from "@shadcn/ui/label";
-import SimpleCard from "@shadcn/component/card";
-
-import type GridTradeStrategyConfigType from "./strategy-config.type";
-import GridTradeStrategyConfig from "./strategy-config.helper";
-import SimpleSelect from "@shadcn/component/select";
-
-import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 import { omit } from "lodash-es";
 import { useQueryState, parseAsString } from "nuqs";
 import { useSearchParams } from "next/navigation";
+
 import { cn } from "@shadcn/lib/utils";
+import { Button } from "@shadcn/ui/button";
+import { Input } from "@shadcn/ui/input";
+import { Label } from "@shadcn/ui/label";
+import SimpleCard from "@shadcn/component/card";
+import SimpleSelect from "@shadcn/component/select";
+
+import { type IGridTradeStrategyConfig, createStrategy } from "#store/model";
+import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 
 interface FormRowsType {
   label: string;
-  key: keyof GridTradeStrategyConfigType;
+  key: keyof IGridTradeStrategyConfig;
   type?: "text" | "number" | "switch";
   value?: string | number | boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -34,7 +31,7 @@ export default function TransactionPresetSetting({ className }: { className?: st
   const insert = useGridTradeStrategyStore((state) => state.insert);
   const update = useGridTradeStrategyStore((state) => state.update);
 
-  const [form, setForm] = useState<GridTradeStrategyConfigType>(GridTradeStrategyConfig.create());
+  const [form, setForm] = useState<IGridTradeStrategyConfig>(createStrategy());
 
   useEffect(() => {
     const strategy = strategyStore.find((item) => item.id === Number(strategyId));
@@ -43,7 +40,7 @@ export default function TransactionPresetSetting({ className }: { className?: st
     }
   }, [strategyId, strategyStore]);
 
-  const updateForm = (key: keyof GridTradeStrategyConfigType, value: string | number | boolean) => {
+  const updateForm = (key: keyof IGridTradeStrategyConfig, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -154,7 +151,7 @@ export default function TransactionPresetSetting({ className }: { className?: st
 
   function onCancel() {
     setStrategyId(null);
-    setForm(GridTradeStrategyConfig.create());
+    setForm(createStrategy());
   }
 
   return (
@@ -195,6 +192,3 @@ export default function TransactionPresetSetting({ className }: { className?: st
     </SimpleCard>
   );
 }
-
-export type { GridTradeStrategyConfigType };
-export { GridTradeStrategyConfig };

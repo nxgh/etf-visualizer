@@ -4,10 +4,10 @@ import { Command, CommandInput, CommandItem, CommandList } from "@shadcn/ui/comm
 
 import { cn } from "@shadcn/lib/utils";
 import { Card } from "@shadcn/ui/card";
-import type GridTradeStrategyConfigType from "../strategy-config/strategy-config.type";
 import { Button } from "@shadcn/ui/button";
 import { useGridTradeStrategyStore } from "#store";
 import { useQueryState } from "nuqs";
+import { type IGridTradeStrategyConfig } from "#store/model";
 
 interface IProps {
   className?: string;
@@ -17,7 +17,7 @@ export default function GridTradingPresetList({ className }: IProps) {
   const presetList = useGridTradeStrategyStore((state) => state.presetList);
   const remove = useGridTradeStrategyStore((state) => state.remove);
 
-  const onRemove = (item: GridTradeStrategyConfigType) => {
+  const onRemove = (item: IGridTradeStrategyConfig) => {
     if (String(item.id) === String(strategyId)) setStrategyId(null);
     remove(item);
   };

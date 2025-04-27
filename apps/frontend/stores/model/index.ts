@@ -1,10 +1,32 @@
-import { pick } from "lodash-es";
-import type { GridTradeStrategyConfigType } from "../strategy-config";
-import type GridLevelRecordType from "./preset-data";
 import Decimal from "decimal.js";
+import type { IGridLevelRecord, IGridTradeStrategyConfig } from "./model.type";
 
-function create(): GridLevelRecordType {
+/**
+ * 创建网格策略
+ * @returns 网格策略
+ */
+export function createStrategy(): IGridTradeStrategyConfig {
   return {
+    id: Date.now(),
+    gridName: "",
+    tradingPair: "",
+    basePrice: 1,
+    buyVolume: 1000,
+    priceIncrease: 5,
+    priceDecline: 5,
+    stressTest: 100,
+    gridStepIncrement: 0,
+    profitRetention: 5,
+  };
+}
+
+/**
+ * 创建网格档位记录
+ * @returns 网格档位记录
+ */
+export function createRecord(params: Partial<IGridLevelRecord>): IGridLevelRecord {
+  return {
+    id: Date.now(),
     positionIndex: 0,
     level: 0,
     buyPrice: 0,
@@ -17,12 +39,17 @@ function create(): GridLevelRecordType {
     retainedProfit: 0,
     profit: 0,
     yieldRate: 0,
+    ...params,
   };
 }
 
-function generate(params: GridTradeStrategyConfigType): GridLevelRecordType[] {
-  // 动态生成10档网格价格
-  const result: GridLevelRecordType[] = [];
+/**
+ * 生成网格档位记录
+ * @param params 网格策略配置
+ * @returns 网格档位记录
+ */
+export function generateGrid(params: IGridTradeStrategyConfig): IGridLevelRecord[] {
+  const result: IGridLevelRecord[] = [];
   const basePrice = new Decimal(params.basePrice);
   const priceIncrease = new Decimal(params.priceIncrease).div(100);
   const priceDecline = new Decimal(params.priceDecline).div(100);
@@ -30,10 +57,12 @@ function generate(params: GridTradeStrategyConfigType): GridLevelRecordType[] {
   const gridStepIncrement = new Decimal(params.gridStepIncrement).div(100);
   const baseQuantity = new Decimal(params?.buyVolume || 1000); // 基础买入数量，可以根据需求调整
 
+  const count = params.stressTest / 10;
+
   let currentPrice = basePrice;
 
   // 生成10档网格
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < count; i++) {
     // 计算买入价格
     const buyPrice = i === 0 ? currentPrice : currentPrice.times(new Decimal(1).minus(priceDecline));
 
@@ -64,7 +93,8 @@ function generate(params: GridTradeStrategyConfigType): GridLevelRecordType[] {
     const yieldRate = profit.div(buyAmount.times(sellQuantity.div(buyQuantity))).times(100);
 
     // 创建网格档位记录
-    const record: GridLevelRecordType = {
+    const record: IGridLevelRecord = {
+      id: Date.now() + i,
       positionIndex: i + 1,
       level: Number(((10 - i) * 0.1).toFixed(1)),
       buyPrice: Number(buyPrice.toFixed(3)),
@@ -88,7 +118,14 @@ function generate(params: GridTradeStrategyConfigType): GridLevelRecordType[] {
   return result;
 }
 
-export default {
-  create,
-  generate,
-};
+/**
+ * 计算金额
+ * @param price 价格
+ * @param quantity 数量
+ * @returns 金额
+ */
+export function calculateAmount(price: number, quantity: number): number {
+  return new Decimal(price).times(new Decimal(quantity)).toNumber();
+}
+
+export type { IGridTradeStrategyConfig, IGridLevelRecord };

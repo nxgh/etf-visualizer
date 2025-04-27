@@ -2,60 +2,39 @@ import storage from "./idb-storage";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import dayjs from "dayjs";
-export const TransactionTypeMap = {
-  buy: "buy",
-  sell: "sell",
-} as const;
 
-export interface TransactionType {
-  id: number;
-  timestamp: string;
-  price: number | "";
-  volume: number | "";
-  amount?: number | "";
-  profit: number | "";
-  profit_rate: number | "";
-  remark: string;
-  level: number | "";
-  type?: typeof TransactionTypeMap.buy | typeof TransactionTypeMap.sell;
-  createAt: number;
-}
-
-export const getRowData = (): TransactionType => ({
-  timestamp: dayjs().format("YYYY-MM-DD"),
-  price: "",
-  volume: "",
-  amount: "",
-  remark: "",
-  profit: "",
-  profit_rate: "",
-  id: Date.now(),
-  createAt: Date.now(),
-  level: "",
-});
+import { createRecord, type IGridLevelRecord } from "./model";
 
 interface TransactionState {
-  transactions: TransactionType[];
-  initTransactions: (transactions: TransactionType[]) => void;
+  transactions: IGridLevelRecord[];
+  initTransactions: (transactions: IGridLevelRecord[]) => void;
   insertTransaction: () => void;
-  updateTransaction: (transaction: TransactionType) => void;
-  removeTransaction: (transaction: TransactionType) => void;
+  updateTransaction: (transaction: IGridLevelRecord) => void;
+  removeTransaction: (transaction: IGridLevelRecord) => void;
 }
 
 export const useTransactionStore = create<TransactionState>()(
   persist(
     (set, get) => ({
       transactions: [],
-      initTransactions: (transactions: TransactionType[]) => {
+      initTransactions: (transactions: IGridLevelRecord[]) => {
         set({ transactions });
       },
       insertTransaction: () => {
-        set({ transactions: [...get().transactions, getRowData()] });
+        set({
+          transactions: [
+            ...get().transactions,
+            createRecord({
+              positionIndex: get().transactions.length + 1,
+              level: 1,
+            }),
+          ],
+        });
       },
-      updateTransaction: (transaction: TransactionType) => {
+      updateTransaction: (transaction: IGridLevelRecord) => {
         set({ transactions: get().transactions.map((t) => (t.id === transaction.id ? transaction : t)) });
       },
-      removeTransaction: (transaction: TransactionType) => {
+      removeTransaction: (transaction: IGridLevelRecord) => {
         set({ transactions: get().transactions.filter((t) => t.id !== transaction.id) });
       },
     }),
