@@ -32,7 +32,7 @@ export default function TransactionPresetSetting() {
   const insert = useGridTradeStrategyStore((state) => state.insert);
   const update = useGridTradeStrategyStore((state) => state.update);
 
-  const [form, setForm] = useState<GridTradeStrategyConfigType>(GridTradeStrategyConfig.craete());
+  const [form, setForm] = useState<GridTradeStrategyConfigType>(GridTradeStrategyConfig.create());
 
   useEffect(() => {
     const strategy = strategyStore.find((item) => item.id === Number(strategyId));
@@ -95,6 +95,13 @@ export default function TransactionPresetSetting() {
       onChange: (e) => updateForm("basePrice", Number(e.target.valueAsNumber)),
     },
     {
+      label: "买入数量",
+      key: "buyVolume",
+      type: "number",
+      value: form.buyVolume,
+      onChange: (e) => updateForm("buyVolume", Number(e.target.valueAsNumber)),
+    },
+    {
       label: "涨幅 (%)",
       key: "priceIncrease",
       type: "number",
@@ -145,7 +152,7 @@ export default function TransactionPresetSetting() {
 
   function onCancel() {
     setStrategyId(null);
-    setForm(GridTradeStrategyConfig.craete());
+    setForm(GridTradeStrategyConfig.create());
   }
 
   return (
