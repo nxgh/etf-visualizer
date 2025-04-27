@@ -13,7 +13,6 @@ import SimpleTable from "@shadcn/component/table";
 
 import type { TransactionType } from "#store/transaction";
 
-import { cn } from "@shadcn/lib/utils";
 export interface IProps {
   transactions: TransactionType[];
   editable: boolean;
