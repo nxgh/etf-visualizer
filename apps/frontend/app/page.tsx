@@ -1,17 +1,18 @@
+"use client";
+
 import WatchList from "#components/watch-list";
 import TransactionTable from "#components/transaction";
-import GridTradingPreset from "#components/grid-trading-preset";
-
-export default async function Home() {
+import GridTradingPresetList from "#components/grid-trading-preset/strategy-list";
+import GridTradingPresetSetting from "#components/grid-trading-preset/strategy-config";
+import GridTradingPresetTable from "#components/grid-trading-preset/strategy-preset";
+export default function Home() {
   return (
-    <div className="w-full h-full flex">
-      <WatchList />
-
-      <div className="h-full flex-1">
-        {/* <div className="h-1/2"></div> */}
-        <GridTradingPreset className="h-full" />
-        {/* <TransactionTable className="h-1/2" /> */}
-      </div>
+    <div className="w-full h-full flex flex-wrap">
+      <WatchList className="w-[500px]" />
+      <GridTradingPresetList />
+      <GridTradingPresetSetting />
+      <GridTradingPresetTable />
+      <TransactionTable className="h-1/2" />
     </div>
   );
 }

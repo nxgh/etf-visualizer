@@ -2,23 +2,17 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@shadcn/ui/card";
 import { Input } from "@shadcn/ui/input";
-import createEnums from "#utils/createEnums";
 import { Table, SimpleTableHeader, SimpleTableBody, TableCell, TableRow } from "@shadcn/component/table";
 
-import { generateTransactionPreset, type TransactionPresetType } from "./gen-tran-preset";
 import { useQueryState, parseAsString } from "nuqs";
 import { useSearchParams } from "next/navigation";
-import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
+import { useGridTradeStrategyStore } from "#store/index";
 import GridLevelRecord from "./preset-data.helper";
 import type GridLevelRecordType from "./preset-data";
 import Decimal from "decimal.js";
 import { TableFooter } from "@shadcn/ui/table";
-
-const InputWrapper = ({ children, ...props }: React.ComponentProps<typeof Input>) => {
-  return;
-};
-
-export default function TransactionPresetTable() {
+import { cn } from "@shadcn/lib/utils";
+export default function TransactionPresetTable({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
@@ -112,7 +106,7 @@ export default function TransactionPresetTable() {
   }));
 
   return (
-    <Card className="w-[1200px]  overflow-auto">
+    <Card className={cn("w-[1200px]  overflow-auto", className)}>
       <CardHeader>
         <CardTitle>Grid Trading Preset Template</CardTitle>
       </CardHeader>

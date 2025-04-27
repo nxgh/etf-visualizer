@@ -15,7 +15,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="flex w-screen h-screen overflow-hidden">
+      <body className="flex w-screen h-screen overflow-x-hidden">
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>
     </html>
