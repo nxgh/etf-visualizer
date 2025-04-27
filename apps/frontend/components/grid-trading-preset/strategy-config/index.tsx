@@ -4,6 +4,7 @@ import { Button } from "@shadcn/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@shadcn/ui/card";
 import { Input } from "@shadcn/ui/input";
 import { Label } from "@shadcn/ui/label";
+import SimpleCard from "@shadcn/component/card";
 
 import type GridTradeStrategyConfigType from "./strategy-config.type";
 import GridTradeStrategyConfig from "./strategy-config.helper";
@@ -13,6 +14,7 @@ import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 import { omit } from "lodash-es";
 import { useQueryState, parseAsString } from "nuqs";
 import { useSearchParams } from "next/navigation";
+import { cn } from "@shadcn/lib/utils";
 
 interface FormRowsType {
   label: string;
@@ -23,7 +25,7 @@ interface FormRowsType {
   render?: (row: FormRowsType) => React.ReactNode;
 }
 
-export default function TransactionPresetSetting() {
+export default function TransactionPresetSetting({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
@@ -156,41 +158,41 @@ export default function TransactionPresetSetting() {
   }
 
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        <CardTitle>网格交易预设</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className="grid w-full items-center gap-4">
-            {FormRows.map((row) => (
-              <div key={row.key} className="flex flex-col space-y-1.5">
-                <Label htmlFor={row.key}>{row.label}</Label>
-                {row?.render ? (
-                  row?.render(row)
-                ) : (
-                  <Input
-                    id={row.key}
-                    type={row.type}
-                    placeholder={row.type === "text" ? `${row.label}` : undefined}
-                    value={row.value as string}
-                    onChange={row.onChange}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={onCancel}>
-          取消
-        </Button>
-        <Button disabled={formComplete} onClick={setDetail}>
-          {isExist ? "更新" : "添加"}预设
-        </Button>
-      </CardFooter>
-    </Card>
+    <SimpleCard
+      className={cn("w-[350px]", className)}
+      title="网格交易预设"
+      footer={
+        <>
+          <Button variant="outline" onClick={onCancel}>
+            取消
+          </Button>
+          <Button disabled={formComplete} onClick={setDetail}>
+            {isExist ? "更新" : "添加"}预设
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={(e) => e.preventDefault()}>
+        <div className="grid w-full items-center gap-4">
+          {FormRows.map((row) => (
+            <div key={row.key} className="flex flex-col space-y-1.5">
+              <Label htmlFor={row.key}>{row.label}</Label>
+              {row?.render ? (
+                row?.render(row)
+              ) : (
+                <Input
+                  id={row.key}
+                  type={row.type}
+                  placeholder={row.type === "text" ? `${row.label}` : undefined}
+                  value={row.value as string}
+                  onChange={row.onChange}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </form>
+    </SimpleCard>
   );
 }
 

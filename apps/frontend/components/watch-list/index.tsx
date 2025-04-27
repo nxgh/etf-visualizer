@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 import WatchList from "./watch-list";
 import SearchDialog from "./search-dialog";
-import { Car } from "lucide-react";
+import { cn } from "@shadcn/lib/utils";
 
-export default function WatchListIndex() {
+export default function WatchListIndex({ className }: { className?: string }) {
   return (
-    <Card className="h-[600px]">
+    <Card className={cn("h-[600px]", className)}>
       <CardHeader>
         <CardTitle>Watch List</CardTitle>
       </CardHeader>
