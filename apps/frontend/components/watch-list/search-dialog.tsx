@@ -1,20 +1,22 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@shadcn/ui/dialog";
-
-import { useWatchListStore } from "#store";
-import { debounce } from "lodash-es";
 import { useState, useMemo, useEffect } from "react";
-import { searchSecurityAction } from "#actions/index";
+import { debounce } from "lodash-es";
+
+import { searchSecurityAction, type SearchResponse } from "#actions/index";
+
+import { SimpleList } from "@shadcn/component";
+import { DiamondMinus, DiamondPlus } from "lucide-react";
+
+import Store, { type IWatchListItem } from "#store";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@shadcn/ui/dialog";
+import { DialogHeader } from "@shadcn/ui/dialog";
 import { Input } from "@shadcn/ui/input";
-import SearchDialogList from "./search-dialog-list";
-import type { SearchResponse } from "#actions/index";
-import type { SearchDialogListProps } from "./search-dialog-list";
+import { CommandItem } from "@shadcn/ui/command";
+import { Button } from "@shadcn/ui/button";
 
-export default function SearchDialog() {
+type ItemType = IWatchListItem & { isFavorite?: boolean };
+
+export default function SearchDialog(props: { onInsertItem: (item: ItemType) => void; onRemoveItem: (code: string) => void }) {
   const [searchData, setSearchData] = useState<(SearchResponse[number] & { isFavorite?: boolean })[]>([]);
-
-  const watchList = useWatchListStore((state) => state.watchList); // 从 Zustand 中获取 watchLis
-  const addToWatchList = useWatchListStore((state) => state.addToWatchList);
-  const removeFavoriteList = useWatchListStore((state) => state.removeFromWatchList);
 
   const onSearch = (res: string) => {
     searchSecurityAction(res).then((res) => {
@@ -27,19 +29,61 @@ export default function SearchDialog() {
     }
   }
 
-  const onDialogListItemClick: SearchDialogListProps["onClick"] = (type, params) => {
-    console.log("onDialogListItemClick", type, params);
-    type === "add" ? addToWatchList(params) : removeFavoriteList(params.code);
-
+  const updateSearchData = (code: string) => {
     setSearchData((data) =>
       data.map((item) => {
-        if (item.code === params.code) {
-          item.isFavorite = true;
+        if (item.code === code) {
+          item.isFavorite = false;
         }
         return item;
       })
     );
   };
+
+  const onRemoveItem = (code: string) => {
+    props.onRemoveItem(code);
+    updateSearchData(code);
+  };
+
+  const onInsertItem = (param: ItemType) => {
+    props.onInsertItem(param);
+    updateSearchData(param.code);
+  };
+
+  const [keyword, setKeyword] = useState("");
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((kw: string) => {
+        if (!kw.trim()) {
+          return;
+        }
+        onSearch?.(kw);
+      }, 1000),
+    []
+  );
+
+  useEffect(() => {
+    return () => debouncedSearch.cancel();
+  }, [debouncedSearch]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+    debouncedSearch(value);
+  };
+
+  const values = [
+    {
+      groupName: "股票",
+      items: searchData.filter((item) => item.type === "stock"),
+    },
+    {
+      groupName: "基金",
+      items: searchData.filter((item) => item.type === "fund"),
+    },
+  ];
 
   return (
     <Dialog onOpenChange={onOpenChange}>
@@ -58,42 +102,29 @@ export default function SearchDialog() {
         <DialogHeader>
           <DialogTitle>Search Security</DialogTitle>
         </DialogHeader>
-        <SearchSecurity onSearch={onSearch} />
-        <SearchDialogList list={searchData} onClick={onDialogListItemClick} />
+        <div className="space-y-2h-[400px] flex items-center gap-2 relative">
+          <Input className="m-2" placeholder="Search..." value={keyword} onChange={handleInputChange} />
+        </div>
+        <SimpleList list={values} getKey={(item) => item.code}>
+          {(item: ItemType) => (
+            <CommandItem key={item.code} className="flex justify-between">
+              <span className="text-sm">{item.code}</span>
+              <span className="text-sm flex items-center gap-2">
+                {item.name}
+                {item.isFavorite ? (
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onRemoveItem(item.code)}>
+                    <DiamondMinus className="hover:text-red-501" />
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onInsertItem(item)}>
+                    <DiamondPlus className="hover:text-red-501" />
+                  </Button>
+                )}
+              </span>
+            </CommandItem>
+          )}
+        </SimpleList>
       </DialogContent>
     </Dialog>
-  );
-}
-export function SearchSecurity({ onSearch }: { onSearch?: (res: string) => void }) {
-  const [keyword, setKeyword] = useState("");
-
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((kw: string) => {
-        if (!kw.trim()) {
-          return;
-        }
-
-        onSearch && onSearch(kw);
-      }, 1000),
-    []
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setKeyword(value);
-    debouncedSearch(value);
-  };
-
-  return (
-    <div className="space-y-2h-[400px] flex items-center gap-2 relative">
-      <Input className="m-2" placeholder="Search..." value={keyword} onChange={handleInputChange} />
-    </div>
   );
 }

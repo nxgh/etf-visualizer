@@ -1,4 +1,4 @@
-import { type IGridLevelRecord } from "#store/model";
+import type { IGridLevelRecord } from "#store";
 import createEnums, { type GetCreateEnumsKeyType } from "#utils/createEnums";
 import { Input } from "@shadcn/ui/input";
 import { Decimal } from "decimal.js";

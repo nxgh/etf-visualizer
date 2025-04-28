@@ -24,6 +24,7 @@
       "#components/*": ["./components/*"],
       "#actions/*": ["./actions/*"],
       "@shadcn/*": ["./@shadcn/*"],
+      "@shadcn": ["./@shadcn/index.ts"],
       "#store": ["./stores/index.ts"],
       "#store/*": ["./stores/*"],
       "#styles/*": ["./styles/*"],

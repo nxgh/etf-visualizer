@@ -5,21 +5,23 @@ import { Command, CommandInput, CommandItem, CommandList } from "@shadcn/ui/comm
 import { cn } from "@shadcn/lib/utils";
 import { Card } from "@shadcn/ui/card";
 import { Button } from "@shadcn/ui/button";
-import { useGridTradeStrategyStore } from "#store";
+import {} from "#store";
 import { useQueryState } from "nuqs";
-import { type IGridTradeStrategyConfig } from "#store/model";
+import Store, { type IGridTradeStrategyConfig } from "#store";
 
 interface IProps {
   className?: string;
 }
 export default function GridTradingPresetList({ className }: IProps) {
   const [strategyId, setStrategyId] = useQueryState("strategy");
-  const presetList = useGridTradeStrategyStore((state) => state.presetList);
-  const remove = useGridTradeStrategyStore((state) => state.remove);
+  const presetList = Store.presetListStore.getState();
+  // const remove = useGridTradeStrategyStore((state) => state.remove);
 
   const onRemove = (item: IGridTradeStrategyConfig) => {
     if (String(item.id) === String(strategyId)) setStrategyId(null);
-    remove(item);
+    // remove(item);
+
+    Store.presetListStore.removePreset(item);
   };
   const onClick = (id: string) => setStrategyId(id);
   return (
@@ -29,6 +31,7 @@ export default function GridTradingPresetList({ className }: IProps) {
         <CommandList className="mt-2">
           {presetList.map((item) => (
             <CommandItem key={item.id} className="flex justify-between cursor-pointer m-0 py-0">
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
               <div className="flex-1 cursor-pointer leading-[2] px-3 " onClick={() => onClick?.(item.id.toString())}>
                 {item.gridName}
               </div>
