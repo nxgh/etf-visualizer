@@ -1,3 +1,4 @@
+import { cn } from "@shadcn/lib/utils";
 import { Command, CommandList, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
 import { type ReactNode, Fragment } from "react";
 
@@ -6,12 +7,14 @@ interface IProps<T> {
   children: (item: T) => ReactNode;
   emptyContent?: ReactNode;
   getKey?: (item: T) => string | number; // Add key extractor prop
+  className?: string;
 }
 
-export default function SimpleList<T>({ list, children, emptyContent, getKey = (item: T) => JSON.stringify(item) }: IProps<T>) {
+export default function SimpleList<T>(props: IProps<T>) {
+  const { list, children, emptyContent, getKey = (item: T) => JSON.stringify(item) } = props;
   return (
-    <Command className="h-auto">
-      <CommandList>
+    <Command className={cn(props.className)}>
+      <CommandList className="h-full">
         {list.length === 0 && emptyContent}
         {list.map((listItem, index) => {
           // 添加类型守卫函数

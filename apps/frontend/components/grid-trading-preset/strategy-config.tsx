@@ -26,8 +26,10 @@ export default function TransactionPresetSetting({ className }: { className?: st
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
-  const strategyStore = Store.presetListStore.getState();
-  const watchList = Store.watchListStore.getState();
+  const strategyStore = Store.use.presetList();
+  const watchList = Store.use.watchList();
+  const updatePreset = Store.use.update_preset_list();
+  const insertPreset = Store.use.insert_to_preset_list();
 
   const [form, setForm] = useState<IGridTradeStrategyConfig>(createStrategy());
 
@@ -46,12 +48,10 @@ export default function TransactionPresetSetting({ className }: { className?: st
 
   const setDetail = () => {
     if (isExist) {
-      // update(form);
-      Store.presetListStore.updatePreset(form);
+      updatePreset(form);
       return;
     }
-    // insert(form);
-    Store.presetListStore.insert(form);
+    insertPreset(form);
   };
 
   const options = watchList.map((item) => {
@@ -156,7 +156,7 @@ export default function TransactionPresetSetting({ className }: { className?: st
 
   return (
     <SimpleCard
-      className={cn("w-[350px]", className)}
+      className={cn("w-[350px] h-fit", className)}
       title="网格交易预设"
       footer={
         <>

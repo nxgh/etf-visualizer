@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@shadcn/ui/card";
-import { Input } from "@shadcn/ui/input";
 import { Table, SimpleTableHeader, SimpleTableBody, TableCell, TableRow } from "@shadcn/component/table";
 
 import { useQueryState, parseAsString } from "nuqs";
@@ -12,13 +11,14 @@ import Decimal from "decimal.js";
 import { TableFooter } from "@shadcn/ui/table";
 import { cn } from "@shadcn/lib/utils";
 import { columnEnums, getColumns } from "./strategy-preset-columns";
+
 export default function TransactionPresetTable({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
   const [presetDetail, setPresetDetail] = useState<IGridLevelRecord[]>([]);
 
-  const strategyStore = Store.presetListStore.getState();
+  const strategyStore = Store.use.presetList();
 
   useEffect(() => {
     const strategy = strategyStore.find((item) => item.id === Number(strategyId));
@@ -89,6 +89,7 @@ export default function TransactionPresetTable({ className }: { className?: stri
                   }, new Decimal(0))
                   .toFixed(2)}
               </TableCell>
+              <TableCell className="" />
             </TableRow>
           </TableFooter>
         </Table>

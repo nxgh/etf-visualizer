@@ -19,11 +19,15 @@ const TabEnum = createEnums({ my: "我的", manager: "主理人" } as const);
 export default function Transaction({ className }: { className?: string }) {
   const [tab, setTab] = useState<GetCreateEnumsKeyType<typeof TabEnum>>(TabEnum.my.key);
 
-  const transactions = Store.transactionStore.getState();
+  const transactions = Store.use.transaction();
+  const insertEmptyTransaction = Store.use.insert_to_transaction();
+  const updateTransaction = Store.use.update_transaction();
+  const removeTransaction = Store.use.remove_transaction();
+  console.log("transactions", transactions);
 
   const insertEmpty = () => {
     console.log("insertEmpty", transactions);
-    Store.transactionStore.insertEmpty();
+    insertEmptyTransaction();
   };
 
   const onTabChange = (value: string) => {
@@ -31,7 +35,7 @@ export default function Transaction({ className }: { className?: string }) {
   };
 
   const onTableChange = (item: IGridLevelRecord, key: keyof IGridLevelRecord, value: string) => {
-    Store.transactionStore.updateTransaction({
+    updateTransaction({
       ...item,
       [key]: value,
     } as IGridLevelRecord);
@@ -43,7 +47,7 @@ export default function Transaction({ className }: { className?: string }) {
       label: "操作",
       key: "action" as const,
       render: (item: IGridLevelRecord) => (
-        <Button variant="destructive" onClick={() => Store.transactionStore.removeTransaction(item)}>
+        <Button variant="destructive" onClick={() => removeTransaction(String(item.id))}>
           删除
         </Button>
       ),

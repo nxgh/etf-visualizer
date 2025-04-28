@@ -1,6 +1,8 @@
 import type { IGridLevelRecord } from "#store";
 import createEnums, { type GetCreateEnumsKeyType } from "#utils/createEnums";
+import SimpleDataPicker from "@shadcn/component/data-picker";
 import { Input } from "@shadcn/ui/input";
+import dayjs from "dayjs";
 import { Decimal } from "decimal.js";
 
 export const columnEnums = createEnums({
@@ -38,7 +40,18 @@ export const getColumns = (onChange: onChangeType) => {
       render: (item: IGridLevelRecord) => <div>{item.positionIndex}</div>,
     },
     { label: columnEnums.level.value, key: columnEnums.level.key },
-    { label: columnEnums.buyDate.value, key: columnEnums.buyDate.key },
+    {
+      label: columnEnums.buyDate.value,
+      key: columnEnums.buyDate.key,
+      render: (item: IGridLevelRecord) => {
+        return (
+          <SimpleDataPicker
+            date={dayjs(item[columnEnums.buyDate.key]).toDate()}
+            onSelect={(day) => onChange(item, columnEnums.buyDate.key, dayjs(day).format("YYYY-MM-DD"))}
+          />
+        );
+      },
+    },
     { label: columnEnums.buyPrice.value, key: columnEnums.buyPrice.key },
     { label: columnEnums.buyQuantity.value, key: columnEnums.buyQuantity.key },
     {
@@ -51,7 +64,18 @@ export const getColumns = (onChange: onChangeType) => {
         </div>
       ),
     },
-    { label: columnEnums.sellDate.value, key: columnEnums.sellDate.key },
+    {
+      label: columnEnums.sellDate.value,
+      key: columnEnums.sellDate.key,
+      render: (item: IGridLevelRecord) => {
+        return (
+          <SimpleDataPicker
+            date={dayjs(item[columnEnums.sellDate.key]).toDate()}
+            onSelect={(day) => onChange(item, columnEnums.sellDate.key, dayjs(day).format("YYYY-MM-DD"))}
+          />
+        );
+      },
+    },
     { label: columnEnums.sellPrice.value, key: columnEnums.sellPrice.key },
     { label: columnEnums.sellQuantity.value, key: columnEnums.sellQuantity.key },
     {
