@@ -6,22 +6,23 @@ import { Table, SimpleTableHeader, SimpleTableBody, TableCell, TableRow } from "
 
 import { useQueryState, parseAsString } from "nuqs";
 import { useSearchParams } from "next/navigation";
-import { useGridTradeStrategyStore } from "#store/index";
-import { type IGridLevelRecord, generateGrid } from "#store/model";
+import Store, { type IGridLevelRecord, generateGrid } from "#store";
+
 import Decimal from "decimal.js";
 import { TableFooter } from "@shadcn/ui/table";
 import { cn } from "@shadcn/lib/utils";
-import { columnEnums, getColumns } from "../strategy-columns";
+import { columnEnums, getColumns } from "./strategy-preset-columns";
 export default function TransactionPresetTable({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
   const [presetDetail, setPresetDetail] = useState<IGridLevelRecord[]>([]);
 
-  const strategyStore = useGridTradeStrategyStore((state) => state.presetList);
+  const strategyStore = Store.presetListStore.getState();
 
   useEffect(() => {
     const strategy = strategyStore.find((item) => item.id === Number(strategyId));
+    // console.log("strategy", strategy, strategyStore);
     if (strategyId && strategy) {
       const transactions = generateGrid(strategy);
       setPresetDetail(transactions);

@@ -10,8 +10,8 @@ import { Label } from "@shadcn/ui/label";
 import SimpleCard from "@shadcn/component/card";
 import SimpleSelect from "@shadcn/component/select";
 
-import { type IGridTradeStrategyConfig, createStrategy } from "#store/model";
-import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
+import Store, { type IGridTradeStrategyConfig, createStrategy } from "#store";
+// import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 
 interface FormRowsType {
   label: string;
@@ -26,10 +26,8 @@ export default function TransactionPresetSetting({ className }: { className?: st
   const searchParams = useSearchParams();
   const [strategyId, setStrategyId] = useQueryState("strategy", parseAsString.withDefault(searchParams.get("strategy") ?? ""));
 
-  const watchList = useWatchListStore((state) => state.watchList);
-  const strategyStore = useGridTradeStrategyStore((state) => state.presetList);
-  const insert = useGridTradeStrategyStore((state) => state.insert);
-  const update = useGridTradeStrategyStore((state) => state.update);
+  const strategyStore = Store.presetListStore.getState();
+  const watchList = Store.watchListStore.getState();
 
   const [form, setForm] = useState<IGridTradeStrategyConfig>(createStrategy());
 
@@ -48,10 +46,12 @@ export default function TransactionPresetSetting({ className }: { className?: st
 
   const setDetail = () => {
     if (isExist) {
-      update(form);
+      // update(form);
+      Store.presetListStore.updatePreset(form);
       return;
     }
-    insert(form);
+    // insert(form);
+    Store.presetListStore.insert(form);
   };
 
   const options = watchList.map((item) => {

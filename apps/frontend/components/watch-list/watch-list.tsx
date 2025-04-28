@@ -1,44 +1,43 @@
 "use client";
 
-import { Command, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
+import { CommandItem } from "@shadcn/ui/command";
+import SimpleList from "@shadcn/component/list";
 
-import { useWatchListStore } from "#store";
 import { useRouter } from "next/navigation";
 
-export default function WatchList() {
+import type { IWatchListItem } from "#store";
+
+type Props = {
+  watchList: IWatchListItem[];
+  onRemoveItem: (code: string) => void;
+};
+
+export default function WatchList(props: Props) {
   const router = useRouter();
-  const watchList = useWatchListStore((state) => state.watchList);
-
-  const removeFavoriteList = useWatchListStore((state) => state.removeFromWatchList);
-
-  const handleRemoveFavorite = (code: string) => {
-    removeFavoriteList(code);
-  };
 
   const handleClickItem = (code: string) => {
     router.push(`?code=${code}`);
   };
 
   return (
-    <Command>
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Favorite">
-          {watchList?.map((item) => (
-            <CommandItem key={item.code} className="flex justify-between cursor-pointer">
-              <div className="text-sm flex items-center justify-between gap-2 w-full" onClick={() => handleClickItem(item.code)}>
-                <span>
-                  {item.name}
-                  <span className="text-xs text-gray-500"> [{item.code}]</span>
-                </span>
-              </div>
-              <span className="text ml-2 hover:bg-gray-200 rounded-full p-1" onClick={() => handleRemoveFavorite(item.code)}>
-                ❌
+    <SimpleList
+      list={props.watchList}
+      getKey={(item) => item.code}
+      children={(item) => {
+        return (
+          <CommandItem key={item.code} className="flex justify-between cursor-pointer">
+            <div className="text-sm flex items-center justify-between gap-2 w-full" onClick={() => handleClickItem(item.code)}>
+              <span>
+                {item.name}
+                <span className="text-xs text-gray-500"> [{item.code}]</span>
               </span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
+            </div>
+            <span className="text ml-2 hover:bg-gray-200 rounded-full p-1" onClick={() => props.onRemoveItem(item.code)}>
+              ❌
+            </span>
+          </CommandItem>
+        );
+      }}
+    />
   );
 }

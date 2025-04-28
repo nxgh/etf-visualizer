@@ -88,3 +88,10 @@ export interface IGridLevelRecord {
   /** @description 收益率/Return rate percentage */
   yieldRate?: number;
 }
+
+// 定义 WatchList 项的接口，确保包含一个唯一标识符
+export interface IWatchListItem {
+  code: string; // 使用 code 作为唯一标识符
+  name: string;
+  type: string;
+}

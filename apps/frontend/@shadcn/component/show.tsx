@@ -40,3 +40,5 @@ export function Show<T>({ when, fallback, children }: ShowProps<T>) {
 
   return null;
 }
+
+export default Show;

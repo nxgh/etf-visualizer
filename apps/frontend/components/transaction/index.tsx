@@ -1,60 +1,49 @@
 "use client";
 import { useState } from "react";
-import Decimal from "decimal.js";
-import { Input } from "@shadcn/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@shadcn/ui/tabs";
 
-import TransactionTable from "./transaction-table";
 import { createEnums } from "#utils/createEnums";
 import type { GetCreateEnumsKeyType } from "#utils/createEnums";
 
 import { cn } from "@shadcn/lib/utils";
 
-import { useTransactionStore } from "#store/transaction";
-import type { TransactionType, TransactionTypeMap } from "#store/transaction";
+import Store from "#store";
+import type { IGridLevelRecord } from "#store";
 
-import type { IProps } from "./transaction-table";
-import SimpleCard from "@shadcn/component/card";
-import { type IGridLevelRecord, generateGrid } from "#store/model";
-import SimpleTable from "@shadcn/component/table";
+import { SimpleCard, SimpleTable } from "@shadcn/component";
 import { Button } from "@shadcn/ui/button";
-import { columnEnums, getColumns } from "#components/grid-trading-preset/strategy-columns";
+import { getColumns } from "#components/grid-trading-preset/strategy-preset-columns";
 
 const TabEnum = createEnums({ my: "我的", manager: "主理人" } as const);
 
 export default function Transaction({ className }: { className?: string }) {
   const [tab, setTab] = useState<GetCreateEnumsKeyType<typeof TabEnum>>(TabEnum.my.key);
 
-  const transactions = useTransactionStore((state) => state.transactions);
-  const insertTransaction = useTransactionStore((state) => state.insertTransaction);
-  const updateTransaction = useTransactionStore((state) => state.updateTransaction);
-  const removeTransaction = useTransactionStore((state) => state.removeTransaction);
+  const transactions = Store.transactionStore.getState();
 
-  const onTransactionChange: IProps["onTransactionChange"] = (type, data) => {
-    if (type === "insert") {
-      insertTransaction();
-    }
-    if (type === "update") {
-      updateTransaction(data as TransactionType);
-    }
-    if (type === "remove") {
-      removeTransaction(data as TransactionType);
-    }
+  const insertEmpty = () => {
+    console.log("insertEmpty", transactions);
+    Store.transactionStore.insertEmpty();
   };
 
   const onTabChange = (value: string) => {
     setTab(value as GetCreateEnumsKeyType<typeof TabEnum>);
   };
 
+  const onTableChange = (item: IGridLevelRecord, key: keyof IGridLevelRecord, value: string) => {
+    Store.transactionStore.updateTransaction({
+      ...item,
+      [key]: value,
+    } as IGridLevelRecord);
+  };
+
   const columns = [
-    ...getColumns((item, key, value) => {
-      console.log(item, key, value);
-    }),
+    ...getColumns(onTableChange),
     {
       label: "操作",
-      key: "action",
+      key: "action" as const,
       render: (item: IGridLevelRecord) => (
-        <Button variant="destructive" onClick={() => removeTransaction(item)}>
+        <Button variant="destructive" onClick={() => Store.transactionStore.removeTransaction(item)}>
           删除
         </Button>
       ),
@@ -71,11 +60,10 @@ export default function Transaction({ className }: { className?: string }) {
           </TabsList>
         </Tabs>
 
-        <Button onClick={() => insertTransaction()}>添加</Button>
+        <Button onClick={insertEmpty}>添加</Button>
       </div>
 
       <SimpleTable columns={columns} data={transactions} />
-      {/* <TransactionTable editable={tab === "my"} transactions={transactions} onTransactionChange={onTransactionChange} /> */}
     </SimpleCard>
   );
 }
