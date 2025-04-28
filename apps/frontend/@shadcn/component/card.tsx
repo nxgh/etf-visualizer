@@ -9,11 +9,11 @@ interface IProps {
 }
 export default function SimpleCard({ children, className, title, footer }: IProps) {
   return (
-    <Card className={cn("w-[350px]", className)}>
+    <Card className={cn("w-[350px] flex flex-col", className)}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="flex-1 flex flex-col">{children}</CardContent>
       <CardFooter>{footer}</CardFooter>
     </Card>
   );

@@ -7,7 +7,7 @@ import type { IGridLevelRecord, IGridTradeStrategyConfig } from "./model.type";
  */
 export function createStrategy(): IGridTradeStrategyConfig {
   return {
-    id: Date.now(),
+    id: Date.now().toString(),
     gridName: "",
     tradingPair: "",
     basePrice: 1,
@@ -26,7 +26,7 @@ export function createStrategy(): IGridTradeStrategyConfig {
  */
 export function createRecord(params: Partial<IGridLevelRecord>): IGridLevelRecord {
   return {
-    id: Date.now(),
+    id: Date.now().toString(),
     positionIndex: 0,
     level: 0,
     buyPrice: 0,

@@ -8,7 +8,6 @@ import Store from "#store/create-store";
 import { IWatchListItem } from "#store";
 
 export default function WatchListIndex({ className }: { className?: string }) {
-  
   const watchList = Store.use.watchList();
   const remove_watch_list = Store.use.remove_watch_list();
   const insert_to_watch_list = Store.use.insert_to_watch_list();
@@ -22,8 +21,8 @@ export default function WatchListIndex({ className }: { className?: string }) {
   };
 
   return (
-    <SimpleCard className={cn("h-[600px]", className)} title="Watch List">
-      <SearchDialog onInsertItem={onInsertItem} onRemoveItem={onRemoveItem} />
+    <SimpleCard className={cn("h-fit", className)} title="Watch List">
+      <SearchDialog onInsertItem={onInsertItem} onRemoveItem={onRemoveItem} watchList={watchList} />
       <WatchList watchList={watchList} onRemoveItem={onRemoveItem} />
     </SimpleCard>
   );

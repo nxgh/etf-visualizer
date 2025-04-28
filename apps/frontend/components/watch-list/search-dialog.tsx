@@ -15,7 +15,13 @@ import { Button } from "@shadcn/ui/button";
 
 type ItemType = IWatchListItem & { isFavorite?: boolean };
 
-export default function SearchDialog(props: { onInsertItem: (item: ItemType) => void; onRemoveItem: (code: string) => void }) {
+interface IProps {
+  onInsertItem: (item: ItemType) => void;
+  onRemoveItem: (code: string) => void;
+  watchList: IWatchListItem[];
+}
+
+export default function SearchDialog(props: IProps) {
   const [searchData, setSearchData] = useState<(SearchResponse[number] & { isFavorite?: boolean })[]>([]);
 
   const onSearch = (res: string) => {
@@ -28,6 +34,24 @@ export default function SearchDialog(props: { onInsertItem: (item: ItemType) => 
       setSearchData([]);
     }
   }
+
+  const showList = useMemo(() => {
+    const watchList = props.watchList;
+    const filteredList = searchData.map((item) => {
+      const isFavorite = watchList.some((watchItem) => watchItem.code === item.code);
+      return isFavorite ? { ...item, isFavorite } : item;
+    });
+    return [
+      {
+        groupName: "股票",
+        items: filteredList.filter((item) => item.type === "stock"),
+      },
+      {
+        groupName: "基金",
+        items: filteredList.filter((item) => item.type === "fund"),
+      },
+    ];
+  }, [props.watchList, searchData]);
 
   const updateSearchData = (code: string) => {
     setSearchData((data) =>
@@ -74,17 +98,6 @@ export default function SearchDialog(props: { onInsertItem: (item: ItemType) => 
     debouncedSearch(value);
   };
 
-  const values = [
-    {
-      groupName: "股票",
-      items: searchData.filter((item) => item.type === "stock"),
-    },
-    {
-      groupName: "基金",
-      items: searchData.filter((item) => item.type === "fund"),
-    },
-  ];
-
   return (
     <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger>
@@ -105,7 +118,7 @@ export default function SearchDialog(props: { onInsertItem: (item: ItemType) => 
         <div className="space-y-2h-[400px] flex items-center gap-2 relative">
           <Input className="m-2" placeholder="Search..." value={keyword} onChange={handleInputChange} />
         </div>
-        <SimpleList list={values} getKey={(item) => item.code}>
+        <SimpleList list={showList} getKey={(item) => item.code}>
           {(item: ItemType) => (
             <CommandItem key={item.code} className="flex justify-between">
               <span className="text-sm">{item.code}</span>

@@ -14,14 +14,12 @@ interface IProps {
 }
 export default function GridTradingPresetList({ className }: IProps) {
   const [strategyId, setStrategyId] = useQueryState("strategy");
-  const presetList = Store.presetListStore.getState();
-  // const remove = useGridTradeStrategyStore((state) => state.remove);
+  const presetList = Store.use.presetList();
+  const removePreset = Store.use.remove_preset_list();
 
   const onRemove = (item: IGridTradeStrategyConfig) => {
     if (String(item.id) === String(strategyId)) setStrategyId(null);
-    // remove(item);
-
-    Store.presetListStore.removePreset(item);
+    removePreset(String(item.id));
   };
   const onClick = (id: string) => setStrategyId(id);
   return (

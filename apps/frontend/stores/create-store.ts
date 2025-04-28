@@ -39,17 +39,17 @@ export interface StoreState {
   watchList: IWatchListItem[];
   presetListTemplate: IGridTradeStrategyConfig[];
 
-  insert_to_preset_list: (newPreset: IGridTradeStrategyConfig) => void;
+  insert_to_preset_list: (newPreset?: IGridTradeStrategyConfig) => void;
   update_preset_list: (updatedPreset: IGridTradeStrategyConfig) => void;
-  remove_preset_list: (id: number) => void;
+  remove_preset_list: (id: string) => void;
 
   insert_to_watch_list: (newWatchItem: IWatchListItem) => void;
   update_watch_list: (updatedWatchItem: IWatchListItem) => void;
   remove_watch_list: (code: string) => void;
 
-  insert_to_transaction: (newRecord: IGridLevelRecord) => void;
+  insert_to_transaction: (newRecord?: IGridLevelRecord) => void;
   update_transaction: (updatedRecord: IGridLevelRecord) => void;
-  remove_transaction: (id: number) => void;
+  remove_transaction: (id: string) => void;
 }
 
 export const STORE_KEYS = {
@@ -75,18 +75,18 @@ const update =
   (set: SetFuncType) =>
   <T extends StoreTypeUnion>(key: keyof StoreState, idField: keyof T, updatedItem: T) => {
     set((state) => ({
-      [key]: state[key].map((item) => ((item as T)[idField] === updatedItem[idField] ? updatedItem : item)),
+      [key]: (state[key] as T[]).map((item: T) => (item[idField] === updatedItem[idField] ? updatedItem : item)),
     }));
   };
 
 const insert = (set: SetFuncType) => (key: keyof StoreState, newItem: StoreTypeUnion) =>
-  set((state) => ({ [key]: [...state[key], newItem] }));
+  set((state) => ({ [key]: [...(state[key] as StoreTypeUnion[]), newItem] }));
 
 const remove =
   (set: SetFuncType) =>
-  <T extends StoreTypeUnion>(key: keyof StoreState, idField: keyof T, id: string) => {
+  <T extends StoreTypeUnion>(key: keyof StoreState, idField: keyof T, id: string | number) => {
     set((state) => ({
-      [key]: state[key].filter((item) => (item as T)[idField] !== id),
+      [key]: (state[key] as T[]).filter((item: T) => item[idField] !== id),
     }));
   };
 
@@ -106,7 +106,7 @@ export const useStore = create<StoreState>()(
       update_preset_list: (updatedPreset: IGridTradeStrategyConfig) => {
         update(set)<IGridTradeStrategyConfig>(STORE_KEYS.PRESET_LIST, "id" as keyof IGridTradeStrategyConfig, updatedPreset);
       },
-      remove_preset_list: (id: number) => {
+      remove_preset_list: (id: string) => {
         remove(set)<IGridTradeStrategyConfig>(STORE_KEYS.PRESET_LIST, "id" as keyof IGridTradeStrategyConfig, id);
       },
 
@@ -118,7 +118,7 @@ export const useStore = create<StoreState>()(
         update(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "id" as keyof IWatchListItem, updatedWatchItem);
       },
       remove_watch_list: (id: string) => {
-        remove(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "id" as keyof IWatchListItem, id);
+        remove(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "code" as keyof IWatchListItem, id);
       },
       // 交易记录
       insert_to_transaction: (
@@ -130,6 +130,7 @@ export const useStore = create<StoreState>()(
         update(set)<IGridLevelRecord>(STORE_KEYS.TRANSACTION, "id" as keyof IGridLevelRecord, updatedRecord);
       },
       remove_transaction: (id: string) => {
+        console.log("remove_transaction", id);
         remove(set)<IGridLevelRecord>(STORE_KEYS.TRANSACTION, "id" as keyof IGridLevelRecord, id);
       },
     }),
