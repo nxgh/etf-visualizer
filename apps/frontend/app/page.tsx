@@ -6,6 +6,7 @@ import GridTradingPresetList from "#components/grid-trading-preset/strategy-list
 import GridTradingPresetConfig from "#components/grid-trading-preset/strategy-config";
 import GridTradingPresetTable from "#components/grid-trading-preset/strategy-preset-template";
 import ConfigImportExport from "#components/config-import-export";
+import Chart from "#components/charts";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <GridTradingPresetTable />
 
       <TransactionTable className="h-1/2" />
+      <Chart />
     </div>
   );
 }
