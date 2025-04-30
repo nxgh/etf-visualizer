@@ -13,7 +13,7 @@ interface IProps<T> {
 export default function SimpleList<T>(props: IProps<T>) {
   const { list, children, emptyContent, getKey = (item: T) => JSON.stringify(item) } = props;
   return (
-    <Command className={cn(props.className)}>
+    <Command id="simple-list" className={cn('h-fit',props.className)}>
       <CommandList className="h-full">
         {list.length === 0 && emptyContent}
         {list.map((listItem, index) => {
@@ -27,7 +27,6 @@ export default function SimpleList<T>(props: IProps<T>) {
               Array.isArray((item as { items: unknown }).items)
             );
           };
-
           if (isGroupItem(listItem)) {
             const { groupName, items } = listItem;
             return (
@@ -38,7 +37,6 @@ export default function SimpleList<T>(props: IProps<T>) {
               </CommandGroup>
             );
           }
-
           return <Fragment key={getKey(listItem as T)}>{children(listItem as T)}</Fragment>;
         })}
       </CommandList>

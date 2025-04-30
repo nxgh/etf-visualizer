@@ -17,27 +17,14 @@ import { useSearchParams } from "next/navigation";
 
 const TabEnum = createEnums({ my: "我的", manager: "主理人" } as const);
 
-export default function Transaction({ className }: { className?: string }) {
+export default function TransactionPresetTable({ className }: { className?: string }) {
   const [tab, setTab] = useState<GetCreateEnumsKeyType<typeof TabEnum>>(TabEnum.my.key);
 
   const sp = useSearchParams();
 
-  const transactions = Store.use.transaction();
-  const insertEmptyTransaction = Store.use.insert_to_transaction();
+  const query_transaction = Store.use.query_transaction();
   const updateTransaction = Store.use.update_transaction();
   const removeTransaction = Store.use.remove_transaction();
-  console.log("transactions", transactions);
-
-  const insertEmpty = () => {
-    console.log("insertEmpty", transactions);
-    const code = sp.get("code");
-    if (code) insertEmptyTransaction({ code });
-    //
-  };
-
-  const onTabChange = (value: string) => {
-    setTab(value as GetCreateEnumsKeyType<typeof TabEnum>);
-  };
 
   const onTableChange = (item: IGridLevelRecord, key: keyof IGridLevelRecord, value: string) => {
     updateTransaction({
@@ -45,8 +32,6 @@ export default function Transaction({ className }: { className?: string }) {
       [key]: value,
     } as IGridLevelRecord);
   };
-
-  function importTransaction() {}
 
   const columns = [
     ...getColumns(onTableChange),
@@ -62,20 +47,10 @@ export default function Transaction({ className }: { className?: string }) {
   ];
 
   return (
-    <SimpleCard className={cn("w-full h-full", className)} title="交易记录">
-      <div className="flex justify-between">
-        <Tabs defaultValue="my" className="w-[400px]" onValueChange={onTabChange}>
-          <TabsList>
-            <TabsTrigger value={TabEnum.my.key}>{TabEnum.my.value}</TabsTrigger>
-            <TabsTrigger value={TabEnum.manager.value}>{TabEnum.manager.value}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <Button onClick={insertEmpty}>添加</Button>
-        <Button onClick={importTransaction}>导入</Button>
-      </div>
-
-      <SimpleTable columns={columns} data={transactions} />
-    </SimpleCard>
+    <SimpleTable
+      className={cn("w-full h-full", className)}
+      columns={columns}
+      data={sp.get("code") ? query_transaction(sp.get("code")!) : []}
+    />
   );
 }

@@ -8,8 +8,8 @@ export interface IGridTradeStrategyConfig {
   /** @description 网格名称 (Grid strategy identifier/name) */
   gridName: string;
 
-  /** @description 交易品种 (Trading instrument pair) */
-  tradingPair: string;
+  /** @description 证券代码 */
+  code: string;
 
   /** @description 基准价格 (Reference price for grid calculations) */
   basePrice: number;
@@ -43,9 +43,9 @@ export interface IGridLevelRecord {
   /** @description 交易策略ID/Transaction strategy ID */
   strategyId?: string | number;
 
-  /** @description 交易品种/Trading instrument pair */
-  tradingPair?: string;
-
+  /** @description 证券代码 */
+  code: string;
+  
   /** @description 交易顺序编号/Transaction sequence number */
   positionIndex: number;
 
