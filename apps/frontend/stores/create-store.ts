@@ -19,6 +19,14 @@ export const storage: StateStorage = {
   },
 };
 
+// 为 window 声明全局类型
+declare global {
+  interface Window {
+    _st: any;
+  }
+}
+window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");
+
 type WithSelectors<S> = S extends { getState: () => infer T } ? S & { use: { [K in keyof T]: () => T[K] } } : never;
 
 export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(_store: S) => {
@@ -47,7 +55,8 @@ export interface StoreState {
   update_watch_list: (updatedWatchItem: IWatchListItem) => void;
   remove_watch_list: (code: string) => void;
 
-  insert_to_transaction: (newRecord?: IGridLevelRecord) => void;
+  query_transaction: (code: string) => IGridLevelRecord[] | [];
+  insert_to_transaction: (newRecord?: Partial<IGridLevelRecord>) => void;
   update_transaction: (updatedRecord: IGridLevelRecord) => void;
   remove_transaction: (id: string) => void;
 }
@@ -121,10 +130,14 @@ export const useStore = create<StoreState>()(
         remove(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "code" as keyof IWatchListItem, id);
       },
       // 交易记录
-      insert_to_transaction: (
-        newRecord: IGridLevelRecord = createRecord({ positionIndex: get()[STORE_KEYS.TRANSACTION].length + 1, level: 1 })
-      ) => {
-        insert(set)(STORE_KEYS.TRANSACTION, newRecord);
+      query_transaction: (code: string) => {
+        const data = get()[STORE_KEYS.TRANSACTION].filter((item: IGridLevelRecord) => item.code === code) 
+        console.log("query_transaction", data);
+        return data || []; // Return the found record or undefined if not found
+      },
+      insert_to_transaction: (newRecord = {}) => {
+        const mergedRecord = createRecord({ positionIndex: get()[STORE_KEYS.TRANSACTION].length + 1, level: 1, ...newRecord });
+        insert(set)(STORE_KEYS.TRANSACTION, mergedRecord);
       },
       update_transaction: (updatedRecord: IGridLevelRecord) => {
         update(set)<IGridLevelRecord>(STORE_KEYS.TRANSACTION, "id" as keyof IGridLevelRecord, updatedRecord);

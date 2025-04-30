@@ -45,7 +45,7 @@ export default function TransactionPresetTable({ className }: { className?: stri
   );
 
   return (
-    <Card className={cn("w-[1200px]  overflow-auto", className)}>
+    <Card className={cn("w-[1200px] overflow-auto rounded-none", className)}>
       <CardHeader>
         <CardTitle>Grid Trading Preset Template</CardTitle>
       </CardHeader>

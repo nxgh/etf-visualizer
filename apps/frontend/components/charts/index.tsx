@@ -3,8 +3,9 @@ import mockData, { type DataType } from "./data";
 import * as echarts from "echarts";
 import option from "./option";
 import { splitData } from "./helper";
+import { cn } from "@shadcn/lib/utils";
 
-export default function Chart() {
+export default function Chart({ className }: { className: string }) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [echartsInstance, setEchartInstance] = useState<echarts.ECharts | null>(null);
 
@@ -41,5 +42,5 @@ export default function Chart() {
     echartsInstance.setOption(option(data));
   }, [data, echartsInstance, option]);
 
-  return <div ref={chartRef} className="w-[900px] h-[600px]" />;
+  return <div ref={chartRef} className={cn("w-[900px] h-[600px]", className)} />;
 }
