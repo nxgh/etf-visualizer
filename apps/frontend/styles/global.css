@@ -10,6 +10,17 @@ body {
 
 @theme {
   --font-lxgw: "LXGW WenKai Light";
+  /* --animate-shimmer: "shimmer 2s linear infinite";
+  --animate-wave: "hueRotate 10s alternate infinite";
+
+  @keyframes hueRotate {
+    0 {
+      filter: hue-rotate(0);
+    }
+    100% {
+      filter: hue-rotate(360deg);
+    }
+  } */
 }
 
 @layer base {
@@ -85,19 +96,13 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
-@layer base {
+/* @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
   }
-}
+} */

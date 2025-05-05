@@ -20,9 +20,7 @@ function splitData(rawData: DataType[]): SplitDataResult {
   const values: number[][] = new Array(length);
   const volumes: [number, number, number][] = new Array(length);
 
-  // 使用 map 代替 for 循环，提高代码可读性
   rawData.forEach((data, index) => {
-    // 避免修改原始数据，使用解构赋值
     const [category, ...rest] = data;
     categoryData[index] = category;
     values[index] = rest;
@@ -70,33 +68,33 @@ function calculateMA(dayCount: number, data: SplitDataResult): MAResult[] {
 
 export { splitData, calculateMA };
 
-export function splitData2(rawData: DataType[]) {
-  let categoryData = [];
-  let values = [];
-  let volumes = [];
-  for (let i = 0; i < rawData.length; i++) {
-    categoryData.push(rawData[i].splice(0, 1)[0]);
-    values.push(rawData[i]);
-    volumes.push([i, rawData[i][4], rawData[i][0] > rawData[i][1] ? 1 : -1]);
-  }
-  return {
-    categoryData: categoryData,
-    values: values,
-    volumes: volumes,
-  };
-}
-export function calculateMA2(dayCount: number, data: any) {
-  var result = [];
-  for (var i = 0, len = data.values.length; i < len; i++) {
-    if (i < dayCount) {
-      result.push("-");
-      continue;
-    }
-    var sum = 0;
-    for (var j = 0; j < dayCount; j++) {
-      sum += data.values[i - j][1];
-    }
-    result.push(+(sum / dayCount).toFixed(3));
-  }
-  return result;
-}
+// export function splitData2(rawData: DataType[]) {
+//   let categoryData = [];
+//   let values = [];
+//   let volumes = [];
+//   for (let i = 0; i < rawData.length; i++) {
+//     categoryData.push(rawData[i].splice(0, 1)[0]);
+//     values.push(rawData[i]);
+//     volumes.push([i, rawData[i][4], rawData[i][0] > rawData[i][1] ? 1 : -1]);
+//   }
+//   return {
+//     categoryData: categoryData,
+//     values: values,
+//     volumes: volumes,
+//   };
+// }
+// export function calculateMA2(dayCount: number, data: any) {
+//   var result = [];
+//   for (var i = 0, len = data.values.length; i < len; i++) {
+//     if (i < dayCount) {
+//       result.push("-");
+//       continue;
+//     }
+//     var sum = 0;
+//     for (var j = 0; j < dayCount; j++) {
+//       sum += data.values[i - j][1];
+//     }
+//     result.push(+(sum / dayCount).toFixed(3));
+//   }
+//   return result;
+// }

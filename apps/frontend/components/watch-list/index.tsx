@@ -14,8 +14,9 @@ import { Input } from "@shadcn/ui/input";
 
 import { useRouter } from "next/navigation";
 import { useSecuritySearch } from "./use-security-search";
-import { useSelect } from "./use-select";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
+import Show from "@shadcn/component/show";
+import { Match, Switch } from "@shadcn/component/match";
 
 type ItemType = IWatchListItem & { isFavorite?: boolean };
 
@@ -57,20 +58,16 @@ export default function WatchListIndex({ className }: { className?: string }) {
   const insert_to_watch_list = Store.use.insert_to_watch_list();
 
   // hook
-  const { keyword, showList, handleInputChange, updateSearchData, clearSearch } = useSecuritySearch(watchList);
-  const { containerRef, isOpen, setIsOpen } = useSelect({
-    onClose: clearSearch,
-  });
+  const { keyword, showList, handleInputChange, loading, clearSearch } = useSecuritySearch(watchList);
 
   // state
   const isSearching = useMemo(() => {
     return showList.some((item) => item.items.length > 0);
   }, [showList]);
 
-  // 当有搜索结果时自动打开下拉列表
-  useEffect(() => {
-    setIsOpen(isSearching);
-  }, [isSearching]);
+  const isOpen = useMemo(() => {
+    return keyword.length > 0;
+  }, [keyword]);
 
   // function
   const onRemoveItem = (code: string) => {
@@ -81,13 +78,21 @@ export default function WatchListIndex({ className }: { className?: string }) {
     insert_to_watch_list(param);
   };
 
+  const onClear = () => {
+    clearSearch();
+  };
+
   return (
     <div className="flex flex-col w-[280px] h-full overflow-hidden border-r p-4">
-      <div className={cn("relative", className)} ref={containerRef}>
-        <Input className="mb-2" placeholder="Search..." value={keyword} onChange={handleInputChange} />
+      <div className={cn("relative", className)}>
+        <Input className="mb-2" placeholder="Search..." value={keyword} onChange={handleInputChange} onClear={onClear} />
+      </div>
 
+      <Show when={isOpen}>
         <SimpleList
-          className={cn("absolute top-10 left-0 w-full h-[45vh] z-10 bg-transparent backdrop-blur-[14px]", isOpen ? "block" : "hidden")}
+          loading={loading}
+          emptyContent={<div className="text-sm text-gray-400">No result found</div>}
+          className={cn("w-full h-full z-10 bg-transparent backdrop-blur-[14px]")}
           list={showList}
           getKey={(item) => item.code}
         >
@@ -109,8 +114,10 @@ export default function WatchListIndex({ className }: { className?: string }) {
             </CommandItem>
           )}
         </SimpleList>
-      </div>
-      <WatchList className={isOpen ? "blur-sm" : ""} watchList={watchList} onRemoveItem={onRemoveItem} />
+      </Show>
+      <Show when={!isOpen}>
+        <WatchList className={isOpen ? "blur-sm" : ""} watchList={watchList} onRemoveItem={onRemoveItem} />
+      </Show>
     </div>
   );
 }

@@ -25,7 +25,7 @@ declare global {
     _st: any;
   }
 }
-window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");
+if (window) window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");
 
 type WithSelectors<S> = S extends { getState: () => infer T } ? S & { use: { [K in keyof T]: () => T[K] } } : never;
 
@@ -131,7 +131,7 @@ export const useStore = create<StoreState>()(
       },
       // 交易记录
       query_transaction: (code: string) => {
-        const data = get()[STORE_KEYS.TRANSACTION].filter((item: IGridLevelRecord) => item.code === code) 
+        const data = get()[STORE_KEYS.TRANSACTION].filter((item: IGridLevelRecord) => item.code === code);
         console.log("query_transaction", data);
         return data || []; // Return the found record or undefined if not found
       },

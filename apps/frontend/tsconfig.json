@@ -31,6 +31,14 @@
       "#utils/*": ["./utils/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/global.d.ts", "../../.tmp/src/gen-tran-preset.test.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "types/global.d.ts",
+    "../../.tmp/src/gen-tran-preset.test.ts",
+    "../../.tmp/src/use-select.ts"
+  ],
   "exclude": ["node_modules"]
 }

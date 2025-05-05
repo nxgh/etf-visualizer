@@ -264,22 +264,13 @@ const option = (data) => ({
     MASeries(10, data),
     MASeries(20, data),
     MASeries(30, data),
-    // {
-    //   name: "Volume",
-    //   type: "bar",
-    //   xAxisIndex: 1,
-    //   yAxisIndex: 1,
-    //   data: data.volumes,
-    // },
-    // {
-    //   name: "T",
-    //   type: "line",
-    //   data: calculateMA(30, data),
-    //   smooth: true,
-    //   lineStyle: {
-    //     opacity: 0.5,
-    //   },
-    // },
+    {
+      name: "Volume",
+      type: "bar",
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      data: data.volumes,
+    },
   ],
 });
 
