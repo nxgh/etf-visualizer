@@ -1,15 +1,14 @@
-import { cn } from "@shadcn/lib/utils"
+import { cn } from "@shadcn/lib/utils";
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-primary/10", className)}
-      {...props}
-    />
-  )
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  shimmer?: boolean;
+  wave?: boolean;
 }
 
-export { Skeleton }
+function Skeleton({ className, shimmer = false, wave = false, ...props }: SkeletonProps) {
+  return (
+    <div className={cn("rounded-md bg-gradient-to-r from-[#b2d7a4] via-[#dd88b3] to-[#fdedff] animate-gradient", className)} {...props} />
+  );
+}
+
+export { Skeleton };

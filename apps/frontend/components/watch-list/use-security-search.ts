@@ -8,11 +8,16 @@ export type SecuritySearchItem = SearchResponse[number] & { isFavorite?: boolean
 export function useSecuritySearch(watchList: IWatchListItem[]) {
   const [searchData, setSearchData] = useState<SecuritySearchItem[]>([]);
   const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const onSearch = (res: string) => {
-    searchSecurityAction(res).then((res) => {
-      setSearchData(res as unknown as SearchResponse);
-    });
+    searchSecurityAction(res)
+      .then((res) => {
+        setSearchData(res as unknown as SearchResponse);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const debouncedSearch = useMemo(
@@ -31,6 +36,7 @@ export function useSecuritySearch(watchList: IWatchListItem[]) {
   }, [debouncedSearch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
     const value = e.target.value;
     setKeyword(value);
     debouncedSearch(value);
@@ -75,5 +81,6 @@ export function useSecuritySearch(watchList: IWatchListItem[]) {
     handleInputChange,
     updateSearchData,
     clearSearch,
+    loading,
   };
 }
