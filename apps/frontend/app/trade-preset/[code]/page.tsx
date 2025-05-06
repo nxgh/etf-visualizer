@@ -1,31 +1,43 @@
 "use client";
 
-import { getColumns } from "#components/grid-trading-preset/strategy-preset-columns";
-import TransactionPresetSetting from "#components/trade-preset/strategy-config";
-import { IGridLevelRecord } from "#store";
+import { columnEnums, getColumns } from "#components/grid-trading-preset/strategy-preset-columns";
+import TransactionPresetSetting, { usePresetSetting } from "#components/trade-preset/strategy-config";
+import Store, { generateGrid, IGridLevelRecord } from "#store";
 import { SimpleTable } from "@shadcn/component";
 import Combobox from "@shadcn/component/combobox";
 import { SlidingPanel, SlidingPanelTrigger, SlidingPanelContent } from "@shadcn/component/sliding-panel";
 import { Button } from "@shadcn/ui/button";
 import { Cog } from "lucide-react";
-import { use } from "react";
+import { use, useMemo, useState } from "react";
 
 export default function TradePresetPage({ params }: { params: Promise<{ code: string }> }) {
-  const resolvedParams = use(params);
+  // store
+  const strategyStore = Store.use.presetList();
 
+  // hook
+  const resolvedParams = use(params);
+  const { form, saveForm, updateForm } = usePresetSetting();
+
+  const list = useMemo(() => {
+    return strategyStore
+      .filter((item) => item.code === resolvedParams.code)
+      .map((item) => ({
+        value: item.id,
+        label: item.strategyName,
+      }));
+  }, [resolvedParams.code, strategyStore]);
+
+  // state
   const onTableChange = (item: IGridLevelRecord, key: keyof IGridLevelRecord, value: string) => {};
 
+  const dataSource = useMemo(() => {
+    return generateGrid(form);
+  }, [form]);
+
+  // methods
+
   const columns = [
-    ...getColumns(onTableChange),
-    {
-      label: "操作",
-      key: "action" as const,
-      render: (item: IGridLevelRecord) => (
-        <Button variant="destructive" onClick={() => {}}>
-          删除
-        </Button>
-      ),
-    },
+    ...getColumns(onTableChange).filter((item) => ![columnEnums.buyDate.key, columnEnums.sellDate.key].includes(item.key as any)),
   ];
 
   return (
@@ -37,9 +49,9 @@ export default function TradePresetPage({ params }: { params: Promise<{ code: st
         <SlidingPanelContent>
           <TransactionPresetSetting className="p-4" />
         </SlidingPanelContent>
-        <Combobox />
+        <Combobox list={list} />
 
-        <SimpleTable columns={columns} data={[]} />
+        <SimpleTable columns={columns} data={dataSource} />
       </SlidingPanel>
     </div>
   );

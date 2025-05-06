@@ -1,5 +1,5 @@
 import { use, useEffect, useMemo, useState } from "react";
-import { omit } from "lodash-es";
+import { omit, pick } from "lodash-es";
 import { useQueryState, parseAsString } from "nuqs";
 import { useSearchParams } from "next/navigation";
 
@@ -31,10 +31,10 @@ interface FormRowsType {
 
 interface IProps {
   className?: string;
-  onPreview?: () => void;
+  // onPreview?: (form: IGridTradeStrategyConfig) => void;
 }
 
-function usePresetSetting() {
+export function usePresetSetting() {
   const watchList = Store.use.watchList();
   const strategyStore = Store.use.presetList();
   const updatePreset = Store.use.update_preset_list();
@@ -45,13 +45,6 @@ function usePresetSetting() {
   const gridName = watchList.find((item) => item.code === params.code)?.name;
 
   const [form, setForm] = useState<IGridTradeStrategyConfig>(createStrategy({ code: params.code as string, strategyName: gridName }));
-
-  // useEffect(() => {
-  //   const strategy = strategyStore.find((item) => item.id === Number(strategyId));
-  //   if (strategyId && strategy) {
-  //     setForm(strategy);
-  //   }
-  // }, [strategyId, strategyStore]);
 
   const isExist = useMemo(() => strategyStore.find((item) => item.id === form.id), [form, strategyStore]);
 
@@ -75,7 +68,9 @@ function usePresetSetting() {
   };
 }
 
-export default function TransactionPresetSetting({ className, onPreview }: IProps) {
+export default function TransactionPresetSetting(props: IProps) {
+  const { className } = props;
+
   const { form, setForm, saveForm, updateForm } = usePresetSetting();
 
   const FormRows: FormRowsType[] = [
@@ -169,6 +164,17 @@ export default function TransactionPresetSetting({ className, onPreview }: IProp
     },
   ];
 
+  const disabled = useMemo(() => {
+    const formData = omit(form, ["stressTest", "gridStepIncrement", "profitRetention"]);
+    return Object.values(formData).some((value: unknown) => value === 0 || value === null || value === undefined || value === "");
+  }, [form]);
+
+  const onPreview = () => {
+    console.log(form);
+
+    saveForm();
+  };
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className={cn("w-full ", className)}>
       <div className="grid w-full items-center gap-4 mb-4">
@@ -180,8 +186,8 @@ export default function TransactionPresetSetting({ className, onPreview }: IProp
         ))}
       </div>
 
-      <Button className="float-right" onClick={onPreview}>
-        Preview
+      <Button className="float-right" onClick={onPreview} disabled={disabled}>
+        {disabled ? "请完善参数" : "Preview"}
       </Button>
     </form>
   );
