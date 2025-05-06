@@ -1,14 +1,18 @@
 import { useState, useMemo, useEffect } from "react";
 import { debounce } from "lodash-es";
 import { searchSecurityAction, type SearchResponse } from "#actions/index";
-import type { IWatchListItem } from "#store";
+import { Store } from "#store";
+import { useQueryState } from "nuqs";
 
 export type SecuritySearchItem = SearchResponse[number] & { isFavorite?: boolean };
 
-export function useSecuritySearch(watchList: IWatchListItem[]) {
+export function useSecuritySearch() {
+  const watchList = Store.use.watchList();
+
   const [searchData, setSearchData] = useState<SecuritySearchItem[]>([]);
-  const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [q] = useQueryState("q");
 
   const onSearch = (res: string) => {
     searchSecurityAction(res)
@@ -32,15 +36,18 @@ export function useSecuritySearch(watchList: IWatchListItem[]) {
   );
 
   useEffect(() => {
+    if (q) {
+      setLoading(true);
+      debouncedSearch(q);
+    } else {
+      setSearchData([]);
+      setLoading(false);
+    }
+  }, [q]);
+
+  useEffect(() => {
     return () => debouncedSearch.cancel();
   }, [debouncedSearch]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const value = e.target.value;
-    setKeyword(value);
-    debouncedSearch(value);
-  };
 
   const showList = useMemo(() => {
     const filteredList = searchData.map((item) => {
@@ -59,27 +66,12 @@ export function useSecuritySearch(watchList: IWatchListItem[]) {
     ];
   }, [watchList, searchData]);
 
-  const updateSearchData = (code: string) => {
-    setSearchData((data) =>
-      data.map((item) => {
-        if (item.code === code) {
-          item.isFavorite = false;
-        }
-        return item;
-      })
-    );
-  };
-
   const clearSearch = () => {
     setSearchData([]);
-    setKeyword("");
   };
 
   return {
-    keyword,
     showList,
-    handleInputChange,
-    updateSearchData,
     clearSearch,
     loading,
   };

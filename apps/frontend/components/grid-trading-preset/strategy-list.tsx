@@ -31,7 +31,7 @@ export default function GridTradingPresetList({ className }: IProps) {
             <CommandItem key={item.id} className="flex justify-between cursor-pointer m-0 py-0">
               {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
               <div className="flex-1 cursor-pointer leading-[2] px-3 " onClick={() => onClick?.(item.id.toString())}>
-                {item.gridName}
+                {item.strategyName}
               </div>
               <Button variant="ghost" onClick={() => onRemove?.(item)} className="px-1 py-1" size="sm">
                 <Trash2 className="text-red-500 cursor-pointer" />{" "}

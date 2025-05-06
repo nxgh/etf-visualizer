@@ -18,7 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input"> &
     };
 
     return (
-      <div className="relative m-0 group">
+      <div className={cn("relative m-0 group", className)}>
         <input
           type={type}
           className={cn(
@@ -35,7 +35,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input"> &
           className={cn(
             "hidden  absolute right-2 top-[30%] w-[12px] h-[12px] cursor-pointer",
             (!type || type === "text") && "group-hover:block",
-            value !== "" && "block"
+            (!type || type === "text") && value !== "" && "block"
           )}
           onClick={handleClear}
         />

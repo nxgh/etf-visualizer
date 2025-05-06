@@ -25,7 +25,7 @@ declare global {
     _st: any;
   }
 }
-if (window) window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");
+if (globalThis.window) globalThis.window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");
 
 type WithSelectors<S> = S extends { getState: () => infer T } ? S & { use: { [K in keyof T]: () => T[K] } } : never;
 

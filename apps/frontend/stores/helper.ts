@@ -5,11 +5,11 @@ import type { IGridLevelRecord, IGridTradeStrategyConfig } from "./model.type";
  * 创建网格策略
  * @returns 网格策略
  */
-export function createStrategy(): IGridTradeStrategyConfig {
+export function createStrategy(params?: Partial<IGridTradeStrategyConfig>): IGridTradeStrategyConfig {
   return {
     id: Date.now().toString(),
-    gridName: "",
-    tradingPair: "",
+    strategyName: "",
+    code: "",
     basePrice: 1,
     buyVolume: 1000,
     priceIncrease: 5,
@@ -17,6 +17,7 @@ export function createStrategy(): IGridTradeStrategyConfig {
     stressTest: 100,
     gridStepIncrement: 0,
     profitRetention: 5,
+    ...params,
   };
 }
 
@@ -27,6 +28,7 @@ export function createStrategy(): IGridTradeStrategyConfig {
 export function createRecord(params: Partial<IGridLevelRecord>): IGridLevelRecord {
   return {
     id: Date.now().toString(),
+    code: "",
     positionIndex: 0,
     level: 0,
     buyPrice: 0,

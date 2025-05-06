@@ -14,12 +14,12 @@ const MASeries = (MA: 5 | 10 | 20 | 30, data: SplitDataResult) => ({
   },
 });
 
-const option = (data) => ({
+const option = ({data, title}: {data: SplitDataResult, title: string}) => ({
   animation: false,
   legend: {
     bottom: 10,
     left: "center",
-    data: ["Dow-Jones index", "MA5", "MA10", "MA20", "MA30"],
+    data: [title, "MA5", "MA10", "MA20", "MA30"],
   },
   tooltip: {
     trigger: "axis",
@@ -62,13 +62,13 @@ const option = (data) => ({
       },
     },
   },
-  brush: {
-    xAxisIndex: "all",
-    brushLink: "all",
-    outOfBrush: {
-      colorAlpha: 0.1,
-    },
-  },
+  // brush: {
+  //   xAxisIndex: "all",
+  //   brushLink: "all",
+  //   outOfBrush: {
+  //     colorAlpha: 0.1,
+  //   },
+  // },
   visualMap: {
     show: false,
     seriesIndex: 5,
@@ -93,7 +93,7 @@ const option = (data) => ({
     {
       left: "10%",
       right: "8%",
-      top: "63%",
+      top: "10%",
       height: "16%",
     },
   ],
@@ -143,20 +143,20 @@ const option = (data) => ({
   dataZoom: [
     {
       type: "inside",
-      start: 50,
+      start: 80,
       end: 100,
     },
     {
       show: true,
       type: "slider",
-      top: "90%",
-      start: 50,
+      bottom: "10%",
+      start: 0,
       end: 100,
     },
   ],
   series: [
     {
-      name: "Dow-Jones index",
+      name: title,
       type: "candlestick",
       data: data.values,
       itemStyle: {
@@ -264,13 +264,13 @@ const option = (data) => ({
     MASeries(10, data),
     MASeries(20, data),
     MASeries(30, data),
-    {
-      name: "Volume",
-      type: "bar",
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      data: data.volumes,
-    },
+    // {
+    //   name: "Volume",
+    //   type: "bar",
+    //   xAxisIndex: 1,
+    //   yAxisIndex: 1,
+    //   data: data.volumes,
+    // },
   ],
 });
 

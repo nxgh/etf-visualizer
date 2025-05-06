@@ -4,6 +4,7 @@ import * as echarts from "echarts";
 import option from "./option";
 import { splitData } from "./helper";
 import { cn } from "@shadcn/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 export default function Chart({ className }: { className: string }) {
   const chartRef = useRef<HTMLDivElement>(null);
@@ -11,6 +12,8 @@ export default function Chart({ className }: { className: string }) {
 
   // 使用 useMemo 缓存数据处理结果
   const data = useMemo(() => splitData(mockData), []);
+
+  const code = useSearchParams().get("code") || "";
 
   // 初始化图表
   useEffect(() => {
@@ -21,7 +24,7 @@ export default function Chart({ className }: { className: string }) {
     setEchartInstance(instance);
 
     // 设置初始配置
-    instance.setOption(option(data));
+    instance.setOption(option({ data, title: code }));
 
     // 添加响应式调整
     const handleResize = () => {
@@ -39,8 +42,8 @@ export default function Chart({ className }: { className: string }) {
   // 数据更新时更新图表
   useEffect(() => {
     if (!echartsInstance) return;
-    echartsInstance.setOption(option(data));
-  }, [data, echartsInstance, option]);
+    echartsInstance.setOption(option({ data, title: code }));
+  }, [data, echartsInstance, option, code]);
 
   return <div ref={chartRef} className={cn("w-[900px] h-[600px]", className)} />;
 }

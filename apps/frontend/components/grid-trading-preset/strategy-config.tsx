@@ -11,7 +11,6 @@ import SimpleCard from "@shadcn/component/card";
 import SimpleSelect from "@shadcn/component/select";
 
 import Store, { type IGridTradeStrategyConfig, createStrategy } from "#store";
-// import { useWatchListStore, useGridTradeStrategyStore } from "#store/index";
 
 interface FormRowsType {
   label: string;
@@ -66,21 +65,21 @@ export default function TransactionPresetSetting({ className }: { className?: st
       label: "网格名称",
       key: "gridName",
       type: "text",
-      value: form.gridName,
+      value: form.strategyName,
       onChange: (e) => updateForm("gridName", e.target.value),
     },
     {
       label: "交易品种",
-      key: "tradingPair",
+      key: "code",
       render: () => {
         return (
           <SimpleSelect
             placeholder="请选择交易品种"
             options={options}
-            value={form.tradingPair ?? ""}
+            value={form.code ?? ""}
             onValueChange={(e, option) => {
-              !form.gridName && updateForm("gridName", `${option.label}`);
-              option?.value && updateForm("tradingPair", option.value);
+              !form.strategyName && updateForm("gridName", `${option.label}`);
+              option?.value && updateForm("code", option.value);
             }}
           />
         );
