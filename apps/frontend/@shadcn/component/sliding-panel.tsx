@@ -27,18 +27,6 @@ interface SlidingPanelProps {
 
 function SlidingPanel({ children, width = 300, className, defaultExpanded = false }: SlidingPanelProps) {
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsExpanded(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <SlidingPanelContext.Provider value={{ isExpanded, setIsExpanded, width }}>
@@ -49,7 +37,6 @@ function SlidingPanel({ children, width = 300, className, defaultExpanded = fals
           className
         )}
         style={{ paddingRight: isExpanded ? `${width}px` : "0" }}
-        ref={containerRef}
       >
         {children}
       </div>
