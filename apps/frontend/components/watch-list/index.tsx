@@ -1,35 +1,25 @@
 "use client";
-import { useEffect, useMemo } from "react";
 
-import { SimpleCard, SimpleIconTooltip } from "@shadcn/component";
+import { SimpleIconTooltip } from "@shadcn/component";
 
 import { SimpleList } from "@shadcn/component";
-import { BarChart, DiamondMinus, DiamondPlus, Trash2, Ellipsis, FileChartLine, Gem } from "lucide-react";
+import { DiamondMinus, DiamondPlus, Trash2, FileChartLine, Gem } from "lucide-react";
 
-import Store, { type IWatchListItem } from "#store";
+import Store from "#store";
 import { cn } from "@shadcn/lib/utils";
 import { Button } from "@shadcn/ui/button";
 import { CommandItem } from "@shadcn/ui/command";
-import { Input } from "@shadcn/ui/input";
 
 import { useRouter } from "next/navigation";
 import { useSecuritySearch } from "./use-security-search";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
-import Show from "@shadcn/component/show";
 import { Match, Switch } from "@shadcn/component/match";
 import { useQueryState } from "nuqs";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@shadcn/ui/dropdown-menu";
+import { insertWatchList, removeWatchList } from "#store/create-store";
 
-type ItemType = IWatchListItem & { isFavorite?: boolean };
+type ItemType = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
-function WatchList(props: { watchList: IWatchListItem[]; onRemoveItem: (code: string) => void; className?: string }) {
+function WatchList(props: { watchList: IWatchList[]; className?: string }) {
   const router = useRouter();
 
   const handleClickItem = (code: string) => {
@@ -76,19 +66,7 @@ function WatchList(props: { watchList: IWatchListItem[]; onRemoveItem: (code: st
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Trash2 className="size-4 text-red-300 hover:text-red-500" />
-
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Ellipsis className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>Profile</DropdownMenuItem>
-                      <DropdownMenuItem>Billing</DropdownMenuItem>
-                      <DropdownMenuItem>Team</DropdownMenuItem>
-                      <DropdownMenuItem>Subscription</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu> */}
+                  <Trash2 className="size-4 text-red-300 hover:text-red-500" onClick={() => removeWatchList(item.code)} />
                 </div>
               </div>
             </div>
@@ -102,23 +80,12 @@ function WatchList(props: { watchList: IWatchListItem[]; onRemoveItem: (code: st
 export default function WatchListIndex({ className }: { className?: string }) {
   // store
   const watchList = Store.use.watchList();
-  const remove_watch_list = Store.use.remove_watch_list();
-  const insert_to_watch_list = Store.use.insert_to_watch_list();
 
   // hook
   const { showList, loading } = useSecuritySearch();
 
   // state
   const [q] = useQueryState("q");
-
-  // function
-  const onRemoveItem = (code: string) => {
-    remove_watch_list(code);
-  };
-
-  const onInsertItem = (param: IWatchListItem) => {
-    insert_to_watch_list(param);
-  };
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden border-r p-4">
@@ -138,11 +105,11 @@ export default function WatchListIndex({ className }: { className?: string }) {
                   <span className="text-sm text-gray-400">[{item.code}]</span>
                 </div>
                 {item.isFavorite ? (
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onRemoveItem(item.code)}>
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => removeWatchList(item.code)}>
                     <DiamondMinus className="hover:text-red-501" />
                   </Button>
                 ) : (
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onInsertItem(item)}>
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => insertWatchList(item)}>
                     <DiamondPlus className="hover:text-red-501" />
                   </Button>
                 )}
@@ -152,7 +119,7 @@ export default function WatchListIndex({ className }: { className?: string }) {
         </Match>
 
         <Match when={!q}>
-          <WatchList watchList={watchList} onRemoveItem={onRemoveItem} />
+          <WatchList watchList={watchList} />
         </Match>
       </Switch>
     </div>

@@ -4,7 +4,7 @@ import { searchSecurityAction, type SearchResponse } from "#actions/index";
 import { Store } from "#store";
 import { useQueryState } from "nuqs";
 
-export type SecuritySearchItem = SearchResponse[number] & { isFavorite?: boolean };
+export type SecuritySearchItem = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
 export function useSecuritySearch() {
   const watchList = Store.use.watchList();

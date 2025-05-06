@@ -16,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarProvider,
   useSidebar,
 } from "@shadcn/ui/sidebar";
 import { Switch } from "@shadcn/ui/switch";
@@ -64,17 +65,13 @@ const data = {
 };
 
 export function AppSidebar({ children, ...props }: React.ComponentProps<typeof Sidebar>) {
-  // Note: I'm using state to show active item.
-  // IRL you should use the url/router.
   const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
+
   const { setOpen } = useSidebar();
-
-  const [q, setQuery] = useQueryState("q");
-
   return (
     <Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
       <Sidebar collapsible="none" className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r">
-        <SidebarHeader>
+        {/* <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
@@ -90,7 +87,7 @@ export function AppSidebar({ children, ...props }: React.ComponentProps<typeof S
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-        </SidebarHeader>
+        </SidebarHeader> */}
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
@@ -121,26 +118,19 @@ export function AppSidebar({ children, ...props }: React.ComponentProps<typeof S
           <NavUser user={data.user} />
         </SidebarFooter>
       </Sidebar>
-
-      <Sidebar collapsible="none" className="hidden flex-1 md:flex">
-        <SidebarHeader className="gap-3.5 border-b p-4">
-          <div className="flex w-full items-center justify-between">
-            <div className="text-base font-medium text-foreground">{activeItem?.title}</div>
-            <Label className="flex items-center gap-2 text-sm"></Label>
-          </div>
-          <SidebarInput
-            placeholder="Type to search..."
-            value={q ?? ""}
-            onChange={(e) => setQuery(e.target.value)}
-            onClear={() => setQuery(null)}
-          />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup className="px-0">
-            <SidebarGroupContent>{children}</SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
     </Sidebar>
+  );
+}
+
+export function LayoutAppSidebar({ children, ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Note: I'm using state to show active item.
+  // IRL you should use the url/router.
+
+  const [q, setQuery] = useQueryState("q");
+
+  return (
+    <SidebarProvider style={{ "--sidebar-width": "200px" } as React.CSSProperties}>
+      <AppSidebar />
+    </SidebarProvider>
   );
 }

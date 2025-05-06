@@ -1,22 +1,18 @@
-import { use, useEffect, useMemo, useState } from "react";
-import { omit, pick } from "lodash-es";
-import { useQueryState, parseAsString } from "nuqs";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { omit } from "lodash-es";
 
 import { cn } from "@shadcn/lib/utils";
 import { Button } from "@shadcn/ui/button";
 import { Input } from "@shadcn/ui/input";
 import { Label } from "@shadcn/ui/label";
-import SimpleCard from "@shadcn/component/card";
-import SimpleSelect from "@shadcn/component/select";
 
-import Store, { type IGridTradeStrategyConfig, createStrategy } from "#store";
+import Store, { createStrategy } from "#store";
 import { useParams } from "next/navigation";
-import { Slider } from "@shadcn/ui/slider";
 import InputNumber from "@shadcn/component/input-number";
+import { insertStragegy, updateStragegy } from "#store/create-store";
 interface FormRowsType {
   label: string;
-  key: keyof IGridTradeStrategyConfig;
+  key: keyof IStrategyConfig;
   type?: "text" | "number" | "switch";
 
   render?: (row: FormRowsType) => React.ReactNode;
@@ -37,26 +33,24 @@ interface IProps {
 export function usePresetSetting() {
   const watchList = Store.use.watchList();
   const strategyStore = Store.use.presetList();
-  const updatePreset = Store.use.update_preset_list();
-  const insertPreset = Store.use.insert_to_preset_list();
 
   const params = useParams();
 
   const gridName = watchList.find((item) => item.code === params.code)?.name;
 
-  const [form, setForm] = useState<IGridTradeStrategyConfig>(createStrategy({ code: params.code as string, strategyName: gridName }));
+  const [form, setForm] = useState<IStrategyConfig>(createStrategy({ code: params.code as string, strategyName: gridName }));
 
   const isExist = useMemo(() => strategyStore.find((item) => item.id === form.id), [form, strategyStore]);
 
   function saveForm() {
     if (isExist) {
-      updatePreset(form);
+      updateStragegy(form);
       return;
     }
-    insertPreset(form);
+    insertStragegy(form);
   }
 
-  const updateForm = (key: keyof IGridTradeStrategyConfig, value: string | number | boolean) => {
+  const updateForm = (key: keyof IStrategyConfig, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 

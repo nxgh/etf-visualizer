@@ -2,7 +2,7 @@
 
 import { columnEnums, getColumns } from "#components/grid-trading-preset/strategy-preset-columns";
 import TransactionPresetSetting, { usePresetSetting } from "#components/trade-preset/strategy-config";
-import Store, { generateGrid, IGridLevelRecord } from "#store";
+import Store, { generateGrid } from "#store";
 import { SimpleTable } from "@shadcn/component";
 import Combobox from "@shadcn/component/combobox";
 import { SlidingPanel, SlidingPanelTrigger, SlidingPanelContent } from "@shadcn/component/sliding-panel";
@@ -28,7 +28,7 @@ export default function TradePresetPage({ params }: { params: Promise<{ code: st
   }, [resolvedParams.code, strategyStore]);
 
   // state
-  const onTableChange = (item: IGridLevelRecord, key: keyof IGridLevelRecord, value: string) => {};
+  const onTableChange = (item: ITradRecord, key: keyof ITradRecord, value: string) => {};
 
   const dataSource = useMemo(() => {
     return generateGrid(form);
