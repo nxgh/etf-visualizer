@@ -6,7 +6,7 @@ export interface IGridTradeStrategyConfig {
   id: string | number;
 
   /** @description 网格名称 (Grid strategy identifier/name) */
-  gridName: string;
+  strategyName: string;
 
   /** @description 证券代码 */
   code: string;

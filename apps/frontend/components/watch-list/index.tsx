@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useMemo } from "react";
 
-import { SimpleCard } from "@shadcn/component";
+import { SimpleCard, SimpleIconTooltip } from "@shadcn/component";
 
 import { SimpleList } from "@shadcn/component";
-import { DiamondMinus, DiamondPlus } from "lucide-react";
+import { BarChart, DiamondMinus, DiamondPlus, Trash2, Ellipsis, FileChartLine, Gem } from "lucide-react";
 
 import Store, { type IWatchListItem } from "#store";
 import { cn } from "@shadcn/lib/utils";
@@ -17,6 +17,15 @@ import { useSecuritySearch } from "./use-security-search";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
 import Show from "@shadcn/component/show";
 import { Match, Switch } from "@shadcn/component/match";
+import { useQueryState } from "nuqs";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@shadcn/ui/dropdown-menu";
 
 type ItemType = IWatchListItem & { isFavorite?: boolean };
 
@@ -24,8 +33,24 @@ function WatchList(props: { watchList: IWatchListItem[]; onRemoveItem: (code: st
   const router = useRouter();
 
   const handleClickItem = (code: string) => {
-    router.push(`?code=${code}`);
+    router.push(`/trade-record/${code}`);
   };
+
+  const icons = [
+    {
+      name: "交易预设",
+      icon: (code: string) => (
+        <FileChartLine className="size-4 text-blue-200 hover:text-blue-500" onClick={() => router.push(`/trade-preset/${code}`)} />
+      ),
+    },
+
+    {
+      name: "主理人交易记录",
+      icon: (code: string) => (
+        <Gem className="size-4 text-green-200 hover:text-green-500" onClick={() => router.push(`/manager-trade-record/${code}`)} />
+      ),
+    },
+  ];
 
   return (
     <ScrollArea className="h-full rounded-md w-full">
@@ -34,15 +59,38 @@ function WatchList(props: { watchList: IWatchListItem[]; onRemoveItem: (code: st
           return (
             <div
               key={item.code}
-              className="flex items-end hover:bg-gray-100 cursor-pointer rounded bg-gray-50 mb-2 p-2 px-4 border border-gray-200"
+              className="flex flex-col hover:bg-gray-100 cursor-pointer rounded bg-gray-50 mb-2 p-2 px-4 border border-gray-200"
             >
-              <div className="flex flex-col  flex-1  gap-2 " onClick={() => handleClickItem(item.code)}>
+              <div className="flex flex-col  flex-1  gap-2 mb-2" onClick={() => handleClickItem(item.code)}>
                 {item.name}
                 <span className="text-xs text-gray-500"> [{item.code}]</span>
               </div>
-              <span className="text ml-2 hover:bg-gray-200 rounded-full" onClick={() => props.onRemoveItem(item.code)}>
-                ❌
-              </span>
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  {icons.map((icon) => (
+                    <SimpleIconTooltip key={icon.name} label={icon.name}>
+                      {icon.icon(item.code)}
+                    </SimpleIconTooltip>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Trash2 className="size-4 text-red-300 hover:text-red-500" />
+
+                  {/* <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Ellipsis className="size-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <DropdownMenuItem>Billing</DropdownMenuItem>
+                      <DropdownMenuItem>Team</DropdownMenuItem>
+                      <DropdownMenuItem>Subscription</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu> */}
+                </div>
+              </div>
             </div>
           );
         })}
@@ -58,16 +106,10 @@ export default function WatchListIndex({ className }: { className?: string }) {
   const insert_to_watch_list = Store.use.insert_to_watch_list();
 
   // hook
-  const { keyword, showList, handleInputChange, loading, clearSearch } = useSecuritySearch(watchList);
+  const { showList, loading } = useSecuritySearch();
 
   // state
-  const isSearching = useMemo(() => {
-    return showList.some((item) => item.items.length > 0);
-  }, [showList]);
-
-  const isOpen = useMemo(() => {
-    return keyword.length > 0;
-  }, [keyword]);
+  const [q] = useQueryState("q");
 
   // function
   const onRemoveItem = (code: string) => {
@@ -78,46 +120,41 @@ export default function WatchListIndex({ className }: { className?: string }) {
     insert_to_watch_list(param);
   };
 
-  const onClear = () => {
-    clearSearch();
-  };
-
   return (
-    <div className="flex flex-col w-[280px] h-full overflow-hidden border-r p-4">
-      <div className={cn("relative", className)}>
-        <Input className="mb-2" placeholder="Search..." value={keyword} onChange={handleInputChange} onClear={onClear} />
-      </div>
+    <div className="flex flex-col w-full h-full overflow-hidden border-r p-4">
+      <Switch>
+        <Match when={q}>
+          <SimpleList
+            loading={loading}
+            emptyContent={<div className="text-sm text-gray-400">No result found</div>}
+            className={cn("w-full h-full z-10 bg-transparent backdrop-blur-[14px]")}
+            list={showList}
+            getKey={(item) => item.code}
+          >
+            {(item: ItemType) => (
+              <CommandItem key={item.code} className="flex items-end justify-between">
+                <div className="text-sm flex flex-col  gap-2">
+                  <span className="text-base">{item.name}</span>
+                  <span className="text-sm text-gray-400">[{item.code}]</span>
+                </div>
+                {item.isFavorite ? (
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onRemoveItem(item.code)}>
+                    <DiamondMinus className="hover:text-red-501" />
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onInsertItem(item)}>
+                    <DiamondPlus className="hover:text-red-501" />
+                  </Button>
+                )}
+              </CommandItem>
+            )}
+          </SimpleList>
+        </Match>
 
-      <Show when={isOpen}>
-        <SimpleList
-          loading={loading}
-          emptyContent={<div className="text-sm text-gray-400">No result found</div>}
-          className={cn("w-full h-full z-10 bg-transparent backdrop-blur-[14px]")}
-          list={showList}
-          getKey={(item) => item.code}
-        >
-          {(item: ItemType) => (
-            <CommandItem key={item.code} className="flex items-end justify-between">
-              <div className="text-sm flex flex-col  gap-2">
-                <span className="text-base">{item.name}</span>
-                <span className="text-sm text-gray-400">[{item.code}]</span>
-              </div>
-              {item.isFavorite ? (
-                <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onRemoveItem(item.code)}>
-                  <DiamondMinus className="hover:text-red-501" />
-                </Button>
-              ) : (
-                <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => onInsertItem(item)}>
-                  <DiamondPlus className="hover:text-red-501" />
-                </Button>
-              )}
-            </CommandItem>
-          )}
-        </SimpleList>
-      </Show>
-      <Show when={!isOpen}>
-        <WatchList className={isOpen ? "blur-sm" : ""} watchList={watchList} onRemoveItem={onRemoveItem} />
-      </Show>
+        <Match when={!q}>
+          <WatchList watchList={watchList} onRemoveItem={onRemoveItem} />
+        </Match>
+      </Switch>
     </div>
   );
 }

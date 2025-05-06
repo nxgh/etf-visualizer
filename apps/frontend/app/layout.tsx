@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 
 import "#styles/global.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { AppSidebar } from "#components/side-bar/app-sidebar";
+import WatchList from "#components/watch-list";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@shadcn/ui/sidebar";
+import { Separator } from "@shadcn/ui/separator";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@shadcn/ui/breadcrumb";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +21,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="flex w-screen h-screen overflow-x-hidden">
-        <NuqsAdapter>{children}</NuqsAdapter>
+        <NuqsAdapter>
+          <SidebarProvider style={{ "--sidebar-width": "350px" } as React.CSSProperties}>
+            <AppSidebar>
+              <WatchList />
+            </AppSidebar>
+            <SidebarInset>{children}</SidebarInset>
+          </SidebarProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );
