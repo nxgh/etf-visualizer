@@ -1,14 +1,18 @@
+import type {
+  IBaseType,
+  IStrategyConfig as LocalIStrategyConfig,
+  ITradRecord as LocalITradRecord,
+  IWatchList as LocalIWatchList,
+} from "./model.d";
+
 declare global {
-  interface FundList {
-    code: string;
-    pk_id: string;
-    name: string;
-    type: string;
-    desc: string;
-    line: string;
-    created_at: Date;
-    updated_at: Date;
-  }  
+  interface IStrategyConfig extends LocalIStrategyConfig {}
+
+  interface ITradRecord extends LocalITradRecord {}
+
+  interface IWatchList extends LocalIWatchList {}
+
+  type BaseParams<T> = Partial<T> & Pick<IBaseType, "code">;
 }
 
 export default global;

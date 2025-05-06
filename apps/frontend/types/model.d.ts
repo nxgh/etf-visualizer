@@ -1,15 +1,17 @@
+export interface IBaseType {
+  id: string;
+  create_at: string;
+  update_at: string;
+  code: string;
+  securityName: string;
+}
+
 /**
  * @description 网格策略配置 (Grid strategy configuration)
  */
-export interface IGridTradeStrategyConfig {
-  /** @description 网格策略ID */
-  id: string | number;
-
-  /** @description 网格名称 (Grid strategy identifier/name) */
+export interface IStrategyConfig extends IBaseType {
+  /** @description 策略名称 */
   strategyName: string;
-
-  /** @description 证券代码 */
-  code: string;
 
   /** @description 基准价格 (Reference price for grid calculations) */
   basePrice: number;
@@ -31,21 +33,21 @@ export interface IGridTradeStrategyConfig {
 
   /** @description 利润留存 (Profit retention percentage) */
   profitRetention: number;
+
+  /** @description 来源 */
+  source: string;
 }
 
 /**
  *  @description 网格交易档位详细信息/Grid trading level detailed information
  */
-export interface IGridLevelRecord {
-  /** @description 交易ID/Transaction ID */
-  id: string | number;
-
+export interface ITradRecord extends IBaseType {
   /** @description 交易策略ID/Transaction strategy ID */
   strategyId?: string | number;
 
-  /** @description 证券代码 */
-  code: string;
-  
+  /** @description 来源 */
+  source?: string;
+
   /** @description 交易顺序编号/Transaction sequence number */
   positionIndex: number;
 
@@ -90,8 +92,7 @@ export interface IGridLevelRecord {
 }
 
 // 定义 WatchList 项的接口，确保包含一个唯一标识符
-export interface IWatchListItem {
-  code: string; // 使用 code 作为唯一标识符
-  name: string;
+export interface IWatchList extends Omit<IBaseType, "securityName" | "id"> {
   type: string;
+  name: string;
 }

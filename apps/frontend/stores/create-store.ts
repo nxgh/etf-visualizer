@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { IGridTradeStrategyConfig, IGridLevelRecord, IWatchListItem } from "./model.type";
 
 import type { StoreApi, UseBoundStore } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { get, set, del } from "idb-keyval";
 import { createRecord, createStrategy } from "./helper";
+import { useMemo } from "react";
 
 export const storage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -42,23 +42,9 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(_stor
 
 // 定义 Store 的整体状态结构
 export interface StoreState {
-  presetList: IGridTradeStrategyConfig[];
-  transaction: IGridLevelRecord[];
-  watchList: IWatchListItem[];
-  presetListTemplate: IGridTradeStrategyConfig[];
-
-  insert_to_preset_list: (newPreset?: IGridTradeStrategyConfig) => void;
-  update_preset_list: (updatedPreset: IGridTradeStrategyConfig) => void;
-  remove_preset_list: (id: string) => void;
-
-  insert_to_watch_list: (newWatchItem: IWatchListItem) => void;
-  update_watch_list: (updatedWatchItem: IWatchListItem) => void;
-  remove_watch_list: (code: string) => void;
-
-  query_transaction: (code: string) => IGridLevelRecord[] | [];
-  insert_to_transaction: (newRecord?: Partial<IGridLevelRecord>) => void;
-  update_transaction: (updatedRecord: IGridLevelRecord) => void;
-  remove_transaction: (id: string) => void;
+  presetList: IStrategyConfig[];
+  transaction: ITradRecord[];
+  watchList: IWatchList[];
 }
 
 export const STORE_KEYS = {
@@ -73,7 +59,7 @@ export const STORE_KEYS = {
 // 定义 Store 名称的联合类型
 export type StoreName = keyof StoreState; // 使用 keyof 简化
 
-type StoreTypeUnion = IGridTradeStrategyConfig | IGridLevelRecord | IWatchListItem;
+type StoreTypeUnion = IStrategyConfig | ITradRecord | IWatchList;
 
 type SetFuncType = {
   (partial: StoreState | Partial<StoreState> | ((state: StoreState) => StoreState | Partial<StoreState>), replace?: false): void;
@@ -107,45 +93,6 @@ export const useStore = create<StoreState>()(
       [STORE_KEYS.TRANSACTION]: [],
       [STORE_KEYS.WATCH_LIST]: [],
       [STORE_KEYS.PRESET_LIST_TEMPLATE]: [],
-
-      // preset list
-      insert_to_preset_list: (newPreset: IGridTradeStrategyConfig = createStrategy()) => {
-        insert(set)(STORE_KEYS.PRESET_LIST, newPreset);
-      },
-      update_preset_list: (updatedPreset: IGridTradeStrategyConfig) => {
-        update(set)<IGridTradeStrategyConfig>(STORE_KEYS.PRESET_LIST, "id" as keyof IGridTradeStrategyConfig, updatedPreset);
-      },
-      remove_preset_list: (id: string) => {
-        remove(set)<IGridTradeStrategyConfig>(STORE_KEYS.PRESET_LIST, "id" as keyof IGridTradeStrategyConfig, id);
-      },
-
-      // watch list
-      insert_to_watch_list: (newWatchItem: IWatchListItem) => {
-        insert(set)(STORE_KEYS.WATCH_LIST, newWatchItem);
-      },
-      update_watch_list: (updatedWatchItem: IWatchListItem) => {
-        update(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "id" as keyof IWatchListItem, updatedWatchItem);
-      },
-      remove_watch_list: (id: string) => {
-        remove(set)<IWatchListItem>(STORE_KEYS.WATCH_LIST, "code" as keyof IWatchListItem, id);
-      },
-      // 交易记录
-      query_transaction: (code: string) => {
-        const data = get()[STORE_KEYS.TRANSACTION].filter((item: IGridLevelRecord) => item.code === code);
-        console.log("query_transaction", data);
-        return data || []; // Return the found record or undefined if not found
-      },
-      insert_to_transaction: (newRecord = {}) => {
-        const mergedRecord = createRecord({ positionIndex: get()[STORE_KEYS.TRANSACTION].length + 1, level: 1, ...newRecord });
-        insert(set)(STORE_KEYS.TRANSACTION, mergedRecord);
-      },
-      update_transaction: (updatedRecord: IGridLevelRecord) => {
-        update(set)<IGridLevelRecord>(STORE_KEYS.TRANSACTION, "id" as keyof IGridLevelRecord, updatedRecord);
-      },
-      remove_transaction: (id: string) => {
-        console.log("remove_transaction", id);
-        remove(set)<IGridLevelRecord>(STORE_KEYS.TRANSACTION, "id" as keyof IGridLevelRecord, id);
-      },
     }),
     {
       name: "grid-trade-storage",
@@ -154,4 +101,71 @@ export const useStore = create<StoreState>()(
   )
 );
 
-export default createSelectors(useStore);
+const Store = createSelectors(useStore);
+
+/**
+ * @description 新建交易记录
+ * @param params
+ */
+export const addTransactionItem = (params: BaseParams<ITradRecord>) => {
+  useStore.setState((state) => {
+    const newRecord = createRecord({
+      positionIndex: state.transaction.filter((item) => item.code === params.code).length + 1,
+      level: 1,
+      ...params,
+    });
+    return { transaction: [...state.transaction, newRecord] };
+  });
+};
+
+export const removeWatchList = (code: string) => {
+  useStore.setState((state) => {
+    return { watchList: state.watchList.filter((item) => item.code !== code) };
+  });
+};
+
+export const insertWatchList = (params: Pick<IWatchList, "code" | "name" | "type">) => {
+  useStore.setState((state) => ({
+    watchList: [
+      ...state.watchList,
+      {
+        ...params,
+        create_at: Date.now().toString(),
+        update_at: Date.now().toString(),
+      },
+    ],
+  }));
+};
+
+export const insertStragegy = (params: IStrategyConfig) => {
+  useStore.setState((state) => ({
+    presetList: [
+      ...state.presetList,
+      {
+        ...params,
+        create_at: Date.now().toString(),
+        update_at: Date.now().toString(),
+      },
+    ],
+  }));
+};
+
+export const updateStragegy = (params: IStrategyConfig) => {
+  useStore.setState((state) => ({
+    presetList: state.presetList.map((item) => (item.id === params.id ? params : item)),
+  }));
+};
+
+export const removeRecord = (id: string) => {
+  console.log("removeStragegy", id);
+  useStore.setState((state) => ({
+    transaction: state.transaction.filter((item) => item.id !== id),
+  }));
+};
+
+export const useFilteredRecord = (code: string) => {
+  const record = Store.use.transaction();
+  return useMemo(() => record.filter((item) => item.code === code), [record, code]);
+};
+
+export default Store;

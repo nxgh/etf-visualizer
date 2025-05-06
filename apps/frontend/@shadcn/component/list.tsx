@@ -1,5 +1,5 @@
 import { cn } from "@shadcn/lib/utils";
-import { Command, CommandList, CommandGroup, CommandItem, CommandSeparator } from "@shadcn/ui/command";
+import { Command, CommandList, CommandGroup } from "@shadcn/ui/command";
 import { type ReactNode, Fragment } from "react";
 import { Match, Switch } from "@shadcn/component/match";
 import { Skeleton } from "@shadcn/ui/skeleton";

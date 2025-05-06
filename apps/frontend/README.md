@@ -129,3 +129,151 @@ TODO:
 
 [ ] dayjs 更换 date-fns
 https://klinecharts.com/guide/styles
+
+```ts
+export interface Root {
+  state: State;
+  version: number;
+}
+
+export interface State {
+  presetList: PresetList[];
+  transaction: Transaction[];
+  watchList: WatchList[];
+  presetListTemplate: any[];
+}
+
+export interface PresetList {
+  id: string;
+  strategyName: string;
+  code: string;
+  basePrice: number;
+  buyVolume: number;
+  priceIncrease: number;
+  priceDecline: number;
+  stressTest: number;
+  gridStepIncrement: number;
+  profitRetention: number;
+}
+
+export interface Transaction {
+  id: string;
+  code: string;
+  positionIndex: number;
+  level: number;
+  buyPrice: number;
+  buyQuantity: number;
+  buyAmount: number;
+  sellPrice: number;
+  sellQuantity: number;
+  sellAmount: number;
+  remainingQuantity: number;
+  retainedProfit: number;
+  profit: number;
+  yieldRate: number;
+}
+
+export interface WatchList {
+  code: string;
+  name: string;
+  type: string;
+}
+
+/**
+ * @description 网格策略配置 (Grid strategy configuration)
+ */
+export interface IGridTradeStrategyConfig {
+  /** @description 网格策略ID */
+  id: string | number;
+
+  /** @description 网格名称 (Grid strategy identifier/name) */
+  strategyName: string;
+
+  /** @description 证券代码 */
+  code: string;
+
+  /** @description 基准价格 (Reference price for grid calculations) */
+  basePrice: number;
+
+  /** @description 买入数量 (Buy quantity) */
+  buyVolume: number;
+
+  /** @description 涨幅 (Price increase percentage threshold) */
+  priceIncrease: number;
+
+  /** @description 跌幅 (Price decline percentage threshold) */
+  priceDecline: number;
+
+  /** @description 压力测试 (Stress testing mode flag) */
+  stressTest: number;
+
+  /** @description 逐格加码 (Progressive position scaling) */
+  gridStepIncrement: number;
+
+  /** @description 利润留存 (Profit retention percentage) */
+  profitRetention: number;
+}
+
+/**
+ *  @description 网格交易档位详细信息/Grid trading level detailed information
+ */
+export interface IGridLevelRecord {
+  /** @description 交易ID/Transaction ID */
+  id: string | number;
+
+  /** @description 交易策略ID/Transaction strategy ID */
+  strategyId?: string | number;
+
+  /** @description 证券代码 */
+  code: string;
+
+  /** @description 交易顺序编号/Transaction sequence number */
+  positionIndex: number;
+
+  /** @description 价格区间层级/Price interval level */
+  level: number;
+
+  /** @description 买入价格/Triggered purchase price */
+  buyPrice: number;
+
+  /** @description 买入时间/Purchase time */
+  buyDate?: string;
+
+  /** @description 买入数量/Purchased quantity */
+  buyQuantity: number;
+
+  /** @description 买入总金额/Total purchase amount */
+  buyAmount: number;
+
+  /** @description 卖出价格/Triggered sell price */
+  sellPrice?: number;
+
+  /** @description 卖出时间/Sell time */
+  sellDate?: string;
+
+  /** @description 卖出数量/Sold quantity */
+  sellQuantity?: number;
+
+  /** @description 卖出总金额/Total sell amount */
+  sellAmount?: number;
+
+  /** @description 未卖出持仓数量/Unsold position quantity */
+  remainingQuantity?: number;
+
+  /** @description 本档保留利润/Profit retained in this level */
+  retainedProfit?: number;
+
+  /** @description 已实现收益/Realized profit */
+  profit: number;
+
+  /** @description 收益率/Return rate percentage */
+  yieldRate?: number;
+}
+
+// 定义 WatchList 项的接口，确保包含一个唯一标识符
+export interface IWatchListItem {
+  code: string; // 使用 code 作为唯一标识符
+  name: string;
+  type: string;
+}
+```

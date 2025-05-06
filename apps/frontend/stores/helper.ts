@@ -1,12 +1,12 @@
 import Decimal from "decimal.js";
-import type { IGridLevelRecord, IGridTradeStrategyConfig } from "./model.type";
 
 /**
  * 创建网格策略
  * @returns 网格策略
  */
-export function createStrategy(params?: Partial<IGridTradeStrategyConfig>): IGridTradeStrategyConfig {
-  return {
+export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyConfig {
+  // 默认策略配置
+  const defaultConfig: IStrategyConfig = {
     id: Date.now().toString(),
     strategyName: "",
     code: "",
@@ -17,16 +17,25 @@ export function createStrategy(params?: Partial<IGridTradeStrategyConfig>): IGri
     stressTest: 100,
     gridStepIncrement: 0,
     profitRetention: 5,
+    securityName: "",
+    source: "",
+    create_at: Date.now().toString(),
+    update_at: Date.now().toString(),
+  };
+
+  // 合并用户配置与默认配置
+  return {
+    ...defaultConfig,
     ...params,
   };
 }
 
 /**
- * 创建网格档位记录
- * @returns 网格档位记录
+ * 创建网格交易记录
+ * @returns 网格交易记录
  */
-export function createRecord(params: Partial<IGridLevelRecord>): IGridLevelRecord {
-  return {
+export function createRecord(params: BaseParams<ITradRecord>): ITradRecord {
+  const defaultConfig: ITradRecord = {
     id: Date.now().toString(),
     code: "",
     positionIndex: 0,
@@ -41,17 +50,24 @@ export function createRecord(params: Partial<IGridLevelRecord>): IGridLevelRecor
     retainedProfit: 0,
     profit: 0,
     yieldRate: 0,
+    create_at: Date.now().toString(),
+    update_at: Date.now().toString(),
+    securityName: "",
+  };
+
+  return {
+    ...defaultConfig,
     ...params,
   };
 }
 
 /**
- * 生成网格档位记录
+ * 生成网格交易记录
  * @param params 网格策略配置
- * @returns 网格档位记录
+ * @returns 网格交易档位记录
  */
-export function generateGrid(params: IGridTradeStrategyConfig): IGridLevelRecord[] {
-  const result: IGridLevelRecord[] = [];
+export function generateGrid(params: IStrategyConfig): ITradRecord[] {
+  const result: ITradRecord[] = [];
   const basePrice = new Decimal(params.basePrice);
   const priceIncrease = new Decimal(params.priceIncrease).div(100);
   const priceDecline = new Decimal(params.priceDecline).div(100);
@@ -95,9 +111,9 @@ export function generateGrid(params: IGridTradeStrategyConfig): IGridLevelRecord
     const yieldRate = profit.div(buyAmount.times(sellQuantity.div(buyQuantity))).times(100);
 
     // 创建网格档位记录
-    const record: IGridLevelRecord = {
-      id: Date.now() + i,
+    const record: ITradRecord = createRecord({
       positionIndex: i + 1,
+      code: params.code,
       level: Number(((10 - i) * 0.1).toFixed(1)),
       buyPrice: Number(buyPrice.toFixed(3)),
       buyQuantity: Number(buyQuantity.toFixed(2)),
@@ -109,7 +125,7 @@ export function generateGrid(params: IGridTradeStrategyConfig): IGridLevelRecord
       retainedProfit: Number(retainedProfit.toFixed(2)),
       profit: Number(profit.toFixed(2)),
       yieldRate: Number(yieldRate.toFixed(2)),
-    };
+    });
 
     result.push(record);
 
@@ -129,5 +145,3 @@ export function generateGrid(params: IGridTradeStrategyConfig): IGridLevelRecord
 export function calculateAmount(price: number, quantity: number): number {
   return new Decimal(price).times(new Decimal(quantity)).toNumber();
 }
-
-export type { IGridTradeStrategyConfig, IGridLevelRecord };
