@@ -3,6 +3,7 @@ import type {
   IStrategyConfig as LocalIStrategyConfig,
   ITradRecord as LocalITradRecord,
   IWatchList as LocalIWatchList,
+  ITransactionRecord as LocalITransactionRecord,
 } from "./model.d";
 
 declare global {
@@ -11,6 +12,8 @@ declare global {
   interface ITradRecord extends LocalITradRecord {}
 
   interface IWatchList extends LocalIWatchList {}
+
+  interface ITransactionRecord extends LocalITransactionRecord {}
 
   type BaseParams<T> = Partial<T> & Pick<IBaseType, "code">;
 }

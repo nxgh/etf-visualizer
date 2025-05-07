@@ -14,6 +14,7 @@ interface SimpleTableProps {
     cellClassName?: string;
   }[];
   data: unknown[];
+  className?: string;
 }
 
 export function SimpleTableHeader({ columns }: { columns: SimpleTableProps["columns"] }) {
@@ -46,9 +47,9 @@ export function SimpleTableBody({ columns, data }: SimpleTableProps) {
   );
 }
 
-export default function SimpleTable({ columns, data }: SimpleTableProps) {
+export default function SimpleTable({ columns, data, className }: SimpleTableProps) {
   return (
-    <Table>
+    <Table className={cn("w-full h-full", className)}>
       <SimpleTableHeader columns={columns} />
       <SimpleTableBody columns={columns} data={data} />
     </Table>

@@ -10,7 +10,6 @@ import { cn } from "@shadcn/lib/utils";
 import { Button } from "@shadcn/ui/button";
 import { CommandItem } from "@shadcn/ui/command";
 
-import { useRouter } from "next/navigation";
 import { useSecuritySearch } from "./use-security-search";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
 import { Match, Switch } from "@shadcn/component/match";
@@ -20,26 +19,38 @@ import { insertWatchList, removeWatchList } from "#store/create-store";
 type ItemType = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
 function WatchList(props: { watchList: IWatchList[]; className?: string }) {
-  const router = useRouter();
+  const [code, setCode] = useQueryState("c");
+  // const [type, setType] = useQueryState("t");
 
   const handleClickItem = (code: string) => {
-    router.push(`/trade-record/${code}`);
+    setCode(code);
+    // setType(null);
   };
 
   const icons = [
-    {
-      name: "交易预设",
-      icon: (code: string) => (
-        <FileChartLine className="size-4 text-blue-200 hover:text-blue-500" onClick={() => router.push(`/trade-preset/${code}`)} />
-      ),
-    },
-
-    {
-      name: "主理人交易记录",
-      icon: (code: string) => (
-        <Gem className="size-4 text-green-200 hover:text-green-500" onClick={() => router.push(`/manager-trade-record/${code}`)} />
-      ),
-    },
+    // {
+    //   name: "交易预设",
+    //   icon: (code: string) => (
+    //     <FileChartLine
+    //       className="size-4 text-blue-200 hover:text-blue-500"
+    //       onClick={() => {
+    //         setCode(code);
+    //         setType("preset");
+    //       }}
+    //     />
+    //   ),
+    // },
+    // {
+    //   name: "主理人交易记录",
+    //   icon: (code: string) => (
+    //     <Gem
+    //       className="size-4 text-green-200 hover:text-green-500"
+    //       onClick={() => {
+    //         setCode(code);
+    //       }}
+    //     />
+    //   ),
+    // },
   ];
 
   return (
@@ -57,13 +68,13 @@ function WatchList(props: { watchList: IWatchList[]; className?: string }) {
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   {icons.map((icon) => (
                     <SimpleIconTooltip key={icon.name} label={icon.name}>
                       {icon.icon(item.code)}
                     </SimpleIconTooltip>
                   ))}
-                </div>
+                </div> */}
 
                 <div className="flex items-center gap-2">
                   <Trash2 className="size-4 text-red-300 hover:text-red-500" onClick={() => removeWatchList(item.code)} />
@@ -88,7 +99,7 @@ export default function WatchListIndex({ className }: { className?: string }) {
   const [q] = useQueryState("q");
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden border-r p-4">
+    <div id="watch-list" className={cn("flex flex-col w-full h-full overflow-hidden overflow-y-auto ", className)}>
       <Switch>
         <Match when={q}>
           <SimpleList

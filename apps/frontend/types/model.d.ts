@@ -91,6 +91,22 @@ export interface ITradRecord extends IBaseType {
   yieldRate?: number;
 }
 
+export interface ITransactionRecord extends IBaseType {
+  /** @description 来源 */
+  source?: string;
+
+  /** @description 层级/Price interval level */
+  level: number;
+
+  /** @description 价格/Triggered purchase price */
+  price: number;
+
+  /** @description 时间/Time */
+  date: string;
+
+  /** @description 数量/Purchased quantity */
+  quantity: number;
+}
 // 定义 WatchList 项的接口，确保包含一个唯一标识符
 export interface IWatchList extends Omit<IBaseType, "securityName" | "id"> {
   type: string;
