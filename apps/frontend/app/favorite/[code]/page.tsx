@@ -7,14 +7,13 @@ import { Separator } from "@shadcn/ui/separator";
 import { useQueryState } from "nuqs";
 import { SimpleTable } from "@shadcn/component";
 import { insertRecord, removeRecord, Store, useFilteredRecord, updateTransaction } from "#store";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { Button } from "@shadcn/ui/button";
 import { transactionColumns } from "#components/record-columns";
 import Chart from "#components/charts/kline-chart";
 
-export default function Page() {
-  const [q, setQuery] = useQueryState("q");
-  const [code, setCode] = useQueryState("c");
+export default function Page({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = use(params);
 
   // store
   const strategyStore = useFilteredRecord(code!);
@@ -62,27 +61,9 @@ export default function Page() {
   );
 
   return (
-    // <LeftExpandableLayout>
-    //   <Aside className="flex flex-col items-center border-r">
-    //     <Input
-    //       placeholder="Search"
-    //       className="mb-0"
-    //       value={q ?? ""}
-    //       onChange={(e) => setQuery(e.target.value)}
-    //       onClear={() => setQuery(null)}
-    //     />
-    //     <Separator className="my-4" />
-    //     <WatchListIndex className="" />
-    //   </Aside>
-    //   {/* <main className="flex-1 flex flex-col overflow-hidden">
-    //     <Header></Header>
-
-    //     <div className="flex-1 overflow-scroll p-2">
-    //       <Chart className="w-full h-1/2" />
-    //       <SimpleTable className="w-full h-1/2" columns={columns} data={strategyStore} />
-    //     </div>
-    //   </main> */}
-    // </LeftExpandableLayout>
-    <></>
+    <div className="flex-1 overflow-scroll p-2">
+      <Chart className="w-full h-1/2" />
+      <SimpleTable className="w-full h-1/2" columns={columns} data={strategyStore} />
+    </div>
   );
 }

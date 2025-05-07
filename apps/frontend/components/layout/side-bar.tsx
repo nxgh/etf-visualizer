@@ -1,20 +1,18 @@
 import { cn } from "@shadcn/lib/utils";
-import { Button } from "@shadcn/ui/button";
-import { Gem } from "lucide-react";
-// import { useRouter } from "next/navigation";
-//
+import { Gem, Shapes } from "lucide-react";
+
 import Link from "next/link";
 
 const routes = [
   {
     name: "WatchList",
     href: "/",
-    icon: <Gem className="!size-6 text-white" />,
+    icon: <Shapes className="!size-6 text-white" />,
     className: "mb-4 size-10 bg-black p-1 flex items-center justify-center rounded-lg",
   },
   {
     name: "Trade Record",
-    href: "/strategy",
+    href: "/favorite",
     icon: <Gem className="size-6" />,
     className: "hover:bg-gray-200 m-2 rounded-lg",
   },

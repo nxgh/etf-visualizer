@@ -15,48 +15,89 @@ const transactionColumnMap = {
 } as const;
 export const TransactionColumnEnums = createEnums(transactionColumnMap);
 
-const transactionColumnMapRender = (onChange: (item: ITransactionRecord, param: { key: string; value: string }) => void) => ({
-  [TransactionColumnEnums.level.key]: (item: ITransactionRecord) => item.level,
-  [TransactionColumnEnums.date.key]: (item: ITransactionRecord) => (
-    <SimpleDataPicker
-      date={dayjs(item.date).toDate()}
-      onSelect={(day) => onChange(item, { key: TransactionColumnEnums.date.key, value: dayjs(day).format("YYYY-MM-DD") })}
-    />
-  ),
-  [TransactionColumnEnums.price.key]: (item: ITransactionRecord) => (
-    <Input
-      type="number"
-      value={item.price}
-      onChange={(e) => onChange(item, { key: TransactionColumnEnums.price.key, value: e.target.value })}
-    />
-  ),
-  [TransactionColumnEnums.quantity.key]: (item: ITransactionRecord) => (
-    <Input
-      type="number"
-      value={item.quantity}
-      onChange={(e) => onChange(item, { key: TransactionColumnEnums.quantity.key, value: e.target.value })}
-    />
-  ),
-  [TransactionColumnEnums.amount.key]: (item: ITransactionRecord) => (
-    <div
-      className={cn(
-        "p-1 flex justify-center items-center rounded-md",
-        item.price && item.quantity ? "bg-gray-100" : "",
-        item.quantity > 0 ? "text-green-400" : "text-red-400"
-      )}
-    >
-      {item.price && item.quantity ? new Decimal(item.price).mul(item.quantity).toFixed(2) : ""}
-    </div>
-  ),
-  [TransactionColumnEnums.source.key]: (item: ITransactionRecord) => item.source,
-});
-
-export const transactionColumns = (onChange: (item: ITransactionRecord, param: { key: string; value: string }) => void) =>
-  Object.entries(transactionColumnMap).map(([key, value]) => ({
-    label: value,
-    key,
-    render: transactionColumnMapRender(onChange)[key as keyof typeof transactionColumnMapRender],
-  }));
+export const transactionColumns = (onChange: (item: ITransactionRecord, param: { key: string; value: string }) => void) => [
+  {
+    label: TransactionColumnEnums.level.value,
+    headerClassName: "w-[100px]",
+    key: TransactionColumnEnums.level.key,
+    render: (item: ITransactionRecord) => item.level,
+  },
+  {
+    label: TransactionColumnEnums.date.value,
+    key: TransactionColumnEnums.date.key,
+    headerClassName: "w-[200px]",
+    render: (item: ITransactionRecord) => (
+      <SimpleDataPicker
+        date={dayjs(item.date).toDate()}
+        className="border-none shadow-none"
+        onSelect={(day) =>
+          onChange(item, {
+            key: TransactionColumnEnums.date.key,
+            value: dayjs(day).format("YYYY-MM-DD"),
+          })
+        }
+      ></SimpleDataPicker>
+    ),
+  },
+  {
+    label: TransactionColumnEnums.price.value,
+    key: TransactionColumnEnums.price.key,
+    headerClassName: "w-[150px]",
+    render: (item: ITransactionRecord) => (
+      <Input
+        type="number"
+        value={item.price}
+        inputClassName="border-none shadow-none"
+        onChange={(e) =>
+          onChange(item, {
+            key: TransactionColumnEnums.price.key,
+            value: e.target.value,
+          })
+        }
+      />
+    ),
+  },
+  {
+    label: TransactionColumnEnums.quantity.value,
+    key: TransactionColumnEnums.quantity.key,
+    headerClassName: "w-[150px]",
+    render: (item: ITransactionRecord) => (
+      <Input
+        type="number"
+        value={item.quantity}
+        inputClassName="border-none shadow-none"
+        onChange={(e) =>
+          onChange(item, {
+            key: TransactionColumnEnums.quantity.key,
+            value: e.target.value,
+          })
+        }
+      />
+    ),
+  },
+  {
+    label: TransactionColumnEnums.amount.value,
+    key: TransactionColumnEnums.amount.key,
+    headerClassName: "w-[150px]",
+    render: (item: ITransactionRecord) => (
+      <div
+        className={cn(
+          "p-1 flex justify-center items-center rounded-md",
+          item.price && item.quantity ? "bg-gray-100" : "",
+          item.quantity > 0 ? "text-green-400" : "text-red-400"
+        )}
+      >
+        {item.price && item.quantity ? new Decimal(item.price).mul(item.quantity).toFixed(2) : ""}
+      </div>
+    ),
+  },
+  {
+    label: TransactionColumnEnums.source.value,
+    headerClassName: "w-[100px]",
+    key: TransactionColumnEnums.source.key,
+    render: (item: ITransactionRecord) => item.source,
+  },
+];
 
 // export const columnEnums = createEnums({
 // export const columnEnums = createEnums({

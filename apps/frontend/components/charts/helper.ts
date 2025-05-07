@@ -1,14 +1,14 @@
-type TimeStamp = Date | string;
-type Open = number;
-type Close = number;
-type Lowest = number;
-type Highest = number;
-type Volume = number;
-
-export type DataType = [TimeStamp, Open, Close, Lowest, Highest, Volume];
+export type DataType = {
+  date: string;
+  open: number;
+  close: number;
+  low: number;
+  high: number;
+  volume: number;
+};
 
 export interface SplitDataResult {
-  categoryData: TimeStamp[];
+  categoryData: string[];
   values: number[][];
   volumes: [number, number, number][];
 }
@@ -16,15 +16,15 @@ export interface SplitDataResult {
 function splitData(rawData: DataType[]): SplitDataResult {
   // 预分配数组大小以提高性能
   const length = rawData.length;
-  const categoryData: TimeStamp[] = new Array(length);
+  const categoryData: string[] = new Array(length);
   const values: number[][] = new Array(length);
   const volumes: [number, number, number][] = new Array(length);
 
   rawData.forEach((data, index) => {
-    const [category, ...rest] = data;
-    categoryData[index] = category;
-    values[index] = rest;
-    volumes[index] = [index, rest[4], rest[0] > rest[1] ? 1 : -1];
+    // 直接使用对象属性，避免解构带来的问题
+    categoryData[index] = data.date;
+    values[index] = [data.open, data.close, data.low, data.high, data.volume];
+    volumes[index] = [index, data.volume, data.open > data.close ? 1 : -1];
   });
 
   return {
