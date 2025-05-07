@@ -43,7 +43,7 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(_stor
 // 定义 Store 的整体状态结构
 export interface StoreState {
   presetList: IStrategyConfig[];
-  transaction: ITradRecord[];
+  transaction: ITransactionRecord[];
   watchList: IWatchList[];
 }
 
@@ -59,7 +59,7 @@ export const STORE_KEYS = {
 // 定义 Store 名称的联合类型
 export type StoreName = keyof StoreState; // 使用 keyof 简化
 
-type StoreTypeUnion = IStrategyConfig | ITradRecord | IWatchList;
+type StoreTypeUnion = IStrategyConfig | ITransactionRecord | IWatchList;
 
 type SetFuncType = {
   (partial: StoreState | Partial<StoreState> | ((state: StoreState) => StoreState | Partial<StoreState>), replace?: false): void;
@@ -107,10 +107,9 @@ const Store = createSelectors(useStore);
  * @description 新建交易记录
  * @param params
  */
-export const addTransactionItem = (params: BaseParams<ITradRecord>) => {
+export const addTransactionItem = (params: BaseParams<ITransactionRecord>) => {
   useStore.setState((state) => {
     const newRecord = createRecord({
-      positionIndex: state.transaction.filter((item) => item.code === params.code).length + 1,
       level: 1,
       ...params,
     });
@@ -137,7 +136,7 @@ export const insertWatchList = (params: Pick<IWatchList, "code" | "name" | "type
   }));
 };
 
-export const insertStragegy = (params: IStrategyConfig) => {
+export const insertStrategy = (params: IStrategyConfig) => {
   useStore.setState((state) => ({
     presetList: [
       ...state.presetList,
@@ -150,14 +149,31 @@ export const insertStragegy = (params: IStrategyConfig) => {
   }));
 };
 
-export const updateStragegy = (params: IStrategyConfig) => {
+export const updateStrategy = (params: IStrategyConfig) => {
   useStore.setState((state) => ({
     presetList: state.presetList.map((item) => (item.id === params.id ? params : item)),
   }));
 };
 
+export const insertRecord = (params: BaseParams<ITradRecord>) => {
+  useStore.setState((state) => ({
+    transaction: [
+      ...state.transaction,
+      createRecord({
+        level: 1,
+        ...params,
+      }),
+    ],
+  }));
+};
+
+export const updateTransaction = (params: BaseParams<ITradRecord>) => {
+  useStore.setState((state) => ({
+    transaction: state.transaction.map((item) => (item.id === params.id ? { ...item, ...params } : item)),
+  }));
+};
+
 export const removeRecord = (id: string) => {
-  console.log("removeStragegy", id);
   useStore.setState((state) => ({
     transaction: state.transaction.filter((item) => item.id !== id),
   }));

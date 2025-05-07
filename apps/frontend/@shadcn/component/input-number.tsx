@@ -17,15 +17,16 @@ export default function InputNumber({ value, onChange, min = -Infinity, max = In
   function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
 
-    // 空值处理
-    if (!val) {
-      onChange(min);
+    // 空值或单个符号处理
+    if (!val || val === "-" || val === "+") {
       return;
     }
 
     // 数字验证
     try {
-      const decimal = new Decimal(val);
+      // 处理科学计数法和数学符号
+      const normalizedVal = val.replace(/[eE]\+/, "e").replace(/[eE]\-/, "e-");
+      const decimal = new Decimal(normalizedVal);
       const num = decimal.toNumber();
 
       // 范围验证
@@ -40,7 +41,7 @@ export default function InputNumber({ value, onChange, min = -Infinity, max = In
 
       onChange(num);
     } catch (error) {
-      // 无效的数字格式
+      // 无效的数字格式，保持原值不变
       return;
     }
   }
@@ -69,11 +70,25 @@ export default function InputNumber({ value, onChange, min = -Infinity, max = In
     }
   }
 
+  function formatValue(val: number) {
+    try {
+      const decimal = new Decimal(val);
+      // 如果是整数，不显示小数点
+      if (decimal.isInteger()) {
+        return decimal.toString();
+      }
+      // 否则保留合适的小数位数
+      return decimal.toFixed();
+    } catch {
+      return val.toString();
+    }
+  }
+
   return (
     <div className={`flex items-center relative w-full ${className} group`}>
       <Input
-        type="number"
-        value={value}
+        type="Number"
+        value={formatValue(value)}
         onChange={_onChange}
         min={min}
         max={max}
@@ -81,12 +96,18 @@ export default function InputNumber({ value, onChange, min = -Infinity, max = In
         className="w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       <div className={cn("absolute right-1 flex-col gap-0.5 hidden group-hover:flex")}>
-        <Button variant="ghost" size="icon" className="h-4 w-4 p-0 hover:bg-gray-100" onClick={() => handleStep("up")}>
-          <ChevronUp className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-4 w-4 p-0 hover:bg-gray-100" onClick={() => handleStep("down")}>
-          <ChevronDown className="h-3 w-3" />
-        </Button>
+        <span
+          className="h-4 w-4 bg-gray-100 hover:border hover:border-gray-200 flex items-center justify-center"
+          onClick={() => handleStep("up")}
+        >
+          <ChevronUp className="size-4" />
+        </span>
+        <span
+          className="h-4 w-4 bg-gray-100 hover:border hover:border-gray-200 flex items-center justify-center"
+          onClick={() => handleStep("down")}
+        >
+          <ChevronDown className="size-4" />
+        </span>
       </div>
     </div>
   );

@@ -34,25 +34,18 @@ export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyCo
  * 创建网格交易记录
  * @returns 网格交易记录
  */
-export function createRecord(params: BaseParams<ITradRecord>): ITradRecord {
-  const defaultConfig: ITradRecord = {
+export function createRecord(params: BaseParams<ITransactionRecord>): ITransactionRecord {
+  const defaultConfig: ITransactionRecord = {
     id: Date.now().toString(),
-    code: "",
-    positionIndex: 0,
     level: 0,
-    buyPrice: 0,
-    buyQuantity: 0,
-    buyAmount: 0,
-    sellPrice: 0,
-    sellQuantity: 0,
-    sellAmount: 0,
-    remainingQuantity: 0,
-    retainedProfit: 0,
-    profit: 0,
-    yieldRate: 0,
+    date: new Date().toISOString(),
+    securityName: "",
+    code: "",
+    price: 0,
+    quantity: 0,
+    source: "",
     create_at: Date.now().toString(),
     update_at: Date.now().toString(),
-    securityName: "",
   };
 
   return {
