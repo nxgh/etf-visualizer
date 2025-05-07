@@ -22,7 +22,7 @@ export function SimpleTableHeader({ columns }: { columns: SimpleTableProps["colu
     <TableHeader>
       <TableRow>
         {columns.map((column) => (
-          <TableHead key={column.key} className={cn(column?.headerClassName)}>
+          <TableHead key={column.key} className={cn("border", column?.headerClassName)}>
             {column.headerRender ? column.headerRender() : column.label}
           </TableHead>
         ))}
@@ -37,7 +37,7 @@ export function SimpleTableBody({ columns, data }: SimpleTableProps) {
       {data.map((item, index) => (
         <TableRow key={get(item, "id", index)}>
           {columns.map((column) => (
-            <TableCell key={column.key} className={cn(column?.cellClassName)}>
+            <TableCell key={column.key} className={cn("border", column?.cellClassName)}>
               {column.render ? column.render(item, index) : (item as any)[column.key]}
             </TableCell>
           ))}

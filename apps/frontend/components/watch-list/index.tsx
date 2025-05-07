@@ -15,31 +15,33 @@ import { ScrollArea } from "@shadcn/ui/scroll-area";
 import { Match, Switch } from "@shadcn/component/match";
 import { useQueryState } from "nuqs";
 import { insertWatchList, removeWatchList } from "#store/create-store";
+import { useRouter } from "next/navigation";
 
 type ItemType = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
 function WatchList(props: { watchList: IWatchList[]; className?: string }) {
   const [code, setCode] = useQueryState("c");
+  const router = useRouter();
   // const [type, setType] = useQueryState("t");
 
   const handleClickItem = (code: string) => {
-    setCode(code);
+    // setCode(code);
+    router.push(`/favorite/${code}`);
     // setType(null);
   };
 
   const icons = [
-    // {
-    //   name: "交易预设",
-    //   icon: (code: string) => (
-    //     <FileChartLine
-    //       className="size-4 text-blue-200 hover:text-blue-500"
-    //       onClick={() => {
-    //         setCode(code);
-    //         setType("preset");
-    //       }}
-    //     />
-    //   ),
-    // },
+    {
+      name: "交易预设",
+      icon: (code: string) => (
+        <FileChartLine
+          className="size-4 text-blue-200 hover:text-blue-500"
+          onClick={() => {
+            router.push(`${code}/preset`);
+          }}
+        />
+      ),
+    },
     // {
     //   name: "主理人交易记录",
     //   icon: (code: string) => (
@@ -68,13 +70,13 @@ function WatchList(props: { watchList: IWatchList[]; className?: string }) {
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                {/* <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {icons.map((icon) => (
                     <SimpleIconTooltip key={icon.name} label={icon.name}>
                       {icon.icon(item.code)}
                     </SimpleIconTooltip>
                   ))}
-                </div> */}
+                </div>
 
                 <div className="flex items-center gap-2">
                   <Trash2 className="size-4 text-red-300 hover:text-red-500" onClick={() => removeWatchList(item.code)} />
