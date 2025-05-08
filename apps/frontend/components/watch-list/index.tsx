@@ -93,6 +93,8 @@ export default function WatchListIndex({ className }: { className?: string }) {
   // store
   const watchList = watchListAction.useWatchList();
 
+  console.log(watchList);
+
   // hook
   const { showList, loading } = useSecuritySearch();
 

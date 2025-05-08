@@ -108,7 +108,7 @@ export interface ITransactionRecord extends IBaseType {
   quantity: number;
 }
 // 定义 WatchList 项的接口，确保包含一个唯一标识符
-export interface IWatchList extends Omit<IBaseType, "securityName" | "id"> {
+export interface IWatchList extends Omit<IBaseType, "securityName"> {
   type: string;
   name: string;
 }

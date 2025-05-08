@@ -59,11 +59,3 @@ export const useStore = create<StoreState>()(
 );
 
 export const Store = createSelectors(useStore);
-
-// 为 window 声明全局类型
-declare global {
-  interface Window {
-    _st: any;
-  }
-}
-if (globalThis.window) globalThis.window._st = async () => JSON.parse((await storage.getItem("grid-trade-storage")) || "{}");

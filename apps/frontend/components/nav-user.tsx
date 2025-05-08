@@ -20,7 +20,7 @@ export function NavUser({
   user = {
     name: "test",
     email: "test@test.com",
-    avatar: "https://github.com/shadcn.png",
+    avatar: "",
   },
 }: {
   user?: {
