@@ -1,8 +1,102 @@
-import Store from "./create-store";
-import { generateGrid, createRecord, createStrategy } from "./helper";
+import { createRecord, createStrategy } from "./helper";
+import { useMemo } from "react";
+import { merge } from "lodash-es";
 
-export default Store;
+import { useStore, Store } from "./use-store";
 
-export { Store, generateGrid, createRecord, createStrategy };
+/**
+ * @description 新建交易记录
+ * @param params
+ */
+const addTransactionItem = (params: BaseParams<ITransactionRecord>) => {
+  useStore.setState((state) => {
+    const newRecord = createRecord({
+      level: 1,
+      ...params,
+    });
+    return { transaction: merge(state.transaction, newRecord) };
+  });
+};
 
-export * from "./create-store";
+const removeWatchList = (code: string) => {
+  useStore.setState((state) => {
+    return { watchList: state.watchList.filter((item) => item.code !== code) };
+  });
+};
+
+const insertWatchList = (params: Pick<IWatchList, "code" | "name" | "type">) => {
+  useStore.setState((state) => ({
+    watchList: merge(state.watchList, {
+      ...params,
+      create_at: Date.now().toString(),
+      update_at: Date.now().toString(),
+    }),
+  }));
+};
+
+const insertStrategy = (params: IStrategyConfig) => {
+  useStore.setState((state) => ({
+    presetList: merge(state.presetList, {
+      ...params,
+      create_at: Date.now().toString(),
+      update_at: Date.now().toString(),
+    }),
+  }));
+};
+
+const updateStrategy = (params: IStrategyConfig) => {
+  useStore.setState((state) => ({
+    presetList: state.presetList.map((item) => (item.id === params.id ? params : item)),
+  }));
+};
+
+const insertTransaction = (params: BaseParams<ITradRecord>) => {
+  useStore.setState((state) => ({
+    transaction: merge(
+      state.transaction,
+      createRecord({
+        level: 1,
+        ...params,
+      })
+    ),
+  }));
+};
+
+const updateTransaction = (params: BaseParams<ITradRecord>) => {
+  useStore.setState((state) => ({
+    transaction: state.transaction.map((item) => (item.id === params.id ? { ...item, ...params } : item)),
+  }));
+};
+
+const removeTransaction = (id: string) => {
+  useStore.setState((state) => ({
+    transaction: state.transaction.filter((item) => item.id !== id),
+  }));
+};
+
+const useFilteredTransaction = (code: string) => {
+  const record = Store.use.transaction();
+  return useMemo(() => record.filter((item) => item.code === code), [record, code]);
+};
+
+export const strategyAction = {
+  insertStrategy,
+  updateStrategy,
+};
+
+export const transactionAction = {
+  updateTransaction,
+  insertTransaction,
+  removeTransaction,
+  useFilteredTransaction,
+  addTransactionItem,
+};
+
+export const watchListAction = {
+  insertWatchList,
+  removeWatchList,
+  useWatchList: Store.use.watchList,
+};
+
+export { generateGrid } from "./helper";
+export { createRecord, createStrategy };

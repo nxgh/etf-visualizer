@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { debounce } from "lodash-es";
 import { searchSecurityAction, type SearchResponse } from "#actions/index";
-import { Store } from "#store";
+import { watchListAction } from "#store";
 import { useQueryState } from "nuqs";
 
 export type SecuritySearchItem = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
 export function useSecuritySearch() {
-  const watchList = Store.use.watchList();
+  const watchList = watchListAction.useWatchList();
 
   const [searchData, setSearchData] = useState<SecuritySearchItem[]>([]);
   const [loading, setLoading] = useState(false);

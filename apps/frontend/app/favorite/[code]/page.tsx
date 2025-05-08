@@ -6,7 +6,7 @@ import { Input } from "@shadcn/ui/input";
 import { Separator } from "@shadcn/ui/separator";
 import { useQueryState } from "nuqs";
 import { SimpleTable } from "@shadcn/component";
-import { insertRecord, removeRecord, Store, useFilteredRecord, updateTransaction } from "#store";
+import { transactionAction } from "#store";
 import { use, useEffect, useMemo, useState } from "react";
 import { Button } from "@shadcn/ui/button";
 import { transactionColumns } from "#components/record-columns";
@@ -35,7 +35,7 @@ function useKlineOption(klineData: DataType[], code: string) {
     { date: "2023-06-13", value: 0.551, quantity: 100, type: "S" },
   ];
 
-  const records2 = useFilteredRecord(code!);
+  const records2 = transactionAction.useFilteredTransaction(code!);
 
   const r2 = useMemo(() => {
     return [
@@ -63,7 +63,7 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
   const { code } = use(params);
 
   // store
-  const strategyStore = useFilteredRecord(code!);
+  const strategyStore = transactionAction.useFilteredTransaction(code!);
 
   const klineData = useKlineData(code);
   const option = useKlineOption(klineData, code);
@@ -71,7 +71,7 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
   const columns = useMemo(
     () => [
       ...transactionColumns((item: ITransactionRecord, param: { key: string; value: string }) =>
-        updateTransaction({
+        transactionAction.updateTransaction({
           ...item,
           [param.key]: param.value,
         } as ITransactionRecord)
@@ -87,7 +87,7 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
               size="sm"
               variant="outline"
               onClick={() =>
-                insertRecord({
+                transactionAction.insertTransaction({
                   code: code!,
                 })
               }
@@ -98,7 +98,7 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
         },
         render: (item: ITradRecord) => {
           return (
-            <Button size="sm" variant="ghost" onClick={() => removeRecord(item.id)}>
+            <Button size="sm" variant="ghost" onClick={() => transactionAction.removeTransaction(item.id)}>
               删除
             </Button>
           );

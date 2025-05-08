@@ -5,7 +5,6 @@ import { SimpleIconTooltip } from "@shadcn/component";
 import { SimpleList } from "@shadcn/component";
 import { DiamondMinus, DiamondPlus, Trash2, FileChartLine, Gem } from "lucide-react";
 
-import Store from "#store";
 import { cn } from "@shadcn/lib/utils";
 import { Button } from "@shadcn/ui/button";
 import { CommandItem } from "@shadcn/ui/command";
@@ -14,7 +13,7 @@ import { useSecuritySearch } from "./use-security-search";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
 import { Match, Switch } from "@shadcn/component/match";
 import { useQueryState } from "nuqs";
-import { insertWatchList, removeWatchList } from "#store/create-store";
+import { watchListAction } from "#store";
 import { useRouter } from "next/navigation";
 
 type ItemType = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
@@ -79,7 +78,7 @@ function WatchList(props: { watchList: IWatchList[]; className?: string }) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Trash2 className="size-4 text-red-300 hover:text-red-500" onClick={() => removeWatchList(item.code)} />
+                  <Trash2 className="size-4 text-red-300 hover:text-red-500" onClick={() => watchListAction.removeWatchList(item.code)} />
                 </div>
               </div>
             </div>
@@ -92,7 +91,7 @@ function WatchList(props: { watchList: IWatchList[]; className?: string }) {
 
 export default function WatchListIndex({ className }: { className?: string }) {
   // store
-  const watchList = Store.use.watchList();
+  const watchList = watchListAction.useWatchList();
 
   // hook
   const { showList, loading } = useSecuritySearch();
@@ -118,11 +117,21 @@ export default function WatchListIndex({ className }: { className?: string }) {
                   <span className="text-sm text-gray-400">[{item.code}]</span>
                 </div>
                 {item.isFavorite ? (
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => removeWatchList(item.code)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-gray-201 rounded-full"
+                    onClick={() => watchListAction.removeWatchList(item.code)}
+                  >
                     <DiamondMinus className="hover:text-red-501" />
                   </Button>
                 ) : (
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-201 rounded-full" onClick={() => insertWatchList(item)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-gray-201 rounded-full"
+                    onClick={() => watchListAction.insertWatchList(item)}
+                  >
                     <DiamondPlus className="hover:text-red-501" />
                   </Button>
                 )}
