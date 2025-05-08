@@ -1,19 +1,89 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import mockData from "./data";
 import * as echarts from "echarts";
 
-import { splitData, type DataType } from "./helper";
-import { cn } from "@shadcn/lib/utils";
-import { useSearchParams } from "next/navigation";
+import { isArray } from "lodash-es";
+import { calculateCandleMetrics, genCandleHtml } from "./kline-chart-candle";
 
-import ChartInstance from "./chart-instance";
+// TYPES
+export type DataType = {
+  date: string;
+  open: number;
+  close: number;
+  low: number;
+  high: number;
+  volume: number;
+};
 
-import { calculateMA, type SplitDataResult } from "./helper";
-import { isArray, isString } from "lodash-es";
-import { calculateCandleMetrics, genCandleHtml } from "./candle";
+export interface SplitDataResult {
+  categoryData: string[];
+  values: number[][];
+  volumes: [number, number, number][];
+}
+
+interface MAResult {
+  value: number | "-";
+  dayCount: number;
+}
+
+export interface KlineRecord {
+  date: string;
+  value: number;
+  quantity: number;
+  type: "B" | "S";
+}
+
+// CONSTANTS
 
 const upColor = "#00da3c55";
 const downColor = "#ec000055";
+
+// FUNCTIONS
+export function splitData(rawData: DataType[]): SplitDataResult {
+  // 预分配数组大小以提高性能
+  const length = rawData.length;
+  const categoryData: string[] = new Array(length);
+  const values: number[][] = new Array(length);
+  const volumes: [number, number, number][] = new Array(length);
+
+  rawData.forEach((data, index) => {
+    // 直接使用对象属性，避免解构带来的问题
+    categoryData[index] = data.date;
+    values[index] = [data.open, data.close, data.low, data.high, data.volume];
+    volumes[index] = [index, data.volume, data.open > data.close ? 1 : -1];
+  });
+
+  return {
+    categoryData,
+    values,
+    volumes,
+  };
+}
+
+function calculateMA(dayCount: number, data: SplitDataResult): MAResult[] {
+  if (dayCount <= 0) return [];
+
+  const length = data.values.length;
+  const result: MAResult[] = new Array(length);
+
+  // 使用滑动窗口优化性能
+  let sum = 0;
+
+  for (let i = 0; i < length; i++) {
+    if (i < dayCount) {
+      result[i] = { value: "-", dayCount };
+      sum += data.values[i][1];
+      continue;
+    }
+
+    // 添加新值并减去窗口外的值
+    sum = sum + data.values[i][1] - data.values[i - dayCount][1];
+    result[i] = {
+      value: Number((sum / dayCount).toFixed(3)),
+      dayCount,
+    };
+  }
+
+  return result;
+}
 
 const MASeries = (MA: 5 | 10 | 20 | 30, data: SplitDataResult) => ({
   name: `MA${MA}`,
@@ -26,13 +96,7 @@ const MASeries = (MA: 5 | 10 | 20 | 30, data: SplitDataResult) => ({
   },
 });
 
-interface KlineRecord {
-  date: string;
-  value: number;
-  type: "B" | "S";
-}
-
-const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records: KlineRecord[] }): echarts.EChartsOption => {
+export const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records: KlineRecord[] }): echarts.EChartsOption => {
   const opt = {
     animation: false,
     legend: {
@@ -75,10 +139,8 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
         obj[position] = 30;
         return obj;
       },
-      extraCssText: "width: 170px",
+      extraCssText: "width: 200px",
       formatter: function (params: Array<{ name: string; seriesName: string; value: number | string }>) {
-        // let res = params[0].name + "<br/>";
-
         const result: Record<string, unknown> = {
           date: params[0].name,
           open: "",
@@ -104,7 +166,6 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
             }
           }
           result[item.seriesName.toLowerCase()] = item.value;
-          // res += `${item.seriesName}: ${item.value}<br/>`;
         });
 
         const r = calculateCandleMetrics({
@@ -116,22 +177,18 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
           candleWidth: 20,
         });
 
+        const transactions = records
+          .filter((r) => r.date === params[0].name)
+          .map((i) => ({
+            type: i.type,
+            value: i.value,
+            quantity: i.quantity,
+          }));
+
         if (r.visualMetrics) {
           const isUp = Number(result.close) > Number(result.open);
-          return genCandleHtml(r.visualMetrics, isUp, result as any);
+          return genCandleHtml(r.visualMetrics, isUp, result as any, transactions);
         }
-
-        // // records.forEach((item) => {
-        // //   res += `${item.date}: ${item.value} ${item.type}<br/>`;
-        // // });
-
-        // const existHandle = records.filter((item) => item.date === params[0].name);
-
-        // existHandle.forEach((item) => {
-        //   res += `${item.date}: ${item.value} ${item.type}<br/>`;
-        // });
-        console.log(r);
-        return JSON.stringify(result);
       },
     },
     axisPointer: {
@@ -147,37 +204,10 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
 
     toolbox: {
       feature: {
-        // dataZoom: {
-        //   yAxisIndex: true,
-        // },
-        // brush: {
-        //   type: ["lineX" as const, "clear" as const],
-        // },
         dataView: { show: true, readOnly: false },
       },
     },
-    // brush: {
-    //   xAxisIndex: "all",
-    //   brushLink: "all",
-    //   outOfBrush: {
-    //     colorAlpha: 0.1,
-    //   },
-    // },
-    // visualMap: {
-    //   show: false,
-    //   seriesIndex: 5,
-    //   dimension: 2,
-    //   pieces: [
-    //     {
-    //       value: 1,
-    //       color: downColor,
-    //     },
-    //     {
-    //       value: -1,
-    //       color: upColor,
-    //     },
-    //   ],
-    // },
+
     grid: [
       {
         left: "5%",
@@ -262,29 +292,38 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
           },
           label: {
             color: "#000",
-            // formatter: function (param: { value: string | number }) {
-            //   return typeof param.value === "number" ? Math.round(param.value).toString() : param.value;
-            // },
           },
           data: [
-            // {
-            //   name: "highest value",
-            //   type: "max",
-            //   valueDim: "highest",
-            // },
-            // {
-            //   name: "lowest value",
-            //   type: "min",
-            //   valueDim: "lowest",
-            // },
-            // {
-            //   name: "average value on close",
-            //   type: "average",
-            //   valueDim: "close",
-            //   itemStyle: {
-            //     color: "yellow",
-            //   },
-            // },
+            {
+              name: "highest value",
+              type: "max",
+              valueDim: "highest",
+              symbol: "pin",
+              symbolSize: 60,
+              itemStyle: {
+                color: "#ff0000ae",
+              },
+            },
+            {
+              name: "lowest value",
+              type: "min",
+              valueDim: "lowest",
+              symbol: "pin",
+              symbolSize: 60,
+              itemStyle: {
+                color: "#c6f2beae",
+              },
+            },
+            {
+              name: "average value on close",
+              type: "average",
+              valueDim: "close",
+              symbol: "pin",
+              symbolSize: 60,
+              itemStyle: {
+                color: "#ba8712ae",
+              },
+            },
             ...records.map((record) => ({
               name: "Mark",
               coord: [record.date, record.value],
@@ -293,25 +332,6 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
                 color: record.type === "B" ? "rgb(95, 163, 253)" : "rgb(255, 106, 250)",
               },
             })),
-            // {
-            //   name: "Mark",
-            //   coord: ["2023-05-10", 0.496],
-            //   value: "0.496",
-            //   itemStyle: {
-            //     color: "rgb(95, 163, 253)",
-            //   },
-            //   label: {
-            //     color: "#000",
-            //   },
-            // },
-            // {
-            //   name: "Mark",
-            //   coord: ["2004-06-15", 10337],
-            //   value: "S",
-            //   itemStyle: {
-            //     color: "rgb(255, 106, 250)",
-            //   },
-            // },
           ],
           tooltip: {
             formatter: function (param: { name: string; data: any }) {
@@ -321,49 +341,49 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
         },
         markLine: {
           symbol: ["none", "none"],
-          // data: [
-          //   [
-          //     {
-          //       name: "from lowest to highest",
-          //       type: "min",
-          //       valueDim: "lowest",
-          //       symbol: "circle",
-          //       symbolSize: 10,
-          //       label: {
-          //         show: false,
-          //       },
-          //       emphasis: {
-          //         label: {
-          //           show: false,
-          //         },
-          //       },
-          //     },
-          //     {
-          //       type: "max",
-          //       valueDim: "highest",
-          //       symbol: "circle",
-          //       symbolSize: 10,
-          //       label: {
-          //         show: false,
-          //       },
-          //       emphasis: {
-          //         label: {
-          //           show: false,
-          //         },
-          //       },
-          //     },
-          //   ],
-          //   {
-          //     name: "min line on close",
-          //     type: "min",
-          //     valueDim: "close",
-          //   },
-          //   {
-          //     name: "max line on close",
-          //     type: "max",
-          //     valueDim: "close",
-          //   },
-          // ],
+          data: [
+            [
+              {
+                name: "from lowest to highest",
+                type: "min",
+                valueDim: "lowest",
+                symbol: "circle",
+                symbolSize: 10,
+                label: {
+                  show: false,
+                },
+                emphasis: {
+                  label: {
+                    show: false,
+                  },
+                },
+              },
+              {
+                type: "max",
+                valueDim: "highest",
+                symbol: "circle",
+                symbolSize: 10,
+                label: {
+                  show: false,
+                },
+                emphasis: {
+                  label: {
+                    show: false,
+                  },
+                },
+              },
+            ],
+            {
+              name: "min line on close",
+              type: "min",
+              valueDim: "close",
+            },
+            {
+              name: "max line on close",
+              type: "max",
+              valueDim: "close",
+            },
+          ],
         },
       },
 
@@ -371,37 +391,8 @@ const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records
       MASeries(10, data),
       MASeries(20, data),
       MASeries(30, data),
-      // {
-      //   name: "Volume",
-      //   type: "bar",
-      //   xAxisIndex: 1,
-      //   yAxisIndex: 1,
-      //   data: data.volumes,
-      // },
     ],
   };
+
   return opt as echarts.EChartsOption;
 };
-
-export default function Chart({ className }: { className: string }) {
-  const code = useSearchParams().get("c") || "";
-
-  const data = splitData(mockData);
-
-  const records: KlineRecord[] = [
-    { date: "2023-05-10", value: 0.496, type: "B" },
-    { date: "2023-05-29", value: 0.491, type: "B" },
-    { date: "2023-06-13", value: 0.551, type: "S" },
-  ];
-
-  const option = useMemo(
-    () =>
-      genKlineOption({
-        data,
-        records,
-      }),
-    [data, records]
-  );
-
-  return <ChartInstance className={className} option={option} />;
-}

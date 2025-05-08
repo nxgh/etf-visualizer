@@ -4,7 +4,7 @@ import { cn } from "@shadcn/lib/utils";
 
 export default function ChartInstance({ className, option }: { className: string; option: echarts.EChartsOption }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [echartsInstance, setEchartInstance] = useState<echarts.ECharts | null>(null);
+  const [echartsInstance, setEchartsInstance] = useState<echarts.ECharts | null>(null);
 
   // 初始化图表
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function ChartInstance({ className, option }: { className: string
 
     // 创建实例
     const instance = echarts.init(chartRef.current);
-    setEchartInstance(instance);
+    setEchartsInstance(instance);
 
     // 设置初始配置
     instance.setOption(option);
@@ -32,6 +32,7 @@ export default function ChartInstance({ className, option }: { className: string
 
   useEffect(() => {
     if (!echartsInstance) return;
+    console.log("option", option);
     echartsInstance.setOption(option);
   }, [echartsInstance, option]);
 
