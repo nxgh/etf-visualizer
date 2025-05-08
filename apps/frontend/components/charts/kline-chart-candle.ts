@@ -85,6 +85,25 @@ export const calculateCandleMetrics = (params: CandleStickParams): CandleStickRe
 //   candleWidth: 20
 // });
 
+interface CandleTransaction {
+  type: string;
+  value: number;
+  quantity: number;
+}
+
+interface CandleData {
+  date: string;
+  open: string | number;
+  close: string | number;
+  high: string | number;
+  low: string | number;
+  volume: string | number;
+  ma5?: string | number;
+  ma10?: string | number;
+  ma20?: string | number;
+  ma30?: string | number;
+}
+
 export const genCandleHtml = (
   visualMetrics: {
     bodyHeight: number;
@@ -93,24 +112,14 @@ export const genCandleHtml = (
     candleWidth: number;
   },
   isUp: boolean = true,
-  data: {
-    date: string;
-    open: string | number;
-    close: string | number;
-    high: string | number;
-    low: string | number;
-    volume: string | number;
-    ma5?: string | number;
-    ma10?: string | number;
-    ma20?: string | number;
-    ma30?: string | number;
-  }
+  data:CandleData,
+  transactions: CandleTransaction[]
 ) => {
-  const totalHeight = visualMetrics.bodyHeight + visualMetrics.upperShadow + visualMetrics.lowerShadow;
+  const totalHeight = 200; // visualMetrics.bodyHeight + visualMetrics.upperShadow + visualMetrics.lowerShadow;
 
   // 计算各个价格标注的垂直位置
   const textHeight = 14; // 文字高度
-  const textMargin = 28; // 增加文字间距，避免太近
+  const textMargin = 4; // 文本之间的最小垂直间距
   const minTextGap = textHeight + textMargin; // 最小文字间隔
 
   // 最高价位置（顶部）
@@ -126,19 +135,93 @@ export const genCandleHtml = (
   const lowPosition = totalHeight - textHeight;
 
   // 防止最高价和开盘价重叠
-  if (Math.abs(highPosition - openPosition) <= minTextGap) {
+  if (Math.abs(highPosition - openPosition) < minTextGap && openPosition < lowPosition - minTextGap) {
     openPosition = highPosition + minTextGap;
   }
 
   // 防止最低价和收盘价重叠
-  console.log("lowPosition", {
-    lowPosition,
-    closePosition,
-    minTextGap,
-    a: Math.abs(lowPosition - closePosition),
-    r: Math.abs(lowPosition - closePosition) < minTextGap,
-    data,
-  });
+  if (Math.abs(lowPosition - closePosition) < minTextGap && closePosition > highPosition + minTextGap) {
+    closePosition = lowPosition - minTextGap;
+  }
+
+  // 如果开盘价和收盘价重叠或非常接近
+  if (Math.abs(openPosition - closePosition) < minTextGap) {
+    if (isUp) {
+      // 上涨行情，开盘价在下，收盘价在上
+      // 如果开盘价接近最高价，则将开盘价向下移动
+      if (Math.abs(openPosition - highPosition) < minTextGap) {
+        openPosition = highPosition + minTextGap;
+        closePosition = openPosition + minTextGap;
+      } else {
+        // 否则，将收盘价向上移动，开盘价向下移动
+        closePosition = openPosition - minTextGap / 2;
+        openPosition = openPosition + minTextGap / 2;
+      }
+      // 确保收盘价不会太靠近最高价
+      if (closePosition < highPosition + textHeight) {
+        closePosition = highPosition + textHeight;
+      }
+      // 确保开盘价不会太靠近最低价
+      if (openPosition > lowPosition - textHeight) {
+        openPosition = lowPosition - textHeight;
+      }
+    } else {
+      // 下跌行情，开盘价在上，收盘价在下
+      // 如果收盘价接近最低价，则将收盘价向上移动
+      if (Math.abs(closePosition - lowPosition) < minTextGap) {
+        closePosition = lowPosition - minTextGap;
+        openPosition = closePosition - minTextGap;
+      } else {
+        // 否则，将开盘价向上移动，收盘价向下移动
+        openPosition = closePosition - minTextGap / 2;
+        closePosition = closePosition + minTextGap / 2;
+      }
+      // 确保开盘价不会太靠近最高价
+      if (openPosition < highPosition + textHeight) {
+        openPosition = highPosition + textHeight;
+      }
+      // 确保收盘价不会太靠近最低价
+      if (closePosition > lowPosition - textHeight) {
+        closePosition = lowPosition - textHeight;
+      }
+    }
+  }
+
+  // 再次检查并防止开盘价与最高价重叠
+  if (openPosition <= highPosition + textHeight && data.open !== data.high) {
+    openPosition = highPosition + textHeight + textMargin;
+  }
+
+  // 再次检查并防止收盘价与最低价重叠
+  if (closePosition >= lowPosition - textHeight && data.close !== data.low) {
+    closePosition = lowPosition - textHeight - textMargin;
+  }
+
+  // 最后检查开盘价和收盘价，确保它们之间有足够的间隙
+  if (Math.abs(openPosition - closePosition) < textHeight) {
+    if (isUp) {
+      // 开盘价在下，收盘价在上
+      if (openPosition > closePosition) {
+        // 如果调整后开盘价反而高于收盘价了
+        let mid = (openPosition + closePosition) / 2;
+        openPosition = mid - textHeight / 2 - textMargin / 2;
+        closePosition = mid + textHeight / 2 + textMargin / 2;
+      } else {
+        closePosition = openPosition + textHeight + textMargin;
+      }
+    } else {
+      // 开盘价在上，收盘价在下
+      if (closePosition > openPosition) {
+        // 如果调整后收盘价反而高于开盘价了
+        let mid = (openPosition + closePosition) / 2;
+        openPosition = mid - textHeight / 2 - textMargin / 2;
+        closePosition = mid + textHeight / 2 + textMargin / 2;
+      } else {
+        openPosition = closePosition + textHeight + textMargin;
+      }
+    }
+  }
+
   if (Math.abs(lowPosition - closePosition) < minTextGap) {
     closePosition = lowPosition - minTextGap;
   }
@@ -173,7 +256,7 @@ export const genCandleHtml = (
               position: absolute;
               top: ${openPosition}px;
               left: 80%;
-              
+              color: ${isUp ? "#00da3c" : "#ec0000"};
             ">${data.open}</div>
             
             <!-- 收盘价 -->
@@ -181,7 +264,7 @@ export const genCandleHtml = (
               position: absolute;
               top: ${closePosition}px;
               left: 80%;
-            
+              color: ${isUp ? "#00da3c" : "#ec0000"};
             ">${data.close}</div>
             
             <!-- 最低价 -->
@@ -224,10 +307,20 @@ export const genCandleHtml = (
             font-size: 12px;
             color: #666;
           ">
-            ${data.ma5 ? `<div>MA5: ${data.ma5}</div>` : ""}
-            ${data.ma10 ? `<div>MA10: ${data.ma10}</div>` : ""}
-            ${data.ma20 ? `<div>MA20: ${data.ma20}</div>` : ""}
-            ${data.ma30 ? `<div>MA30: ${data.ma30}</div>` : ""}
+          
+          <ul>
+            <li>日期: ${data.date}</li>
+            <li>开盘: ${data.open}</li>
+            <li>收盘: ${data.close}</li>
+            <li>最高: ${data.high}</li>
+            <li>最低: ${data.low}</li>  
+            <li>成交量: ${data.volume}</li>
+            <li>MA5: ${data.ma5}</li>
+            <li>MA10: ${data.ma10}</li>
+            <li>MA20: ${data.ma20}</li>
+            <li>MA30: ${data.ma30}</li>
+            <li>交易: ${transactions.map((t) => `${t.type}: ${t.quantity}`).join(", ")}</li>
+          </ul>
           </div>
         </div>
       </div>

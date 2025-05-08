@@ -1,9 +1,10 @@
 import createEnums, { type GetCreateEnumsKeyType } from "#utils/createEnums";
-import SimpleDataPicker from "@shadcn/component/data-picker";
 import { cn } from "@shadcn/lib/utils";
 import { Input } from "@shadcn/ui/input";
 import dayjs from "dayjs";
 import { Decimal } from "decimal.js";
+
+import { DatePicker, InputNumber } from "antd";
 
 const transactionColumnMap = {
   level: "档位",
@@ -27,16 +28,15 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     key: TransactionColumnEnums.date.key,
     headerClassName: "w-[200px]",
     render: (item: ITransactionRecord) => (
-      <SimpleDataPicker
-        date={dayjs(item.date).toDate()}
-        className="border-none shadow-none"
-        onSelect={(day) =>
+      <DatePicker
+        value={dayjs(item.date)}
+        onChange={(day) =>
           onChange(item, {
             key: TransactionColumnEnums.date.key,
             value: dayjs(day).format("YYYY-MM-DD"),
           })
         }
-      ></SimpleDataPicker>
+      />
     ),
   },
   {
@@ -44,16 +44,18 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     key: TransactionColumnEnums.price.key,
     headerClassName: "w-[150px]",
     render: (item: ITransactionRecord) => (
-      <Input
-        type="number"
-        value={item.price}
-        inputClassName="border-none shadow-none"
-        onChange={(e) =>
+      <InputNumber<number>
+        style={{ width: 200 }}
+        defaultValue={1}
+        min={0.001}
+        step={0.001}
+        onChange={(value) =>
           onChange(item, {
             key: TransactionColumnEnums.price.key,
-            value: e.target.value,
+            value: value?.toString() ?? "",
           })
         }
+        stringMode
       />
     ),
   },
@@ -62,16 +64,17 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     key: TransactionColumnEnums.quantity.key,
     headerClassName: "w-[150px]",
     render: (item: ITransactionRecord) => (
-      <Input
-        type="number"
+      <InputNumber<number>
+        style={{ width: 200 }}
+        step={1}
         value={item.quantity}
-        inputClassName="border-none shadow-none"
-        onChange={(e) =>
+        onChange={(value) =>
           onChange(item, {
             key: TransactionColumnEnums.quantity.key,
-            value: e.target.value,
+            value: value?.toString() ?? "",
           })
         }
+        stringMode
       />
     ),
   },
@@ -87,7 +90,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
           item.quantity > 0 ? "text-green-400" : "text-red-400"
         )}
       >
-        {item.price && item.quantity ? new Decimal(item.price).mul(item.quantity).toFixed(2) : ""}
+        {item.price && item.quantity ? new Decimal(item.price).mul(Math.abs(item.quantity)).toFixed(2) : ""}
       </div>
     ),
   },

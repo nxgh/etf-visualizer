@@ -7,10 +7,57 @@ import { Separator } from "@shadcn/ui/separator";
 import { useQueryState } from "nuqs";
 import { SimpleTable } from "@shadcn/component";
 import { insertRecord, removeRecord, Store, useFilteredRecord, updateTransaction } from "#store";
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { Button } from "@shadcn/ui/button";
 import { transactionColumns } from "#components/record-columns";
-import Chart from "#components/charts/kline-chart";
+import { genKlineOption, splitData, type KlineRecord, type DataType } from "#components/charts/kline-chart-option";
+import ChartInstance from "#components/charts/chart-instance";
+import { getKlineDataAction } from "#actions/index";
+
+function useKlineData(code: string) {
+  const [data, setData] = useState<DataType[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getKlineDataAction(code);
+      setData(data);
+    };
+    fetchData();
+  }, [code]);
+
+  return data;
+}
+
+function useKlineOption(klineData: DataType[], code: string) {
+  const records: KlineRecord[] = [
+    { date: "2023-05-10", value: 0.496, quantity: 100, type: "B" },
+    { date: "2023-05-29", value: 0.491, quantity: 100, type: "B" },
+    { date: "2023-06-13", value: 0.551, quantity: 100, type: "S" },
+  ];
+
+  const records2 = useFilteredRecord(code!);
+
+  const r2 = useMemo(() => {
+    return [
+      ...records,
+      ...records2.map((item) => ({
+        date: item.date,
+        value: Number(item.price),
+        quantity: Math.abs(item.quantity),
+        type: item.quantity > 0 ? "B" : "S",
+      })),
+    ];
+  }, [records2]);
+
+  return useMemo(
+    () =>
+      genKlineOption({
+        data: splitData(klineData),
+        records: r2 as KlineRecord[],
+      }),
+    [klineData, r2]
+  );
+}
 
 export default function Page({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
@@ -18,16 +65,17 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
   // store
   const strategyStore = useFilteredRecord(code!);
 
-  const onTableChange = (item: ITransactionRecord, param: { key: string; value: string }) => {
-    updateTransaction({
-      ...item,
-      [param.key]: param.value,
-    } as ITransactionRecord);
-  };
+  const klineData = useKlineData(code);
+  const option = useKlineOption(klineData, code);
 
   const columns = useMemo(
     () => [
-      ...transactionColumns(onTableChange),
+      ...transactionColumns((item: ITransactionRecord, param: { key: string; value: string }) =>
+        updateTransaction({
+          ...item,
+          [param.key]: param.value,
+        } as ITransactionRecord)
+      ),
       {
         key: "action",
         label: "",
@@ -62,7 +110,7 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
 
   return (
     <div className="flex-1 overflow-scroll p-2">
-      <Chart className="w-full h-1/2" />
+      <ChartInstance className="w-full h-1/2" option={option} />
       <SimpleTable className="w-full h-1/2" columns={columns} data={strategyStore} />
     </div>
   );
