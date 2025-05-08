@@ -17,6 +17,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
           className="mb-0"
           value={q ?? ""}
           onChange={(e) => setQuery(e.target.value)}
+          clearable
           onClear={() => setQuery(null)}
         />
         <Separator className="my-4" />

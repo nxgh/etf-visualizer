@@ -25,22 +25,30 @@ const removeWatchList = (code: string) => {
 };
 
 const insertWatchList = (params: Pick<IWatchList, "code" | "name" | "type">) => {
+  console.log("insertWatchList", params);
   useStore.setState((state) => ({
-    watchList: merge(state.watchList, {
-      ...params,
-      create_at: Date.now().toString(),
-      update_at: Date.now().toString(),
-    }),
+    watchList: [
+      ...state.watchList,
+      {
+        ...params,
+        id: params.code,
+        create_at: Date.now().toString(),
+        update_at: Date.now().toString(),
+      },
+    ],
   }));
 };
 
 const insertStrategy = (params: IStrategyConfig) => {
   useStore.setState((state) => ({
-    presetList: merge(state.presetList, {
-      ...params,
-      create_at: Date.now().toString(),
-      update_at: Date.now().toString(),
-    }),
+    presetList: [
+      ...state.presetList,
+      {
+        ...params,
+        create_at: Date.now().toString(),
+        update_at: Date.now().toString(),
+      },
+    ],
   }));
 };
 
@@ -52,13 +60,13 @@ const updateStrategy = (params: IStrategyConfig) => {
 
 const insertTransaction = (params: BaseParams<ITradRecord>) => {
   useStore.setState((state) => ({
-    transaction: merge(
-      state.transaction,
+    transaction: [
+      ...state.transaction,
       createRecord({
         level: 1,
         ...params,
-      })
-    ),
+      }),
+    ],
   }));
 };
 
@@ -77,6 +85,10 @@ const removeTransaction = (id: string) => {
 const useFilteredTransaction = (code: string) => {
   const record = Store.use.transaction();
   return useMemo(() => record.filter((item) => item.code === code), [record, code]);
+};
+
+const useStoreData = () => {
+  return useStore.getState();
 };
 
 export const strategyAction = {
@@ -99,4 +111,4 @@ export const watchListAction = {
 };
 
 export { generateGrid } from "./helper";
-export { createRecord, createStrategy };
+export { createRecord, createStrategy, useStoreData };
