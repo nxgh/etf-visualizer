@@ -1,12 +1,18 @@
 import Decimal from "decimal.js";
 
+const withTimestamp = <T extends object>(data: T) => ({
+  ...data,
+  create_at: Date.now().toString(),
+  update_at: Date.now().toString(),
+});
+
 /**
  * 创建网格策略
  * @returns 网格策略
  */
 export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyConfig {
   // 默认策略配置
-  const defaultConfig: IStrategyConfig = {
+  const defaultConfig: IStrategyConfig = withTimestamp({
     id: Date.now().toString(),
     strategyName: "",
     code: "",
@@ -19,9 +25,7 @@ export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyCo
     profitRetention: 5,
     securityName: "",
     source: "",
-    create_at: Date.now().toString(),
-    update_at: Date.now().toString(),
-  };
+  });
 
   // 合并用户配置与默认配置
   return {
@@ -35,7 +39,7 @@ export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyCo
  * @returns 网格交易记录
  */
 export function createRecord(params: BaseParams<ITransactionRecord>): ITransactionRecord {
-  const defaultConfig: ITransactionRecord = {
+  const defaultConfig: ITransactionRecord = withTimestamp({
     id: Date.now().toString(),
     level: 0,
     date: new Date().toISOString(),
@@ -44,9 +48,7 @@ export function createRecord(params: BaseParams<ITransactionRecord>): ITransacti
     price: 0,
     quantity: 0,
     source: "",
-    create_at: Date.now().toString(),
-    update_at: Date.now().toString(),
-  };
+  });
 
   return {
     ...defaultConfig,
