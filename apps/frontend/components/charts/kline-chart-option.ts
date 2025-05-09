@@ -139,7 +139,7 @@ export const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; 
         obj[position] = 30;
         return obj;
       },
-      extraCssText: "width: 200px",
+      extraCssText: "min-width: 200px",
       formatter: function (params: Array<{ name: string; seriesName: string; value: number | string }>) {
         const result: Record<string, unknown> = {
           date: params[0].name,

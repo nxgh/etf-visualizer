@@ -2,7 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { cn } from "@shadcn/lib/utils";
 
-export default function ChartInstance({ className, option }: { className: string; option: echarts.EChartsOption }) {
+interface ChartInstanceProps {
+  className: string;
+  option: echarts.EChartsOption;
+  onClick?: (params: echarts.ECElementEvent) => void;
+  onMouseOver?: (params: echarts.ECElementEvent) => void;
+  onMouseOut?: (params: echarts.ECElementEvent) => void;
+}
+
+export default function ChartInstance({ className, option, onClick, onMouseOver, onMouseOut }: ChartInstanceProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [echartsInstance, setEchartsInstance] = useState<echarts.ECharts | null>(null);
 
@@ -13,6 +21,11 @@ export default function ChartInstance({ className, option }: { className: string
     // 创建实例
     const instance = echarts.init(chartRef.current);
     setEchartsInstance(instance);
+
+    instance.on("click", (params) => {
+      onClick?.(params);
+    });
+
 
     // 设置初始配置
     instance.setOption(option);
@@ -32,7 +45,6 @@ export default function ChartInstance({ className, option }: { className: string
 
   useEffect(() => {
     if (!echartsInstance) return;
-    console.log("option", option);
     echartsInstance.setOption(option);
   }, [echartsInstance, option]);
 

@@ -46,9 +46,9 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     render: (item: ITransactionRecord) => (
       <InputNumber<number>
         style={{ width: 200 }}
-        defaultValue={1}
         min={0.001}
         step={0.001}
+        value={item.price}
         onChange={(value) =>
           onChange(item, {
             key: TransactionColumnEnums.price.key,

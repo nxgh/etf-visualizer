@@ -58,7 +58,7 @@ const updateStrategy = (params: IStrategyConfig) => {
   }));
 };
 
-const insertTransaction = (params: BaseParams<ITradRecord>) => {
+const insertTransaction = (params: BaseParams<ITransactionRecord>) => {
   useStore.setState((state) => ({
     transaction: [
       ...state.transaction,
@@ -70,7 +70,8 @@ const insertTransaction = (params: BaseParams<ITradRecord>) => {
   }));
 };
 
-const updateTransaction = (params: BaseParams<ITradRecord>) => {
+const updateTransaction = (params: BaseParams<ITransactionRecord>) => {
+  console.log("updateTransaction", params);
   useStore.setState((state) => ({
     transaction: state.transaction.map((item) => (item.id === params.id ? { ...item, ...params } : item)),
   }));
@@ -85,6 +86,11 @@ const removeTransaction = (id: string) => {
 const useFilteredTransaction = (code: string) => {
   const record = Store.use.transaction();
   return useMemo(() => record.filter((item) => item.code === code), [record, code]);
+};
+
+const getFilteredTransaction = (code: string) => {
+  const record = useStore.getState().transaction;
+  return record.filter((item) => item.code === code);
 };
 
 const useStoreData = () => {
@@ -102,6 +108,7 @@ export const transactionAction = {
   removeTransaction,
   useFilteredTransaction,
   addTransactionItem,
+  getFilteredTransaction
 };
 
 export const watchListAction = {

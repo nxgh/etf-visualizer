@@ -7,12 +7,16 @@ import { Separator } from "@shadcn/ui/separator";
 import { useQueryState } from "nuqs";
 import { SimpleTable } from "@shadcn/component";
 import { transactionAction } from "#store";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@shadcn/ui/button";
 import { transactionColumns } from "#components/record-columns";
 import { genKlineOption, splitData, type KlineRecord, type DataType } from "#components/charts/kline-chart-option";
 import ChartInstance from "#components/charts/chart-instance";
 import { getKlineDataAction } from "#actions/index";
+import Show from "@shadcn/component/show";
+
+import { X } from "lucide-react";
+import { last, pick } from "lodash-es";
 
 function useKlineData(code: string) {
   const [data, setData] = useState<DataType[]>([]);
@@ -29,36 +33,24 @@ function useKlineData(code: string) {
 }
 
 function useKlineOption(klineData: DataType[], code: string) {
-  const records: KlineRecord[] = [
-    { date: "2023-05-10", value: 0.496, quantity: 100, type: "B" },
-    { date: "2023-05-29", value: 0.491, quantity: 100, type: "B" },
-    { date: "2023-06-13", value: 0.551, quantity: 100, type: "S" },
-  ];
-
-  const records2 = transactionAction.useFilteredTransaction(code!);
-
-  const r2 = useMemo(() => {
-    return [
-      ...records,
-      ...records2.map((item) => ({
-        date: item.date,
-        value: Number(item.price),
-        quantity: Math.abs(item.quantity),
-        type: item.quantity > 0 ? "B" : "S",
-      })),
-    ];
-  }, [records2]);
+  const transactions = transactionAction.getFilteredTransaction(code!);
+  const records = transactions.map((item) => ({
+    date: item.date,
+    value: Number(item.price),
+    quantity: Math.abs(item.quantity),
+    type: item.quantity > 0 ? "B" : "S",
+  }));
 
   return useMemo(
     () =>
       genKlineOption({
         data: splitData(klineData),
-        records: r2 as KlineRecord[],
+        records: records as KlineRecord[],
       }),
-    [klineData, r2]
+    [klineData, records]
   );
 }
-
+// TODO: 价格验证，买入不得高于当天最高价，卖出不得低于当天最低价
 export default function Page({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
 
@@ -108,9 +100,49 @@ export default function Page({ params }: { params: Promise<{ code: string }> }) 
     []
   );
 
+  const insertOrUpdateTransaction = useCallback(
+    async (params: ITransactionRecord) => {
+      const lastRecord = last(transactionAction.getFilteredTransaction(code!));
+
+      const isAllFilled = Object.values(pick(lastRecord, ["date", "price", "quantity"])).every((item) => item);
+
+      if (isAllFilled) {
+        transactionAction.insertTransaction({
+          code: code!,
+          date: params.date,
+          price: params.price,
+          quantity: 0,
+        });
+      } else {
+        transactionAction.updateTransaction({
+          ...lastRecord,
+          code: code!,
+          date: params.date,
+          price: params.price,
+          quantity: 0,
+        });
+      }
+    },
+    [code, strategyStore]
+  );
+
+  const onChartClick = (params: echarts.ECElementEvent) => {
+    if (params.componentType === "series" && params.componentSubType === "candlestick") {
+      const data = params?.value as number[];
+
+      const detail = {
+        date: params.name,
+        price: data[1],
+        quantity: 0,
+      };
+
+      insertOrUpdateTransaction(detail as ITransactionRecord);
+    }
+  };
+
   return (
-    <div className="flex-1 overflow-scroll p-2">
-      <ChartInstance className="w-full h-1/2" option={option} />
+    <div className="flex-1  p-2 relative overflow-hidden">
+      <ChartInstance className="w-full h-1/2" option={option} onClick={onChartClick} />
       <SimpleTable className="w-full h-1/2" columns={columns} data={strategyStore} />
     </div>
   );
