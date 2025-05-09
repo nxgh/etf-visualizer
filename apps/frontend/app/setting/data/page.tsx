@@ -21,19 +21,22 @@ function SettingTable() {
 
   const columns = useMemo(
     () => [
-      ...Object.keys(dataSource[0] ?? {}).map((key) => ({
-        title: key,
-        dataIndex: key,
-        // key,
-        render: (text: string, record: Record<string, any>) => (
-          <Input
-            value={text}
-            onChange={(e) => {
-              updateStoreByName(key, e.target.value, record);
-            }}
-          />
-        ),
-      })),
+      ...Object.keys(dataSource[0] ?? {})
+        .filter((key) => !['id',"create_at", "update_at"].includes(key))
+        .map((key) => ({
+          title: key,
+          dataIndex: key,
+          // key,
+          render: (text: string, record: Record<string, any>) => (
+            <Input
+              disabled={key === "id" || key === "code"}
+              value={text}
+              onChange={(e) => {
+                updateStoreByName(key, e.target.value, record);
+              }}
+            />
+          ),
+        })),
       {
         title: "操作",
         render: (text: string, record: Record<string, any>) => (

@@ -112,10 +112,10 @@ export const genCandleHtml = (
     candleWidth: number;
   },
   isUp: boolean = true,
-  data:CandleData,
+  data: CandleData,
   transactions: CandleTransaction[]
 ) => {
-  const totalHeight = 200; // visualMetrics.bodyHeight + visualMetrics.upperShadow + visualMetrics.lowerShadow;
+  const totalHeight = 220; // visualMetrics.bodyHeight + visualMetrics.upperShadow + visualMetrics.lowerShadow;
 
   // 计算各个价格标注的垂直位置
   const textHeight = 14; // 文字高度
@@ -226,14 +226,28 @@ export const genCandleHtml = (
     closePosition = lowPosition - minTextGap;
   }
 
+
+  const transactionHtml = transactions
+    .map(
+      (t) => `
+    <li>
+      <span style="color: ${t.type === "B" ? "#00da3c" : "#ec0000"};">${t.type === "B" ? "买入" : "卖出"}</span>
+      <span>${t.quantity}</span>
+      <span>${t.value}</span>
+    </li>
+  `
+    )
+    .join("");
+
   return `
       <div class="candle-container" style="
         position: relative;
-        height: ${totalHeight}px;
+        min-height: ${totalHeight}px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         font-family: monospace;
+        width: 100%;
       ">
         <div style="display: flex; align-items: flex-start; width: 100%;">
           <!-- 价格标注区域 -->
@@ -300,14 +314,8 @@ export const genCandleHtml = (
           </div>
 
           <!-- 均线标注区域 -->
-          <div style="
-            display: flex;
-            flex-direction: column;
-            margin-left: 10px;
-            font-size: 12px;
-            color: #666;
-          ">
-          
+          <div class="flex flex-col ml-8 text-sm text-gray-500">
+            <ul>
           <ul>
             <li>日期: ${data.date}</li>
             <li>开盘: ${data.open}</li>
@@ -318,8 +326,8 @@ export const genCandleHtml = (
             <li>MA5: ${data.ma5}</li>
             <li>MA10: ${data.ma10}</li>
             <li>MA20: ${data.ma20}</li>
-            <li>MA30: ${data.ma30}</li>
-            <li>交易: ${transactions.map((t) => `${t.type}: ${t.quantity}`).join(", ")}</li>
+            <li class="border-b border-gray-300">MA30: ${data.ma30}</li>
+            ${transactionHtml}
           </ul>
           </div>
         </div>
