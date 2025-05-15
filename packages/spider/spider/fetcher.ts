@@ -33,40 +33,23 @@ const XUE_QIU_HEADER = (headers: HeadersInit | undefined = {}) => ({
   ...headers,
 });
 
-const mergeHeaders = (headers: HeadersInit | undefined = {}) => {
-  const headersInstance = new Headers();
-
-  for (const [key, value] of Object.entries(headers)) {
-    headersInstance.append(key, value);
-  }
-  return headersInstance;
-};
-
-const xueqiu = async (url: string, options?: RequestInit) => {
-  return await fetch(url, {
-    ...options,
-    headers: mergeHeaders(XUE_QIU_HEADER(options?.headers)),
-  });
-};
-
-const danJuan = async (url: string, options?: RequestInit) => {
-  return await fetch(url, {
-    ...options,
-    headers: mergeHeaders(DAN_JUAN_HEADER(options?.headers)),
-  });
-};
-
-const asyncWrapper = async <T>(fn: (...args: unknown[]) => Promise<T>, errorMessage: string, options?: RequestInit) => {
-  try {
-    return await fn();
-  } catch (error: unknown) {
-    logger.error(`Fetcher Error: ${errorMessage}`, {
-      error: error instanceof Error ? error.stack : error,
-      headers: options?.headers,
-    });
-    return null;
-  }
-};
+export function AsyncWrapper(errorMessage: string) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = async function (this: Fetcher, ...args: unknown[]) {
+      try {
+        return await originalMethod.apply(this, args);
+      } catch (error: unknown) {
+        logger.error(`Fetcher Error: ${errorMessage}`, {
+          error: error instanceof Error ? error.stack : error,
+          headers: this.headers,
+        });
+        return null;
+      }
+    };
+    return descriptor;
+  };
+}
 
 class Fetcher {
   static DAN_JUAN_HEADER = DAN_JUAN_HEADER;
@@ -88,31 +71,31 @@ class Fetcher {
     return headersInstance;
   }
 
-  async xueqiu(url: string, options?: RequestInit) {
+  @AsyncWrapper("Failed to fetch from Xueqiu")
+  async XueQiu(url: string, options?: RequestInit) {
     return await fetch(url, {
       ...options,
       headers: this.mergeHeaders(XUE_QIU_HEADER(this.headers)),
     });
   }
+  async XueQiuJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const resp = await this.XueQiu(url, options);
+    return (await resp.json()) as T;
+  }
 
-  async danJuan(url: string, options?: RequestInit) {
+  @AsyncWrapper("Failed to fetch from DanJuan")
+  async DanJuan(url: string, options?: RequestInit) {
     return await fetch(url, {
       ...options,
       headers: this.mergeHeaders(DAN_JUAN_HEADER(this.headers)),
     });
   }
-
-  async asyncWrapper<T>(fn: (...args: unknown[]) => Promise<T>, errorMessage: string) {
-    try {
-      return await fn();
-    } catch (error: unknown) {
-      logger.error(`Fetcher Error: ${errorMessage}`, {
-        error: error instanceof Error ? error.stack : error,
-        headers: this.headers,
-      });
-      return null;
-    }
+  async DanJuanJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const resp = await this.DanJuan(url, options);
+    return (await resp.json()) as T;
   }
 }
 
 export default Fetcher;
+
+export type { Fetcher };

@@ -1,5 +1,5 @@
 {
-  "name": "@etf-visualizer/server",
+  "name": "@etf-visualizer/logger",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.cjs",
@@ -16,28 +16,18 @@
     }
   },
   "scripts": {
-    "build": "pkgroll --clean-dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenvx run -f ../../.env --  pnpm run dev:hono"
+    "build": "pkgroll --clean-dist"
   },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@getcronit/pylon": "^2.9.4",
-    "@hono/node-server": "^1.14.0",
+    "@dotenvx/dotenvx": "^1.41.0",
     "dayjs": "^1.11.13",
-    "dotenv": "^16.4.7",
-    "hono": "^4.7.6",
-    "lodash-es": "^4.17.21",
-    "mysql2": "^3.14.0",
-    "reflect-metadata": "^0.2.2",
-    "winston": "^3.17.0",
-    "zod": "^3.24.2"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@getcronit/pylon-dev": "^1.0.4",
     "@types/node": "^22.14.0",
     "tsx": "^4.19.3"
   }

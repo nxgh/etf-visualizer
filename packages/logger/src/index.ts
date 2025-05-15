@@ -71,7 +71,7 @@ const error = (message: string, rest: Record<string, unknown> | unknown = {}) =>
   winstonLogger.error(`🚫 ${message} ${restStr}`);
 };
 
-export default { info, error };
+export { info, error };
 
 export { winstonLogger };
 

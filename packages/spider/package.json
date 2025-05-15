@@ -1,0 +1,41 @@
+{
+  "name": "@etf-visualizer/server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "pkgroll --clean-dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "dotenvx run -f ../../.env --  tsx watch src/index.ts "
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.41.0",
+    "@hono/node-server": "^1.14.0",
+    "dayjs": "^1.11.13",
+    "hono": "^4.7.6",
+    "lodash-es": "^4.17.21",
+    "mysql2": "^3.14.0",
+    "reflect-metadata": "^0.2.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.19.3"
+  }
+}
