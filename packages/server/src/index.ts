@@ -1,9 +1,8 @@
 import "reflect-metadata";
-import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { get } from "lodash-es";
 import dayjs from "dayjs";
-import { logger } from "@etf-visualizer/shared";
+import logger from "#logger";
 
 import { SearchRoute, StockRoute } from "#/register-routes.ts";
 import { createFactory } from "hono/factory";
@@ -14,9 +13,7 @@ const app = createFactory({
   initApp: (app) => {
     app.use(async (c, next) => {
       logger.info(
-        `🔴 [${dayjs().format("YYYY-MM-DD HH:mm:ss")}  ${c.req.method} ${
-          c.req.path
-        }  ]
+        `🔴 [${dayjs().format("YYYY-MM-DD HH:mm:ss")}  ${c.req.method} ${c.req.path}  ]
   Query: ${JSON.stringify(c.req.query())}
   Body: ${JSON.stringify(c.req.raw.body)}
   Params: ${JSON.stringify(c.req.param())}

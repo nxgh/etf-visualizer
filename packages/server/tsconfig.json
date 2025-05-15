@@ -21,7 +21,6 @@
       "#types/*": ["src/types/*"],
       "#fetcher/*": ["src/fetcher/*"],
       "#routers/*": ["src/routers/*"],
-      "#sql": ["sql/index.ts"],
       "#logger": ["src/utils/logger.ts"],
       "#services/*": ["src/services/*"],
       "#db/*": ["src/db/*"]

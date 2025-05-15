@@ -1,8 +1,6 @@
-import "dotenv/config";
+import logger from "#utils/logger.ts";
 
-import { logger } from "@etf-visualizer/shared";
-
-const HEADER_CONFIG = {
+export const DEFAULT_HEADER_CONFIG = {
   "User-Agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   Accept: "*/*",
@@ -20,7 +18,7 @@ const HEADER_CONFIG = {
 };
 
 const DAN_JUAN_HEADER = (headers: HeadersInit | undefined = {}) => ({
-  ...HEADER_CONFIG,
+  ...DEFAULT_HEADER_CONFIG,
   Host: "danjuanfunds.com",
   Referer: "https://danjuanfunds.com/",
   Cookie: process.env.DAN_JUAN_COOKIE || "",
@@ -28,17 +26,52 @@ const DAN_JUAN_HEADER = (headers: HeadersInit | undefined = {}) => ({
 });
 
 const XUE_QIU_HEADER = (headers: HeadersInit | undefined = {}) => ({
-  ...HEADER_CONFIG,
+  ...DEFAULT_HEADER_CONFIG,
   Host: "xueqiu.com",
   Referer: "https://xueqiu.com/",
   Cookie: process.env.XUE_QIU_COOKIE || "",
   ...headers,
 });
 
+const mergeHeaders = (headers: HeadersInit | undefined = {}) => {
+  const headersInstance = new Headers();
+
+  for (const [key, value] of Object.entries(headers)) {
+    headersInstance.append(key, value);
+  }
+  return headersInstance;
+};
+
+const xueqiu = async (url: string, options?: RequestInit) => {
+  return await fetch(url, {
+    ...options,
+    headers: mergeHeaders(XUE_QIU_HEADER(options?.headers)),
+  });
+};
+
+const danJuan = async (url: string, options?: RequestInit) => {
+  return await fetch(url, {
+    ...options,
+    headers: mergeHeaders(DAN_JUAN_HEADER(options?.headers)),
+  });
+};
+
+const asyncWrapper = async <T>(fn: (...args: unknown[]) => Promise<T>, errorMessage: string, options?: RequestInit) => {
+  try {
+    return await fn();
+  } catch (error: unknown) {
+    logger.error(`Fetcher Error: ${errorMessage}`, {
+      error: error instanceof Error ? error.stack : error,
+      headers: options?.headers,
+    });
+    return null;
+  }
+};
+
 class Fetcher {
   static DAN_JUAN_HEADER = DAN_JUAN_HEADER;
   static XUE_QIU_HEADER = XUE_QIU_HEADER;
-  static HEADERS = HEADER_CONFIG;
+  static HEADERS = DEFAULT_HEADER_CONFIG;
 
   headers: HeadersInit | undefined = {};
 
