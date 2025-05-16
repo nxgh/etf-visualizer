@@ -1,6 +1,4 @@
 import * as fs from "fs";
-import dotenv from "dotenv";
-dotenv.config();
 
 const myHeaders = new Headers();
 myHeaders.append("Accept", " application/json, text/plain, */*");
@@ -22,8 +20,8 @@ myHeaders.append(
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0"
 );
 myHeaders.append("X-Requested-With", " XMLHttpRequest");
-myHeaders.append("X-XSRF-TOKEN", process.env.X_XSRF_TOKEN || "");
-myHeaders.append("Cookie", process.env.COOKIE || "");
+myHeaders.append("X-XSRF-TOKEN", process.env.WEIBO_SPIDER_X_XSRF_TOKEN || "");
+myHeaders.append("Cookie", process.env.WEIBO_SPIDER_COOKIE || "");
 myHeaders.append("Host", "weibo.com");
 myHeaders.append("Connection", "keep-alive");
 

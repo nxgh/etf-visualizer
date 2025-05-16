@@ -1,15 +1,13 @@
-import dotenv from "dotenv";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
-
-dotenv.config();
+import { logger } from "@etf-visualizer/logger";
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function get_ids() {
   try {
-    const env_ids = process.env.USER_IDS;
+    const env_ids = process.env.WEIBO_SPIDER_USER_IDS;
     if (!env_ids) {
       throw new Error();
     }
@@ -17,7 +15,7 @@ export function get_ids() {
 
     return ids;
   } catch (error) {
-    console.log("ENV: USER_IDS is not set");
+    logger.error("ENV: WEIBO_SPIDER_USER_IDS is not set");
     process.exit(1);
   }
 }
@@ -42,7 +40,7 @@ export async function save_image(buffer: Buffer, filename: string, dir: string =
     await fs.promises.writeFile(filePath, buffer);
     return filename;
   } catch (error) {
-    console.error(`Error fetching and saving image: ${filename}`, error);
+    logger.error(`Error fetching and saving image: ${filename}`, { error });
     return null;
   }
 }
@@ -59,7 +57,7 @@ export async function save_raw_json(json: any, filename: string, dir: string = "
     const filePath = path.join(imagesDir, filename);
     await fs.promises.writeFile(filePath, JSON.stringify(json, null, 2));
   } catch (error) {
-    console.error(`Error saving raw json: ${filename}`, error);
+    logger.error(`Error saving raw json: ${filename}`, { error });
     return null;
   }
 }

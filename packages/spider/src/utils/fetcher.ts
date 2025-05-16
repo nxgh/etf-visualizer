@@ -1,4 +1,4 @@
-import logger from "#utils/logger.ts";
+import { logger } from "@etf-visualizer/logger";
 
 export const DEFAULT_HEADER_CONFIG = {
   "User-Agent":
@@ -21,7 +21,7 @@ const DAN_JUAN_HEADER = (headers: HeadersInit | undefined = {}) => ({
   ...DEFAULT_HEADER_CONFIG,
   Host: "danjuanfunds.com",
   Referer: "https://danjuanfunds.com/",
-  Cookie: process.env.DAN_JUAN_COOKIE || "",
+  Cookie: process.env.SPIDER_DAN_JUAN_COOKIE || "",
   ...headers,
 });
 
@@ -29,11 +29,25 @@ const XUE_QIU_HEADER = (headers: HeadersInit | undefined = {}) => ({
   ...DEFAULT_HEADER_CONFIG,
   Host: "xueqiu.com",
   Referer: "https://xueqiu.com/",
-  Cookie: process.env.XUE_QIU_COOKIE || "",
+  Cookie: process.env.SPIDER_XUE_QIU_COOKIE || "",
   ...headers,
 });
 
-export function AsyncWrapper(errorMessage: string) {
+const WEIBO_HEADER = (headers: HeadersInit | undefined = {}) => {
+  const cookies = process.env.SPIDER_WEIBO_COOKIE || "";
+  const xsrfToken = cookies.match(/XSRF-TOKEN=([^;]+)/)?.[1];
+
+  return {
+    ...DEFAULT_HEADER_CONFIG,
+    Host: "weibo.com",
+    Referer: "https://weibo.com/",
+    Cookie: cookies,
+    "X-XSRF-TOKEN": xsrfToken || "",
+    ...headers,
+  };
+};
+
+export function AsyncCatch(errorMessage: string) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
     descriptor.value = async function (this: Fetcher, ...args: unknown[]) {
@@ -42,7 +56,7 @@ export function AsyncWrapper(errorMessage: string) {
       } catch (error: unknown) {
         logger.error(`Fetcher Error: ${errorMessage}`, {
           error: error instanceof Error ? error.stack : error,
-          headers: this.headers,
+          args,
         });
         return null;
       }
@@ -54,9 +68,10 @@ export function AsyncWrapper(errorMessage: string) {
 class Fetcher {
   static DAN_JUAN_HEADER = DAN_JUAN_HEADER;
   static XUE_QIU_HEADER = XUE_QIU_HEADER;
-  static HEADERS = DEFAULT_HEADER_CONFIG;
+  static WEIBO_HEADER = WEIBO_HEADER;
 
   headers: HeadersInit | undefined = {};
+  logger = logger;
 
   constructor(headers: HeadersInit | undefined = {}) {
     this.headers = headers;
@@ -71,7 +86,7 @@ class Fetcher {
     return headersInstance;
   }
 
-  @AsyncWrapper("Failed to fetch from Xueqiu")
+  @AsyncCatch("Failed to fetch from Xueqiu")
   async XueQiu(url: string, options?: RequestInit) {
     return await fetch(url, {
       ...options,
@@ -83,7 +98,7 @@ class Fetcher {
     return (await resp.json()) as T;
   }
 
-  @AsyncWrapper("Failed to fetch from DanJuan")
+  @AsyncCatch("Failed to fetch from DanJuan")
   async DanJuan(url: string, options?: RequestInit) {
     return await fetch(url, {
       ...options,
@@ -92,6 +107,19 @@ class Fetcher {
   }
   async DanJuanJSON<T>(url: string, options?: RequestInit): Promise<T> {
     const resp = await this.DanJuan(url, options);
+    return (await resp.json()) as T;
+  }
+
+  @AsyncCatch("Failed to fetch from Weibo")
+  async Weibo(url: string, options?: RequestInit) {
+    return await fetch(url, {
+      ...options,
+      headers: this.mergeHeaders(WEIBO_HEADER(this.headers)),
+    });
+  }
+
+  async WeiboJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const resp = await this.Weibo(url, options);
     return (await resp.json()) as T;
   }
 }

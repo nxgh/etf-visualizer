@@ -1,4 +1,4 @@
-import { AsyncWrapper, type Fetcher } from "../fetcher.ts";
+import { AsyncCatch, type Fetcher } from "#fetcher";
 import type { FundItem, SearchByKeywordJSON } from "./type.ts";
 
 class DanJuan {
@@ -7,7 +7,7 @@ class DanJuan {
     this.fetcher = fetcher;
   }
 
-  @AsyncWrapper("获取基金列表失败")
+  @AsyncCatch("获取基金列表失败")
   async searchByKeyword(keyword: string): Promise<FundItem[]> {
     const resp = await this.fetcher.DanJuan(
       `https://danjuanfunds.com/djapi/v2/search?key=${keyword}&xq_access_token=bd704c01c13b89ae8fb96b6b04e321ba1f60f3a0&source=index`

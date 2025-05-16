@@ -17,17 +17,9 @@
     "baseUrl": ".",
     "paths": {
       "#/*": ["src/*"],
-      "#utils": ["src/utils/index.ts"],
-      "#utils/*": ["src/utils/*"],
-      "#types/*": ["src/types/*"],
-      "#fetcher/*": ["src/fetcher/*"],
-      "#routers/*": ["src/routers/*"],
-      "#logger": ["src/utils/logger.ts"],
-      "#services/*": ["src/services/*"],
-      "#db/*": ["src/db/*"],
-      "#spider": ["src/spider/index.ts"]
+      "#fetcher": ["src/utils/fetcher.ts"]
     }
   },
 
-  "include": ["src/**/*.ts", "mock/**/*.ts", "sql/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

@@ -6,7 +6,7 @@ const logsPath = path.join(process.env.LOG_PATH || "./", ".logs");
 
 const winstonLogger = createLogger({
   format: format.combine(format.errors({ stack: true }), format.splat(), format.simple()),
-  // level: "info",
+  level: "info",
   transports: [
     new transports.Console({
       format: format.combine(
@@ -29,41 +29,45 @@ const winstonLogger = createLogger({
   ],
 });
 
+// 将 emoji 映射提取为常量
+const PREFIX_EMOJI_MAP = {
+  "(": "🔴",
+  "*": "🟢",
+  "#": "🔷",
+  ">": "🟧",
+  "-": "🟨",
+  "+": "🟩",
+  "=": "🟦",
+  x: "⛔️",
+  X: "❌",
+  "/": "🚫",
+  o: "⭕️",
+  "!": "❗️",
+  "?": "❓",
+} as const;
+
+type PrefixKey = keyof typeof PREFIX_EMOJI_MAP;
+
+/**
+ * 格式化日志消息
+ * @param message 日志消息
+ * @param rest 额外信息
+ */
 const info = (message: string, rest: Record<string, unknown> = {}) => {
-  const restStr = isEmpty(rest) ? "" : JSON.stringify(rest);
-
-  // 定义消息前缀和对应的emoji映射
-  const prefixEmojiMap: Record<string, string> = {
-    "(": "🔴",
-    "*": "🟢",
-    "#": "🔷",
-    ">": "🟧",
-    "-": "🟨",
-    "+": "🟩",
-    "=": "🟦",
-    x: "⛔️",
-    X: "❌",
-    "/": "🚫",
-    o: "⭕️",
-    "!": "❗️",
-    "?": "❓",
-  };
-
-  const hasLeadingEmoji = /^\p{Emoji}/u.test(message);
-  if (hasLeadingEmoji) {
-    winstonLogger.info(`${message} ${restStr} ${process.env.PORT}`);
+  // 提前处理额外信息
+  const restStr = isEmpty(rest) ? "" : ` ${JSON.stringify(rest)}`;
+  
+  // 如果消息已经包含 emoji，直接输出
+  if (/^\p{Emoji}/u.test(message)) {
+    winstonLogger.info(`${message}${restStr}`);
     return;
   }
 
-  // 获取消息的第一个字符
-  const prefix = message[0];
-  const emoji = prefixEmojiMap[prefix];
+  // 获取消息前缀并查找对应的 emoji
+  const prefix = message[0] as PrefixKey;
+  const emoji = PREFIX_EMOJI_MAP[prefix] ?? "📝"; // 使用默认 emoji
 
-  if (emoji) {
-    const shouldIncludePort = prefix === "!";
-    const portSuffix = shouldIncludePort ? ` ${process.env.PORT}` : "";
-    winstonLogger.info(`${emoji} ${message}${restStr}${portSuffix}`);
-  }
+  winstonLogger.info(`${emoji} ${message}${restStr}`);
 };
 
 const error = (message: string, rest: Record<string, unknown> | unknown = {}) => {
@@ -71,7 +75,10 @@ const error = (message: string, rest: Record<string, unknown> | unknown = {}) =>
   winstonLogger.error(`🚫 ${message} ${restStr}`);
 };
 
-export { info, error };
+export const logger = {
+  info,
+  error,
+};
 
 export { winstonLogger };
 
