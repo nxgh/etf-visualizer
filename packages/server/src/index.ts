@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { serve } from "@hono/node-server";
 import { get } from "lodash-es";
 import dayjs from "dayjs";

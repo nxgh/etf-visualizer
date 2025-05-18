@@ -15,6 +15,7 @@ interface IProps<T> {
 
 export default function SimpleList<T>(props: IProps<T>) {
   const { list, children, emptyContent, getKey = (item: T) => JSON.stringify(item) } = props;
+
   return (
     <Command id="simple-list" className={cn("h-fit", props.className)}>
       <CommandList className="h-full">

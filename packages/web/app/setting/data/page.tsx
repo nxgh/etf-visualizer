@@ -11,6 +11,7 @@ import { cn } from "@shadcn/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@shadcn/ui/button";
 import { Trash2 } from "lucide-react";
+import { syncDataAction } from "#actions/index";
 
 type IDataSource = StoreState[keyof StoreState];
 
@@ -22,7 +23,7 @@ function SettingTable() {
   const columns = useMemo(
     () => [
       ...Object.keys(dataSource[0] ?? {})
-        .filter((key) => !['id',"create_at", "update_at"].includes(key))
+        .filter((key) => !["id", "create_at", "update_at"].includes(key))
         .map((key) => ({
           title: key,
           dataIndex: key,
@@ -91,15 +92,11 @@ export default function DataSettingPage() {
     }
   }, []);
 
-  // const [dataSource, setDataSource] = useState<IDataSource>(data[selectedKey as keyof StoreState] ?? []);
-
-  // useEffect(() => {
-  //   setDataSource(data[selectedKey as keyof StoreState] ?? []);
-
-  //   console.log("selectedKey", data, selectedKey, data[selectedKey as keyof StoreState]);
-  // }, [selectedKey, data]);
-
-  // console.log("selectedKey", selectedKey, data[selectedKey as keyof StoreState]);
+  async function sync() {
+    // const data =
+    const res = await syncDataAction(data);
+    // todo: add toast
+  }
 
   return (
     <div className="w-full flex">
@@ -116,6 +113,10 @@ export default function DataSettingPage() {
             {key}
           </div>
         ))}
+
+        <Button className="w-full" onClick={sync}>
+          数据同步
+        </Button>
       </div>
 
       {selectedKey && <SettingTable />}

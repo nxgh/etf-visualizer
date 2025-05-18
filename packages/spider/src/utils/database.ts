@@ -1,10 +1,9 @@
-import type { BlogParsed, UserJSONType } from "#/site/weibo/types/type.js";
+import type { BlogParsed } from "#/site/weibo/types/type.js";
 import { logger } from "@etf-visualizer/logger";
 import dayjs from "dayjs";
-import { useId } from "hono/jsx";
 import mysql from "mysql2/promise";
 
-interface WeiboUser {
+export interface WeiboUser {
   user_id: number;
   user_name: string;
   user_avatar: string;

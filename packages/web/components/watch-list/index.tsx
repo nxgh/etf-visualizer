@@ -97,6 +97,7 @@ export default function WatchListIndex({ className }: { className?: string }) {
 
   // hook
   const { showList, loading } = useSecuritySearch();
+  console.log("showList", showList);
 
   // state
   const [q] = useQueryState("q");
@@ -116,7 +117,9 @@ export default function WatchListIndex({ className }: { className?: string }) {
               <CommandItem key={item.code} className="flex items-end justify-between">
                 <div className="text-sm flex flex-col  gap-2">
                   <span className="text-base">{item.name}</span>
-                  <span className="text-sm text-gray-400">[{item.code}]</span>
+                  <span className="text-sm text-gray-400">
+                    [{item.code}]<span className="ml-4 text-xs text-gray-400">{item.type}</span>
+                  </span>
                 </div>
                 {item.isFavorite ? (
                   <Button

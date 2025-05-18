@@ -1,5 +1,5 @@
 {
-  "name": "@etf-visualizer/server",
+  "name": "@etf-visualizer/spider",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.cjs",

@@ -9,6 +9,7 @@ import {
   insertPost,
   findPostById,
   findLatestPostByUserId,
+  type WeiboUser,
 } from "#/utils/database.ts";
 import { formatYMD, sleep } from "#/utils/utils.ts";
 import Fetcher, { AsyncCatch } from "#fetcher";
@@ -23,7 +24,7 @@ const weibo = new WeiboSpider(fetcher);
 export { xueQiu, weibo };
 
 class Services {
-  async findOrInsertWeiboUser(uid: number | string) {
+  async findOrInsertWeiboUser(uid: number | string): Promise<WeiboUser> {
     let user = await findUserById(uid);
 
     if (user) {
@@ -63,7 +64,7 @@ class Services {
     }
   }
 
-  async getAllBlog(uid: string, stream: SSEStreamingApi) {
+  async getAllBlog(uid: string, stream: SSEStreamingApi): Promise<WeiboUser> {
     const user = await this.findOrInsertWeiboUser(uid);
     const firstBlogId = user.first_blog_id;
 

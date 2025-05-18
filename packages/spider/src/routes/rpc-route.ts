@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { xueQiu, weibo } from "#/services/index.ts";
+import { xueQiu, weibo, services } from "#/services/index.ts";
 
 import { initTRPC } from "@trpc/server";
 const t = initTRPC.create();
@@ -18,7 +18,7 @@ const appRouter = router({
         code: z.string(),
         begin: z.string(),
         end: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const result = await xueQiu.fetchStockKline(input);
@@ -35,11 +35,11 @@ const appRouter = router({
         uid: z.string(),
         page: z.number(),
         parse: z.boolean().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const result = input.parse
-        ? await weibo.getBlogListWithParse(input.uid, input.page)
+        ? await services.getBlogListWithParse(input.uid, input.page)
         : await weibo.getBlogList(input.uid, input.page);
       return result;
     }),

@@ -1,15 +1,15 @@
 "use server";
-import { xueQiu, danJuan } from "#utils/fetcher";
+
+import { SpiderTrpcClient, ServerTrpcClient } from "#utils/trpc-client";
 
 export type SearchResponse = { name: string; code: string; type: "stock" | "fund" }[];
 
 export async function searchSecurityAction(keyword: string) {
   if (!keyword) return null;
 
-  const stockList = await xueQiu.search_by_keyword(keyword);
-  const fundList = await danJuan.search_by_keyword(keyword);
+  const res = await SpiderTrpcClient.search.query(keyword);
 
-  return [...stockList?.map((item) => ({ ...item, type: "stock" }))!, ...fundList?.map((item) => ({ ...item, type: "fund" }))!];
+  return res;
 }
 
 export async function getKlineDataAction(code: string) {
@@ -517,4 +517,12 @@ export async function getKlineDataAction(code: string) {
     //                          volume      open  high   low   close
     // 0            1            2            3     4      5      6
   ];
+}
+
+export async function syncDataAction(data: unknown) {
+  if (!data) return;
+
+  const res = await ServerTrpcClient.sync.mutate({ data });
+
+  return res;
 }

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { xueQiu, weibo, services } from "#/services/index.ts";
 
-import { stream, streamText, streamSSE } from "hono/streaming";
+import { streamSSE } from "hono/streaming";
 
 const route = new Hono().basePath("/spider");
 

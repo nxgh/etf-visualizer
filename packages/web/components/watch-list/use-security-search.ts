@@ -17,6 +17,7 @@ export function useSecuritySearch() {
   const onSearch = (res: string) => {
     searchSecurityAction(res)
       .then((res) => {
+        console.log("res", res);
         setSearchData(res as unknown as SearchResponse);
       })
       .finally(() => {
@@ -54,16 +55,7 @@ export function useSecuritySearch() {
       const isFavorite = watchList.some((watchItem) => watchItem.code === item.code);
       return isFavorite ? { ...item, isFavorite } : item;
     });
-    return [
-      {
-        groupName: "股票",
-        items: filteredList.filter((item) => item.type === "stock"),
-      },
-      {
-        groupName: "基金",
-        items: filteredList.filter((item) => item.type === "fund"),
-      },
-    ];
+    return filteredList;
   }, [watchList, searchData]);
 
   const clearSearch = () => {
