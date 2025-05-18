@@ -58,7 +58,7 @@ export function AsyncCatch(errorMessage: string) {
           error: error instanceof Error ? error.stack : error,
           args,
         });
-        return null;
+        return errorMessage;
       }
     };
     return descriptor;
@@ -120,7 +120,10 @@ class Fetcher {
 
   async WeiboJSON<T>(url: string, options?: RequestInit): Promise<T> {
     const resp = await this.Weibo(url, options);
-    return (await resp.json()) as T;
+
+    const json = (await resp.json()) as T;
+    logger.info("WeiboJSON", { json });
+    return json;
   }
 }
 

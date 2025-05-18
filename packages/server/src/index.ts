@@ -5,10 +5,8 @@ import dayjs from "dayjs";
 import { logger } from "@etf-visualizer/logger";
 
 import { createFactory } from "hono/factory";
-import { registerRoutes } from "./routes/index.ts";
-// import { scheduler } from "./utils/scheduler.ts";
-
-const port = Number(get(process.env, "SPIDER_PORT", 3100));
+import { registerRoutes } from "./route/index.ts";
+const port = Number(get(process.env, "SERVER_PORT", 3200));
 
 const app = createFactory({
   initApp: (app) => {
@@ -35,6 +33,4 @@ export default app;
 
 export type AppType = typeof app;
 
-export type { AppRpcRouter } from "./routes/rpc-route.ts";
-
-// scheduler.start();
+export type { AppRpcRouter } from "./route/rpc-route.ts";

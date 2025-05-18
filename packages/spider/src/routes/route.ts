@@ -1,7 +1,11 @@
 import { Hono } from "hono";
-import { xueQiu, weibo } from "#/services/index.ts";
+import { xueQiu, weibo, services } from "#/services/index.ts";
 
-const route = new Hono().basePath("/api");
+import { stream, streamText, streamSSE } from "hono/streaming";
+
+const route = new Hono().basePath("/spider");
+
+let id = 0;
 
 export default function registerRoutes(app: Hono) {
   route.get("/search", async (c) => {
@@ -21,10 +25,10 @@ export default function registerRoutes(app: Hono) {
     return c.json(result);
   });
 
-  route.get("/weibo/blogs", async (c) => {
+  route.get("/weibo/blog/latest", async (c) => {
     const { uid, page, parse } = c.req.query();
     if (parse) {
-      const result = await weibo.getBlogListWithParse(uid, Number(page));
+      const result = await services.getBlogListWithParse(uid, Number(page));
       return c.json(result);
     }
     const result = await weibo.getBlogList(uid, Number(page));
@@ -41,6 +45,29 @@ export default function registerRoutes(app: Hono) {
     const { id } = c.req.query();
     const result = await weibo.getLongText(id);
     return c.json(result);
+  });
+
+  route.get("/weibo/user", async (c) => {
+    const { uid } = c.req.query();
+    const result = await services.findOrInsertWeiboUser(uid);
+    return c.json(result);
+  });
+
+  route.get("/weibo/blog/all", async (c) => {
+    const { uid } = c.req.query();
+
+    return streamSSE(c, async (stream) => {
+      await services.getAllBlog(uid, stream);
+      // while (id < 10) {
+      //   const message = `It is ${new Date().toISOString()}`;
+      //   await stream.writeSSE({
+      //     data: message,
+      //     event: "time-update",
+      //     id: String(id++),
+      //   });
+      //   await stream.sleep(1000);
+      // }
+    });
   });
 
   app.route("/", route);
