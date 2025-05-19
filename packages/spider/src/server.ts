@@ -4,8 +4,11 @@ import dayjs from "dayjs";
 import { logger } from "@etf-visualizer/logger";
 
 import { createFactory } from "hono/factory";
-import { registerRoutes } from "./routes/index.ts";
+
 import type { Hono } from "hono";
+import registerRestRoutes from "./routes/route.ts";
+import { trpcServer } from "@hono/trpc-server";
+import appRouter from "./routes/rpc-route.ts";
 
 export interface ServerConfig {
   port: number;
@@ -16,6 +19,16 @@ export interface ServerInstance {
   app: Hono;
   start: (config: ServerConfig) => Promise<void>;
 }
+
+export const registerRoutes = (app: Hono) => {
+  registerRestRoutes(app);
+  app.use(
+    "/trpc/*",
+    trpcServer({
+      router: appRouter,
+    }),
+  );
+};
 
 export async function createServer(): Promise<ServerInstance> {
   const app = createFactory({

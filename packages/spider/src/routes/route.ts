@@ -5,7 +5,7 @@ import { streamSSE } from "hono/streaming";
 
 const route = new Hono().basePath("/spider");
 
-function registerRestRoutes(app: Hono) {
+export const registerRestRoutes = (app: Hono) => {
   route.get("/search", async (c) => {
     const { keyword } = c.req.query();
     const result = await xueQiu.searchByKeyword(keyword);

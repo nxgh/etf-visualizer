@@ -1,4 +1,5 @@
 import WeiboSpider from "#/site/weibo/index.ts";
+import type { BlogJSONType } from "#/site/weibo/types/blog.js";
 import type { BlogParsed, GetBlogListByDateRangeParams } from "#/site/weibo/types/type.js";
 import XueQiu from "#/site/xueqiu/index.ts";
 import {
@@ -17,13 +18,13 @@ import { logger } from "@etf-visualizer/logger";
 import dayjs from "dayjs";
 import type { SSEStreamingApi } from "hono/streaming";
 
-const fetcher = new Fetcher();
-const xueQiu = new XueQiu(fetcher);
-const weibo = new WeiboSpider(fetcher);
+export const fetcher = new Fetcher();
+export const xueQiu = new XueQiu(fetcher);
+export const weibo = new WeiboSpider(fetcher);
 
-export { xueQiu, weibo };
+export { XueQiu, Fetcher, WeiboSpider, weibo as weiboSpider };
 
-class Services {
+export class Services {
   async findOrInsertWeiboUser(uid: number | string): Promise<WeiboUser> {
     let user = await findUserById(uid);
 
@@ -84,7 +85,7 @@ class Services {
       if (firstBlogId) {
         // 说明已经爬取过，
         const latestPost = await findLatestPostByUserId(uid);
-        const latestBlog = list.find((item) => item.id === latestPost.id);
+        const latestBlog = list.find((item) => item.id === latestPost?.id);
         logger.info(`存在已爬取数据 ${firstBlogId} ${latestBlog?.id}`);
         if (latestBlog) {
           break;
@@ -95,7 +96,7 @@ class Services {
         // 数据 0 条，说明已经爬取完毕，将最后一条博文的 id 更新到 user 中
         logger.info(`爬取数据 ${list.length} 条，结束爬取`);
         const lastBlog = await findLatestPostByUserId(uid);
-        await updateUserFirstBlogId(uid, lastBlog.id);
+        await updateUserFirstBlogId(uid, lastBlog?.id || "");
         break;
       }
 
@@ -117,18 +118,18 @@ class Services {
     };
   }
 
-  private async parseBlogList(list: any): Promise<BlogParsed[]> {
+  private async parseBlogList(list: BlogJSONType["data"]["list"]): Promise<BlogParsed[]> {
     try {
-      const res = [];
+      const res: BlogParsed[] = [];
       for (const item of list) {
         const ref_link = item?.retweeted_status
           ? `${item?.retweeted_status?.user?.id}/${item?.retweeted_status?.mblogid}`
           : "";
 
-        let parsedItem = {
-          id: item.id,
-          blog_id: item.mblogid,
-          user_id: item.user.id,
+        const parsedItem: BlogParsed = {
+          id: String(item.id),
+          blog_id: String(item.mblogid),
+          user_id: String(item.user.id),
           user_name: item.user.screen_name,
           pic_ids: item.pic_ids,
           text: item.text_raw,

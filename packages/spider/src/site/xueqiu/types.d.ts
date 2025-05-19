@@ -1,5 +1,3 @@
-import type { ConfigType } from "dayjs";
-
 export interface StockItem {
   name: string;
   code: string;

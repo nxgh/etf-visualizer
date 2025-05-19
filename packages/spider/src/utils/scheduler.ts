@@ -6,6 +6,6 @@ export const scheduler = new CronJob(
     console.log("You will see this message every second");
   }, // onTick
   null, // onComplete
-  true, // start
+  false, // start
   "Asia/Shanghai", // timeZone
 );

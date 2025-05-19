@@ -7,7 +7,7 @@ const t = initTRPC.create();
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-const appRouter = router({
+export const appRouter = router({
   search: publicProcedure.input(z.string()).query(async ({ input }) => {
     const result = await xueQiu.searchByKeyword(input);
     return result;

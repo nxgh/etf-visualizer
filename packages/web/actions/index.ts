@@ -1,13 +1,13 @@
 "use server";
 
-import { SpiderTrpcClient, ServerTrpcClient } from "#utils/trpc-client";
+import { TrpcClient } from "#utils/trpc-client";
 
 export type SearchResponse = { name: string; code: string; type: "stock" | "fund" }[];
 
 export async function searchSecurityAction(keyword: string) {
   if (!keyword) return null;
 
-  const res = await SpiderTrpcClient.search.query(keyword);
+  const res = await TrpcClient.search.query(keyword);
 
   return res;
 }
@@ -522,7 +522,8 @@ export async function getKlineDataAction(code: string) {
 export async function syncDataAction(data: unknown) {
   if (!data) return;
 
-  const res = await ServerTrpcClient.sync.mutate({ data });
+  // const res = await TrpcClient.sync.mutate({ data });
 
-  return res;
+  // return res;
+  return null
 }

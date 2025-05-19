@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 
 export { registerRoutes as registerServerRoutes, type RestRouteType, type AppRpcRouter } from "./routes/index.ts";
+export { default as tRpcRouter } from "./routes/rpc-route.ts";
 export { SyncService, syncService } from "./services/index.ts";
 
 export interface ServerConfig {

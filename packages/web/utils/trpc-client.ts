@@ -1,20 +1,21 @@
 import { createTRPCClient } from "@trpc/client";
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
-import type { AppRpcRouter as SpiderRpcRouter } from "@etf-visualizer/spider";
 
-export const SpiderTrpcClient = createTRPCClient<SpiderRpcRouter>({
+import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
+import type { AppRpcRouter } from "@etf-visualizer/spider";
+import type { AppRpcRouter as ServerRpcRouter } from "@etf-visualizer/server";
+
+export const SpiderTrpcClient = createTRPCClient<AppRpcRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:3100/trpc",
+      url: "http://localhost:3000/spider/trpc",
     }),
   ],
 });
 
-// TODO: add types
-export const ServerTrpcClient = createTRPCClient({
+export const ServerTrpcClient = createTRPCClient<ServerRpcRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:3200/trpc",
+      url: "http://localhost:3000/api/trpc",
     }),
   ],
 });
