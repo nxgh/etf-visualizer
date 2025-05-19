@@ -12,3 +12,6 @@ export const registerRoutes = (app: Hono) => {
     }),
   );
 };
+
+export type { RestRouteType } from "./route.ts";
+export type { AppRpcRouter } from "./rpc-route.ts";

@@ -5,9 +5,7 @@ import { streamSSE } from "hono/streaming";
 
 const route = new Hono().basePath("/spider");
 
-let id = 0;
-
-export default function registerRoutes(app: Hono) {
+function registerRestRoutes(app: Hono) {
   route.get("/search", async (c) => {
     const { keyword } = c.req.query();
     const result = await xueQiu.searchByKeyword(keyword);
@@ -58,17 +56,14 @@ export default function registerRoutes(app: Hono) {
 
     return streamSSE(c, async (stream) => {
       await services.getAllBlog(uid, stream);
-      // while (id < 10) {
-      //   const message = `It is ${new Date().toISOString()}`;
-      //   await stream.writeSSE({
-      //     data: message,
-      //     event: "time-update",
-      //     id: String(id++),
-      //   });
-      //   await stream.sleep(1000);
-      // }
     });
   });
 
   app.route("/", route);
+
+  return route;
 }
+
+export type RestRouteType = ReturnType<typeof registerRestRoutes>;
+
+export default registerRestRoutes;

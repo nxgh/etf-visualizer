@@ -2,7 +2,7 @@ import { Hono } from "hono";
 
 const route = new Hono().basePath("/api");
 
-export default function registerRoutes(app: Hono) {
+function registerRoutes(app: Hono) {
   route.get("/sync", async (c) => {
     const { userId, clientId, data } = c.req.query();
 
@@ -10,4 +10,10 @@ export default function registerRoutes(app: Hono) {
   });
 
   app.route("/", route);
+
+  return route;
 }
+
+export default registerRoutes;
+
+export type RestRouteType = ReturnType<typeof registerRoutes>;

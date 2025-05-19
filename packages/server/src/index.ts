@@ -1,35 +1,24 @@
-import { serve } from "@hono/node-server";
+import type { Hono } from "hono";
+import { createServer } from "./server.ts";
 import { get } from "lodash-es";
-import dayjs from "dayjs";
-import { logger } from "@etf-visualizer/logger";
+import { fileURLToPath } from 'node:url';
 
-import { createFactory } from "hono/factory";
-import { registerRoutes } from "./route/index.ts";
-const port = Number(get(process.env, "SERVER_PORT", 3200));
 
-const app = createFactory({
-  initApp: (app) => {
-    app.use(async (c, next) => {
-      logger.info(
-        `🔴 [${dayjs().format("YYYY-MM-DD HH:mm:ss")}  ${c.req.method} ${c.req.path}  ]
-  Query: ${JSON.stringify(c.req.query())}
-  Body: ${JSON.stringify(c.req.raw.body)}
-  Params: ${JSON.stringify(c.req.param())}
-`,
-      );
-      await next();
-    });
-  },
-}).createApp();
+export { registerRoutes as registerServerRoutes, type RestRouteType, type AppRpcRouter } from "./routes/index.ts";
+export { SyncService, syncService } from "./services/index.ts";
 
-registerRoutes(app);
+export interface ServerConfig {
+  port: number;
+  host?: string;
+}
 
-serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
-});
+export interface ServerInstance {
+  app: Hono;
+  start: (config: ServerConfig) => Promise<void>;
+}
 
-export default app;
-
-export type AppType = typeof app;
-
-export type { AppRpcRouter } from "./route/rpc-route.ts";
+// 如果直接运行此文件，则启动服务器
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const server = await createServer();
+  await server.start({ port: Number(get(process.env, "SERVER_PORT", 3200)) });
+}

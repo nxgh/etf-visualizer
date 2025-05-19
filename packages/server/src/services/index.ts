@@ -2,7 +2,7 @@ import { findSync, getSyncCount, insertSync, updateOldestSync } from "../databas
 import { logger } from "@etf-visualizer/logger";
 
 class SyncService {
-  async sync(userId: string, clientId: string, data: any) {
+  async sync(userId: string, clientId: string, data: Record<string, unknown>) {
     try {
       const count = await getSyncCount(userId, clientId);
 
@@ -25,4 +25,4 @@ class SyncService {
 }
 
 const syncService = new SyncService();
-export { syncService };
+export { SyncService, syncService };

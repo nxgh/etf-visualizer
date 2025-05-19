@@ -9,6 +9,12 @@ export const registerRoutes = (app: Hono) => {
     "/trpc/*",
     trpcServer({
       router: appRouter,
-    })
+    }),
   );
 };
+
+// export type { AppType } from "./route.ts";
+// export type AppType = typeof app;
+
+export type { AppRpcRouter } from "./rpc-route.ts";
+export type { RestRouteType } from "./route.ts";

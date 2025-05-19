@@ -1,40 +1,17 @@
 import "reflect-metadata";
-import { serve } from "@hono/node-server";
 import { get } from "lodash-es";
-import dayjs from "dayjs";
-import { logger } from "@etf-visualizer/logger";
 
-import { createFactory } from "hono/factory";
 import { registerRoutes } from "./routes/index.ts";
-// import { scheduler } from "./utils/scheduler.ts";
+import { createServer } from "./server.ts";
+import { scheduler } from "./utils/scheduler.ts";
+import { fileURLToPath } from 'node:url';
 
-const port = Number(get(process.env, "SPIDER_PORT", 3100));
+export type { AppRpcRouter, RestRouteType } from "./routes/index.ts";
 
-const app = createFactory({
-  initApp: (app) => {
-    app.use(async (c, next) => {
-      logger.info(
-        `🔴 [${dayjs().format("YYYY-MM-DD HH:mm:ss")}  ${c.req.method} ${c.req.path}  ]
-  Query: ${JSON.stringify(c.req.query())}
-  Body: ${JSON.stringify(c.req.raw.body)}
-  Params: ${JSON.stringify(c.req.param())}
-`,
-      );
-      await next();
-    });
-  },
-}).createApp();
+// 如果直接运行此文件，则启动服务器
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const server = await createServer();
+  await server.start({ port: Number(get(process.env, "SERVER_PORT", 3200)) });
 
-registerRoutes(app);
-
-serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
-});
-
-export default app;
-
-export type AppType = typeof app;
-
-export type { AppRpcRouter } from "./routes/rpc-route.ts";
-
-// scheduler.start();
+  scheduler.start();
+}

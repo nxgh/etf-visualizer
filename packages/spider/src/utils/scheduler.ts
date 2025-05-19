@@ -2,7 +2,7 @@ import { CronJob } from "cron";
 
 export const scheduler = new CronJob(
   "* * * * * *", // cronTime
-  function () {
+  () => {
     console.log("You will see this message every second");
   }, // onTick
   null, // onComplete
