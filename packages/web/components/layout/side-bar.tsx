@@ -1,6 +1,6 @@
 import { NavUser } from "#components/nav-user";
 import { cn } from "@shadcn/lib/utils";
-import { Gem, Shapes } from "lucide-react";
+import { Gem, Shapes, Database } from "lucide-react";
 
 import Link from "next/link";
 
@@ -15,7 +15,13 @@ const routes = [
     name: "Trade Record",
     href: "/favorite",
     icon: <Gem className="size-6" />,
-    className: "hover:bg-gray-200 m-2 rounded-lg",
+    className: "hover:bg-gray-200 rounded-lg",
+  },
+  {
+    name: "Data Management",
+    href: "/setting/data",
+    icon: <Database className="size-6" />,
+    className: "hover:bg-gray-200 rounded-lg",
   },
 ];
 
@@ -24,7 +30,7 @@ export default function SideBar() {
     <div className="w-14 flex flex-col items-center justify-between gap-2 bg-gray-50 py-8 border-r border-gray-300">
       <div>
         {routes.map((route) => (
-          <Link href={route.href} className={cn("flex items-center justify-center ", route.className)} key={route.href}>
+          <Link href={route.href} className={cn("flex items-center mb-4 p-2 justify-center ", route.className)} key={route.href}>
             {route.icon}
           </Link>
         ))}

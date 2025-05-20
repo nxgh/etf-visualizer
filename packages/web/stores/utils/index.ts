@@ -1,6 +1,10 @@
 import Decimal from "decimal.js";
+import type { BaseParams, StrategyConfig, ITransactionRecord, ITradRecord } from "../types/type.d";
 
-const withTimestamp = <T extends object>(data: T) => ({
+/**
+ * 添加时间戳
+ */
+export const withTimestamp = <T extends object>(data: T) => ({
   ...data,
   create_at: Date.now().toString(),
   update_at: Date.now().toString(),
@@ -8,11 +12,9 @@ const withTimestamp = <T extends object>(data: T) => ({
 
 /**
  * 创建网格策略
- * @returns 网格策略
  */
-export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyConfig {
-  // 默认策略配置
-  const defaultConfig: IStrategyConfig = withTimestamp({
+export function createStrategy(params: BaseParams<StrategyConfig>): StrategyConfig {
+  const defaultConfig: StrategyConfig = withTimestamp({
     id: Date.now().toString(),
     strategyName: "",
     code: "",
@@ -25,9 +27,9 @@ export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyCo
     profitRetention: 5,
     securityName: "",
     source: "",
+    name: "",
   });
 
-  // 合并用户配置与默认配置
   return {
     ...defaultConfig,
     ...params,
@@ -36,7 +38,6 @@ export function createStrategy(params: BaseParams<IStrategyConfig>): IStrategyCo
 
 /**
  * 创建网格交易记录
- * @returns 网格交易记录
  */
 export function createRecord(params: BaseParams<ITransactionRecord>): ITransactionRecord {
   const defaultConfig: ITransactionRecord = withTimestamp({
@@ -58,54 +59,31 @@ export function createRecord(params: BaseParams<ITransactionRecord>): ITransacti
 
 /**
  * 生成网格交易记录
- * @param params 网格策略配置
- * @returns 网格交易档位记录
  */
-export function generateGrid(params: IStrategyConfig): ITradRecord[] {
+export function generateGrid(params: StrategyConfig): ITradRecord[] {
   const result: ITradRecord[] = [];
   const basePrice = new Decimal(params.basePrice);
   const priceIncrease = new Decimal(params.priceIncrease).div(100);
   const priceDecline = new Decimal(params.priceDecline).div(100);
   const profitRetention = new Decimal(params.profitRetention).div(100);
   const gridStepIncrement = new Decimal(params.gridStepIncrement).div(100);
-  const baseQuantity = new Decimal(params?.buyVolume || 1000); // 基础买入数量，可以根据需求调整
+  const baseQuantity = new Decimal(params?.buyVolume || 1000);
 
   const count = params.stressTest / 10;
-
   let currentPrice = basePrice;
 
-  // 生成10档网格
   for (let i = 0; i < count; i++) {
-    // 计算买入价格
     const buyPrice = i === 0 ? currentPrice : currentPrice.times(new Decimal(1).minus(priceDecline));
-
-    // 计算卖出价格
     const sellPrice = buyPrice.times(new Decimal(1).plus(priceIncrease));
-
-    // 计算买入数量（考虑逐格加码）
     const buyQuantity = baseQuantity.times(new Decimal(1).plus(gridStepIncrement.times(i)));
-
-    // 计算买入金额
     const buyAmount = buyPrice.times(buyQuantity);
-
-    // 计算卖出数量（考虑留存一部分）
     const sellQuantity = buyQuantity.times(new Decimal(1).minus(profitRetention)).ceil();
-    // 计算卖出金额
     const sellAmount = sellPrice.times(sellQuantity);
-
-    // 计算留存数量
     const remainingQuantity = buyQuantity.minus(sellQuantity);
-
-    // 计算利润
     const profit = sellAmount.minus(buyAmount.times(sellQuantity.div(buyQuantity)));
-
-    // 计算留存利润
     const retainedProfit = sellPrice.minus(buyPrice).times(remainingQuantity);
-
-    // 计算收益率
     const yieldRate = profit.div(buyAmount.times(sellQuantity.div(buyQuantity))).times(100);
 
-    // 创建网格档位记录
     const record: ITradRecord = createRecord({
       positionIndex: i + 1,
       code: params.code,
@@ -123,8 +101,6 @@ export function generateGrid(params: IStrategyConfig): ITradRecord[] {
     });
 
     result.push(record);
-
-    // 更新当前价格为买入价格，为下一档做准备
     currentPrice = buyPrice;
   }
 
@@ -133,9 +109,6 @@ export function generateGrid(params: IStrategyConfig): ITradRecord[] {
 
 /**
  * 计算金额
- * @param price 价格
- * @param quantity 数量
- * @returns 金额
  */
 export function calculateAmount(price: number, quantity: number): number {
   return new Decimal(price).times(new Decimal(quantity)).toNumber();

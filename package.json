@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run dev:server && pnpm run dev:web",
-    "dev:web": "pnpm --filter @etf-visualizer/frontend run dev",
-    "build:web": "pnpm --filter @etf-visualizer/frontend run build"
+    "dev:web": "pnpm --filter @etf-visualizer/web run dev",
+    "build:web": "pnpm --filter @etf-visualizer/web run build"
   },
   "keywords": [],
   "author": "",

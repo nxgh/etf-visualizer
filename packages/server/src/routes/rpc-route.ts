@@ -22,6 +22,11 @@ const appRouter = router({
       const result = await syncService.sync("root", "web", data);
       return result;
     }),
+
+  getSyncData: publicProcedure.query(async () => {
+    const result = await syncService.getSyncData();
+    return result;
+  }),
 });
 
 export type AppRpcRouter = typeof appRouter;

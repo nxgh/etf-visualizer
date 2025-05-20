@@ -22,6 +22,11 @@ class SyncService {
       throw error;
     }
   }
+
+  async getSyncData() {
+    const result = await findSync("root", "web");
+    return result;
+  }
 }
 
 const syncService = new SyncService();

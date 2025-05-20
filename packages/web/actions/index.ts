@@ -7,7 +7,7 @@ export type SearchResponse = { name: string; code: string; type: "stock" | "fund
 export async function searchSecurityAction(keyword: string) {
   if (!keyword) return null;
 
-  const res = await TrpcClient.search.query(keyword);
+  const res = await TrpcClient.spider.search.query(keyword);
 
   return res;
 }
@@ -519,11 +519,13 @@ export async function getKlineDataAction(code: string) {
   ];
 }
 
+export async function getSyncDataAction() {
+  const res = await TrpcClient.server.getSyncData.query();
+  return res;
+}
+
 export async function syncDataAction(data: unknown) {
   if (!data) return;
-
-  // const res = await TrpcClient.sync.mutate({ data });
-
-  // return res;
-  return null
+  const res = await TrpcClient.server.sync.mutate({ data });
+  return res;
 }

@@ -7,7 +7,8 @@
   "type": "module",
   "scripts": {
     "dev": "dotenvx run -f ../../.env --  tsx watch src/server.ts",
-    "build": "pkgroll --clean-dist"
+    "build": "pkgroll --clean-dist",
+    "seed": "dotenvx run -f ../../.env -- tsx seed.ts"
   },
   "keywords": [],
   "author": "",

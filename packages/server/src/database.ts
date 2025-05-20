@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 
-const pool = mysql.createPool({
+export const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
@@ -25,10 +25,10 @@ export const insertSync = async (userId: string, clientId: string, data: any) =>
 };
 
 export const findSync = async (userId: string, clientId: string) => {
-  const [result] = await pool.execute<mysql.RowDataPacket[]>("SELECT * FROM sync WHERE user_id = ? AND client_id = ?", [
-    userId,
-    clientId,
-  ]);
+  const [result] = await pool.execute<mysql.RowDataPacket[]>(
+    "SELECT * FROM sync WHERE user_id = ? AND client_id = ? ORDER BY updated_at DESC LIMIT 1",
+    [userId, clientId],
+  );
   return result[0];
 };
 

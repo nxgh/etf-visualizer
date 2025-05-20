@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { debounce } from "lodash-es";
 import { searchSecurityAction, type SearchResponse } from "#actions/index";
-import { watchListAction } from "#store";
 import { useQueryState } from "nuqs";
+import * as watchListAction from "./use-store-action";
 
 export type SecuritySearchItem = Pick<IWatchList, "code" | "name" | "type"> & { isFavorite?: boolean };
 
@@ -25,6 +25,7 @@ export function useSecuritySearch() {
       });
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const debouncedSearch = useMemo(
     () =>
       debounce((kw: string) => {
@@ -36,6 +37,7 @@ export function useSecuritySearch() {
     []
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (q) {
       setLoading(true);
