@@ -4,8 +4,9 @@ import { Input } from "@shadcn/ui/input";
 import dayjs from "dayjs";
 import { Decimal } from "decimal.js";
 
-import { DatePicker, InputNumber } from "antd";
-
+import { InputNumber, DatePicker } from "antd";
+import { Plus } from "lucide-react";
+import type { TransactionRecord } from "#stores/types/type";
 const transactionColumnMap = {
   level: "档位",
   date: "日期",
@@ -16,18 +17,20 @@ const transactionColumnMap = {
 } as const;
 export const TransactionColumnEnums = createEnums(transactionColumnMap);
 
-export const transactionColumns = (onChange: (item: ITransactionRecord, param: { key: string; value: string }) => void) => [
+export const transactionColumns = (onChange: (item: TransactionRecord, param: { key: string; value: string }) => void) => [
   {
-    label: TransactionColumnEnums.level.value,
-    headerClassName: "w-[100px]",
+    title: TransactionColumnEnums.level.value,
+    headerClassName: "w-[50px] justify-center",
     key: TransactionColumnEnums.level.key,
-    render: (item: ITransactionRecord) => item.level,
+    dataIndex: TransactionColumnEnums.level.key,
+    render: (_, item: TransactionRecord) => item.level,
   },
   {
-    label: TransactionColumnEnums.date.value,
+    title: TransactionColumnEnums.date.value,
     key: TransactionColumnEnums.date.key,
-    headerClassName: "w-[200px]",
-    render: (item: ITransactionRecord) => (
+    dataIndex: TransactionColumnEnums.date.key,
+    headerClassName: "w-min-[150px] w-[20%] text-center",
+    render: (_, item: TransactionRecord) => (
       <DatePicker
         value={dayjs(item.date)}
         onChange={(day) =>
@@ -40,11 +43,12 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     ),
   },
   {
-    label: TransactionColumnEnums.price.value,
+    title: TransactionColumnEnums.price.value,
     key: TransactionColumnEnums.price.key,
-    headerClassName: "w-[150px]",
-    render: (item: ITransactionRecord) => (
-      <InputNumber<number>
+    dataIndex: TransactionColumnEnums.price.key,
+    headerClassName: "w-min-[150px] w-[20%]",
+    render: (_, item: TransactionRecord) => (
+      <InputNumber
         style={{ width: 200 }}
         min={0.001}
         step={0.001}
@@ -60,10 +64,11 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     ),
   },
   {
-    label: TransactionColumnEnums.quantity.value,
+    title: TransactionColumnEnums.quantity.value,
     key: TransactionColumnEnums.quantity.key,
-    headerClassName: "w-[150px]",
-    render: (item: ITransactionRecord) => (
+    dataIndex: TransactionColumnEnums.quantity.key,
+    headerClassName: "w-min-[150px] w-[15%]",
+    render: (_, item: TransactionRecord) => (
       <InputNumber<number>
         style={{ width: 200 }}
         step={1}
@@ -79,10 +84,11 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     ),
   },
   {
-    label: TransactionColumnEnums.amount.value,
+    title: TransactionColumnEnums.amount.value,
     key: TransactionColumnEnums.amount.key,
-    headerClassName: "w-[150px]",
-    render: (item: ITransactionRecord) => (
+    dataIndex: TransactionColumnEnums.amount.key,
+    headerClassName: "w-min-[150px] w-[15%]",
+    render: (_, item: TransactionRecord) => (
       <div
         className={cn(
           "p-1 flex justify-center items-center rounded-md",
@@ -95,10 +101,11 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
     ),
   },
   {
-    label: TransactionColumnEnums.source.value,
-    headerClassName: "w-[100px]",
+    title: TransactionColumnEnums.source.value,
+    headerClassName: "w-min-[100px] w-[15%]",
     key: TransactionColumnEnums.source.key,
-    render: (item: ITransactionRecord) => item.source,
+    dataIndex: TransactionColumnEnums.source.key,
+    render: (_, item: TransactionRecord) => item.source,
   },
 ];
 
@@ -146,7 +153,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //     {
 //       label: columnEnums.positionIndex.value,
 //       key: columnEnums.positionIndex.key,
-//       headerClassName: "w-[50px]",
+//       headerClassName: "w-min-[50px]",
 //       render: (item: ITradRecord, index) => <div>{index! + 1}</div>,
 //     },
 //     { label: columnEnums.level.value, key: columnEnums.level.key },
@@ -167,7 +174,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //     {
 //       label: columnEnums.buyAmount.value,
 //       key: columnEnums.buyAmount.key,
-//       headerClassName: "w-[100px]",
+//       headerClassName: "w-min-[100px]",
 //       render: (item: ITradRecord) => (
 //         <div className="bg-gray-100 p-1 flex justify-center items-center rounded-md text-green-300">
 //           {new Decimal(item.buyPrice).mul(item.buyQuantity).toFixed(2) ?? ""}
@@ -191,7 +198,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //     {
 //       label: columnEnums.sellAmount.value,
 //       key: columnEnums.sellAmount.key,
-//       headerClassName: "w-[100px]",
+//       headerClassName: "w-min-[100px]",
 //       render: (item: ITradRecord) => (
 //         <div className="bg-gray-100 p-1 flex justify-center items-center rounded-md text-red-300">{getSellAmount(item)}</div>
 //       ),
@@ -206,7 +213,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //       ) : (
 //         <Input
 //           type="number"
-//           className="border-none shadow-none ring-0 focus-visible:ring-1"
+//           className="border-none shadow-min-none ring-0 focus-visible:ring-1"
 //           value={item[column.key as keyof ITradRecord] || ""}
 //           onChange={(e) => {
 //             onChange(item, column.key as keyof ITradRecord, e.target.value);
@@ -222,7 +229,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //   {
 //     label: columnEnums.remainingQuantity.value,
 //     key: columnEnums.remainingQuantity.key,
-//     headerClassName: "w-[100px]",
+//     headerClassName: "w-min-[100px]",
 //     render: (item: ITradRecord) => (
 //       <div>
 //         {(() => {
@@ -243,7 +250,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //   {
 //     label: columnEnums.retainedProfit.value,
 //     key: columnEnums.retainedProfit.key,
-//     headerClassName: "w-[100px]",
+//     headerClassName: "w-min-[100px]",
 //     render: (item: ITradRecord) => (
 //       <div>
 //         {(() => {
@@ -288,7 +295,7 @@ export const transactionColumns = (onChange: (item: ITransactionRecord, param: {
 //   {
 //     label: columnEnums.buyAmount.value,
 //     key: columnEnums.buyAmount.key,
-//     headerClassName: "w-[100px]",
+//     headerClassName: "w-min-[100px]",
 //     render: (item: ITradRecord) => (
 //       <div className="bg-gray-100 p-1 flex justify-center items-center rounded-md text-green-300">
 //         {new Decimal(item.buyPrice).mul(item.buyQuantity).toFixed(2) ?? ""}

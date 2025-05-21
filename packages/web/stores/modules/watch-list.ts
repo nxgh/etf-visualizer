@@ -43,7 +43,7 @@ const watchListStore = createPersistStore<WatchListStore>(
     remove: (code: string) => {
       set(
         (state) => ({
-          watchList: state.watchList.filter((item) => item.id !== code),
+          watchList: state.watchList.filter((item) => item.code !== code),
         }),
         undefined,
         "watch-list/remove"

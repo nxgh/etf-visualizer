@@ -6,6 +6,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 import SideBar from "#components/layout/side-bar";
 import { getSyncDataAction } from "#actions/index";
+import { ConfigProvider } from "antd";
 
 export const metadata: Metadata = {
   title: "ETF Visualizer",
@@ -17,15 +18,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-
   return (
     <html lang="en">
       <body className="flex w-screen h-screen overflow-x-hidden">
         <NuqsAdapter>
           <AntdRegistry>
             <SideBar />
-            {children}
+            <ConfigProvider theme={{ cssVar: true, hashed: false }}>{children}</ConfigProvider>
           </AntdRegistry>
         </NuqsAdapter>
       </body>

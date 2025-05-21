@@ -12,8 +12,14 @@ export const registerRestRoutes = (app: Hono) => {
     return c.json(result);
   });
   route.get("/kline", async (c) => {
-    const { code, begin, end } = c.req.query();
-    const result = await xueQiu.fetchStockKline({ code, begin, end });
+    const { symbol, begin, end } = c.req.query();
+    const result = await xueQiu.fetchStockKline({ symbol, begin, end });
+    return c.json(result);
+  });
+
+  route.get("/detail", async (c) => {
+    const { symbol } = c.req.query();
+    const result = await services.fetchStockDetailAndKline(symbol);
     return c.json(result);
   });
 
@@ -62,7 +68,7 @@ export const registerRestRoutes = (app: Hono) => {
   app.route("/", route);
 
   return route;
-}
+};
 
 export type RestRouteType = ReturnType<typeof registerRestRoutes>;
 

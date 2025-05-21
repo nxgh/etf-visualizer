@@ -15,5 +15,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const server = await createServer();
   await server.start({ port: Number(get(process.env, "SERVER_PORT", 3200)) });
 
-  scheduler.start();
+  // scheduler.start();
 }

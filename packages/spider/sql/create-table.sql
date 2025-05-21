@@ -35,3 +35,34 @@ CREATE TABLE IF NOT EXISTS weibo_users (
     INDEX idx_user_name (user_name) COMMENT '用户名索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT '微博用户数据';
+
+
+
+CREATE TABLE IF NOT EXISTS security_info (
+    symbol VARCHAR(32) PRIMARY KEY NOT NULL COMMENT '交易所+代码',
+    exchange VARCHAR(32) NOT NULL COMMENT '交易所',
+    code VARCHAR(32) NOT NULL COMMENT '代码',
+    issue_date DATETIME NOT NULL COMMENT '上市日期',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '数据入库时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
+
+    INDEX idx_code (code) COMMENT '股票代码索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT '证券数据';
+
+
+
+CREATE TABLE IF NOT EXISTS security_history (
+    symbol VARCHAR(32) NOT NULL COMMENT '交易所+代码',
+    timestamp DATETIME NOT NULL COMMENT '时间戳',
+    open DOUBLE NOT NULL COMMENT '开盘价',
+    high DOUBLE NOT NULL COMMENT '最高价',
+    low DOUBLE NOT NULL COMMENT '最低价',
+    close DOUBLE NOT NULL COMMENT '收盘价',
+    volume DOUBLE NOT NULL COMMENT '成交量',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '数据入库时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT '证券历史数据';

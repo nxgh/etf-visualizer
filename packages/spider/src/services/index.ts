@@ -2,6 +2,7 @@ import WeiboSpider from "#/site/weibo/index.ts";
 import type { BlogJSONType } from "#/site/weibo/types/blog.js";
 import type { BlogParsed, GetBlogListByDateRangeParams } from "#/site/weibo/types/type.js";
 import XueQiu from "#/site/xueqiu/index.ts";
+import type { ChartKlineJSON } from "#/site/xueqiu/chart-kline.d.ts";
 import {
   findUserById,
   insertUser,
@@ -11,6 +12,11 @@ import {
   findPostById,
   findLatestPostByUserId,
   type WeiboUser,
+  findSecurityBySymbol,
+  insertOrUpdateSecurity as insertOrUpdateSecurityInfo,
+  type SecurityInfo,
+  insertOrUpdateSecurityHistory,
+  findSecurityHistoryBySymbol,
 } from "#/utils/database.ts";
 import { formatYMD, sleep } from "#/utils/utils.ts";
 import Fetcher, { AsyncCatch } from "#fetcher";
@@ -151,6 +157,104 @@ export class Services {
       logger.error("解析失败", { error });
       return [];
     }
+  }
+
+  @AsyncCatch("获取详情及K线失败")
+  async fetchStockDetailAndKline(symbol: string) {
+    // 查询 db 是否存在 symbol 数据
+    const shouldUpdate = await this.shouldUpdateSecurity(symbol);
+    console.log("shouldUpdate", shouldUpdate);
+
+    // 如果不需要更新，返回缓存数据
+    if (!shouldUpdate) {
+      const securityInfo = await findSecurityBySymbol(symbol);
+      if (securityInfo) {
+        return {
+          detail: {
+            quote: {
+              symbol: securityInfo.symbol,
+              exchange: securityInfo.exchange,
+              code: securityInfo.code,
+              issue_date: securityInfo.issue_date,
+            },
+          },
+          kline: securityInfo.kline,
+        };
+      }
+    }
+
+    // 不存在或需要更新，查询详情获取 issue_date，查询 kline 获取 begin 和 end
+    const detail = await xueQiu.fetchStockDetail(symbol);
+    const { issue_date, exchange, symbol: symbol_xq, code } = detail.quote;
+
+    let begin = dayjs(issue_date).valueOf();
+    const end = dayjs().valueOf();
+
+    if (typeof shouldUpdate !== "boolean") {
+      begin = shouldUpdate.valueOf();
+    }
+
+    const kline = await xueQiu.fetchStockKline({
+      symbol: symbol_xq,
+      begin,
+      end,
+    });
+
+    // 更新数据库
+    const securityInfo: SecurityInfo = {
+      symbol: symbol_xq,
+      exchange,
+      code,
+      issue_date: new Date(issue_date),
+    };
+    await insertOrUpdateSecurityInfo(securityInfo);
+
+    await insertOrUpdateSecurityHistory(symbol_xq, this.formatKline(kline));
+
+    return { detail, kline };
+  }
+
+  private async shouldUpdateSecurity(symbol: string): Promise<boolean | dayjs.Dayjs> {
+    try {
+      const security = await findSecurityBySymbol(symbol);
+
+      const kline = await findSecurityHistoryBySymbol(symbol);
+      console.log("kline", kline);
+      // 如果不存在数据，需要更新
+      if (!security || !kline?.length) return true;
+
+      const now = dayjs();
+      const updatedAt = dayjs(security.updated_at);
+
+      console.log("updatedAt", updatedAt.format("YYYY-MM-DD HH:mm:ss"));
+
+      // 判断是否为同一天
+      if (!updatedAt.isSame(now, "day")) return updatedAt;
+
+      // 判断更新时间是否小于 15:00:00
+      if (updatedAt.hour() < 15) {
+        // 如果当前时间大于 15:00:00 则需要更新
+        if (now.hour() >= 15) return updatedAt;
+      }
+
+      // 不需要更新
+      return false;
+    } catch (error) {
+      logger.error("判断是否需要更新证券信息失败", { error, symbol });
+      // 出错时默认需要更新
+      return true;
+    }
+  }
+
+  private formatKline(kline: ChartKlineJSON) {
+    return kline.data.item.map((i) => ({
+      timestamp: i[0],
+      volume: i[1],
+      open: i[2],
+      high: i[3],
+      low: i[4],
+      close: i[5],
+    }));
   }
 }
 

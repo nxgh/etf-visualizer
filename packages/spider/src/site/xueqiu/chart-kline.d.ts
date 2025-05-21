@@ -9,7 +9,7 @@ export type StockChartKline = {
 };
 
 export type StockKlineParams = {
-  code: string;
+  symbol: string;
   begin: ConfigType;
   end: ConfigType;
 };

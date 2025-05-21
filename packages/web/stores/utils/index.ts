@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import type { BaseParams, StrategyConfig, ITransactionRecord, ITradRecord } from "../types/type.d";
+import type { BaseParams, StrategyConfig, TransactionRecord } from "../types/type.d";
 
 /**
  * 添加时间戳
@@ -28,27 +28,6 @@ export function createStrategy(params: BaseParams<StrategyConfig>): StrategyConf
     securityName: "",
     source: "",
     name: "",
-  });
-
-  return {
-    ...defaultConfig,
-    ...params,
-  };
-}
-
-/**
- * 创建网格交易记录
- */
-export function createRecord(params: BaseParams<ITransactionRecord>): ITransactionRecord {
-  const defaultConfig: ITransactionRecord = withTimestamp({
-    id: Date.now().toString(),
-    level: 0,
-    date: new Date().toISOString(),
-    securityName: "",
-    code: "",
-    price: 0,
-    quantity: 0,
-    source: "",
   });
 
   return {

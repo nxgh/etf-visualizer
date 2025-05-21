@@ -31,9 +31,9 @@ class XueQiu {
   }
 
   @AsyncCatch("获取股票列表失败")
-  async searchByKeyword(keyword: string, count: number = 10) {
+  async searchByKeyword(keyword: string, count = 10) {
     const data = await this.fetcher.XueQiuJSON<SuggestStockJSON>(
-      `https://xueqiu.com/query/v1/suggest_stock.json?q=${keyword}&count=${count}`
+      `https://xueqiu.com/query/v1/suggest_stock.json?q=${keyword}&count=${count}`,
     );
 
     if (!data.success) {
@@ -47,8 +47,8 @@ class XueQiu {
   }
 
   @AsyncCatch("获取股票详情失败")
-  async fetchStockDetail(code: string) {
-    const url = `https://stock.xueqiu.com/v5/stock/quote.json?symbol=${code}&extend=detail`;
+  async fetchStockDetail(symbol: string) {
+    const url = `https://stock.xueqiu.com/v5/stock/quote.json?symbol=${symbol}&extend=detail`;
     const data = await this.fetcher.XueQiuJSON<V5StockQuoteJson>(url);
 
     const { error_code, error_description } = data;
@@ -61,14 +61,24 @@ class XueQiu {
   }
 
   @AsyncCatch("获取股票K线图失败")
-  async fetchStockKline({ code, begin, end }: StockKlineParams) {
-    const _begin = dayjs(begin).valueOf();
-    const _end = dayjs(end).valueOf();
+  async fetchStockKline({ symbol, begin, end }: StockKlineParams) {
+    const _begin = dayjs(begin).valueOf().toString();
+    const _end = dayjs(end).valueOf().toString();
 
-    const url = `https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol=${code}&begin=${_begin}&end=${_end}&period=day&type=before&indicator=kline`;
+    const searchParams = new URLSearchParams({
+      symbol: symbol,
+      begin: _begin,
+      end: _end,
+      period: "day",
+      type: "before",
+      indicator: "kline",
+    });
+
+    const url = `https://stock.xueqiu.com/v5/stock/chart/kline.json?${searchParams.toString()}`;
 
     const data = await this.fetcher.XueQiuJSON<ChartKlineJSON>(url);
 
+    console.log("data", url, data);
     if (data?.error_code !== 0) {
       throw new Error(JSON.stringify(data));
     }

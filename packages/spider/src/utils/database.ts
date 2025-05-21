@@ -12,6 +12,27 @@ export interface WeiboUser {
   first_blog_id?: string;
 }
 
+export interface SecurityInfo {
+  symbol: string;
+  exchange: string;
+  code: string;
+  issue_date: Date;
+  kline?: Record<string, unknown> | null;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
+export interface SecurityHistory {
+  symbol: string;
+  timestamp: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  created_at?: Date;
+  updated_at?: Date;
+}
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
@@ -59,7 +80,16 @@ export const insertPost = async (list: BlogParsed[]) => {
   }
 };
 
-export const findPostById = async (id: string) => {};
+export const findPostById = async (id: string) => {
+  try {
+    const [rows] = await pool.execute<mysql.RowDataPacket[]>("SELECT * FROM weibo_posts WHERE id = ? LIMIT 1", [id]);
+    return (rows[0] as BlogParsed) || null;
+  } catch (error) {
+    logger.error("查询帖子失败", { error });
+    return null;
+  }
+};
+
 export const findLatestPostByUserId = async (userId: string) => {
   try {
     const [rows] = await pool.execute<mysql.RowDataPacket[]>(
@@ -130,6 +160,94 @@ export const checkPostExists = async (blogIds: string[]): Promise<string[]> => {
     return (rows as mysql.RowDataPacket[]).map((row) => row.blog_id);
   } catch (error) {
     logger.error("检查博文是否存在失败", { error });
+    throw error;
+  }
+};
+
+export const findSecurityHistoryBySymbol = async (symbol: string): Promise<SecurityHistory[] | null> => {
+  try {
+    const [rows] = await pool.execute<mysql.RowDataPacket[]>("SELECT * FROM security_history WHERE symbol = ?", [
+      symbol,
+    ]);
+    return rows as SecurityHistory[];
+  } catch (error) {
+    logger.error("查询证券历史数据失败", { error, symbol });
+    return null;
+  }
+};
+
+export const findSecurityBySymbol = async (symbol: string): Promise<SecurityInfo | null> => {
+  try {
+    const [rows] = await pool.execute<mysql.RowDataPacket[]>(
+      "SELECT symbol, exchange, code, issue_date, created_at, updated_at FROM security_info WHERE symbol = ? LIMIT 1",
+      [symbol],
+    );
+
+    if (!rows.length) return null;
+
+    const row = rows[0] as mysql.RowDataPacket;
+
+    return row as SecurityInfo;
+  } catch (error) {
+    logger.error("查询证券信息失败", { error, symbol });
+    return null;
+  }
+};
+
+export const insertOrUpdateSecurity = async (security: SecurityInfo) => {
+  try {
+    const [result] = await pool.execute(
+      `INSERT INTO security_info (symbol, exchange, code, issue_date) 
+       VALUES (?, ?, ?, ?) 
+       ON DUPLICATE KEY UPDATE 
+       exchange = VALUES(exchange), 
+       code = VALUES(code), 
+       issue_date = VALUES(issue_date)`,
+      [security.symbol, security.exchange, security.code, security.issue_date],
+    );
+
+    logger.info("插入或更新证券信息成功", { symbol: security.symbol });
+    return true;
+  } catch (error) {
+    logger.error("插入或更新证券信息失败", { error, symbol: security.symbol });
+    throw error;
+  }
+};
+
+export const insertOrUpdateSecurityHistory = async (
+  symbol: string,
+  securityHistory: {
+    timestamp: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+  }[],
+) => {
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO security_history (symbol, timestamp, open, high, low, close, volume) VALUES ? 
+       ON DUPLICATE KEY UPDATE open = VALUES(open), high = VALUES(high), 
+       low = VALUES(low), close = VALUES(close), volume = VALUES(volume)`,
+      [
+        securityHistory.map((item) => [
+          String(symbol),
+          dayjs(item.timestamp).toDate(),
+          item.open,
+          item.high,
+          item.low,
+          item.close,
+          item.volume,
+        ]),
+      ]
+    );
+    console.log("result", result);
+
+    logger.info("插入或更新证券历史数据成功", { symbol });
+    return true;
+  } catch (error) {
+    logger.error("插入或更新证券历史数据失败", { error, symbol });
     throw error;
   }
 };
