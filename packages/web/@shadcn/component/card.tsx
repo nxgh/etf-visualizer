@@ -4,12 +4,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@shadcn/ui
 interface IProps {
   children: React.ReactNode;
   className?: string;
-  title?: string;
+  title?: React.ReactNode | string;
   footer?: React.ReactNode;
 }
 export default function SimpleCard({ children, className, title, footer }: IProps) {
   return (
-    <Card className={cn("w-[350px] flex flex-col", className)}>
+    <Card className={cn("w-full h-full flex flex-col", className)}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
