@@ -163,12 +163,17 @@ export class Services {
   async fetchStockDetailAndKline(symbol: string) {
     // 查询 db 是否存在 symbol 数据
     const shouldUpdate = await this.shouldUpdateSecurity(symbol);
-    console.log("shouldUpdate", shouldUpdate);
+    logger.info("获取详情及K线 shouldUpdate", { shouldUpdate });
 
     // 如果不需要更新，返回缓存数据
     if (!shouldUpdate) {
       const securityInfo = await findSecurityBySymbol(symbol);
+      const securityHistory = await findSecurityHistoryBySymbol(symbol);
       if (securityInfo) {
+        logger.info("获取详情及K线 返回缓存数据", {
+          securityInfo,
+          securityHistory: securityHistory?.rows.length,
+        });
         return {
           detail: {
             quote: {
@@ -178,7 +183,7 @@ export class Services {
               issue_date: securityInfo.issue_date,
             },
           },
-          kline: securityInfo.kline,
+          kline: securityHistory,
         };
       }
     }
@@ -219,17 +224,14 @@ export class Services {
       const security = await findSecurityBySymbol(symbol);
 
       const kline = await findSecurityHistoryBySymbol(symbol);
-      console.log("kline", kline);
       // 如果不存在数据，需要更新
-      if (!security || !kline?.length) return true;
+      if (!security || !kline?.rows.length) return true;
 
       const now = dayjs();
       const updatedAt = dayjs(security.updated_at);
 
-      console.log("updatedAt", updatedAt.format("YYYY-MM-DD HH:mm:ss"));
-
       // 判断是否为同一天
-      if (!updatedAt.isSame(now, "day")) return updatedAt;
+      if (!updatedAt.isSame(now, "day") && now.diff(updatedAt, "hour") > 24) return updatedAt;
 
       // 判断更新时间是否小于 15:00:00
       if (updatedAt.hour() < 15) {

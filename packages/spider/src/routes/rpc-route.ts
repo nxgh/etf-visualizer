@@ -15,7 +15,7 @@ export const appRouter = router({
   kline: publicProcedure
     .input(
       z.object({
-        code: z.string(),
+        symbol: z.string(),
         begin: z.string(),
         end: z.string(),
       }),
@@ -28,6 +28,16 @@ export const appRouter = router({
     const result = await xueQiu.fetchStockDetail(input);
     return result;
   }),
+  detail: publicProcedure
+    .input(
+      z.object({
+        symbol: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const result = await services.fetchStockDetailAndKline(input.symbol);
+      return result;
+    }),
 
   weibo: publicProcedure
     .input(

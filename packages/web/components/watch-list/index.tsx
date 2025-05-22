@@ -25,7 +25,13 @@ const PercentLabel = ({ value }: { value: number }) => {
   return <span className={cn("text-sm text-gray-400", value < 0 ? "text-green-500" : "text-red-500")}>{value}%</span>;
 };
 
-export default function WatchListIndex({ className }: { className?: string }) {
+export default function WatchListIndex({
+  className,
+  onClickItem,
+}: {
+  className?: string;
+  onClickItem: (code: string, type: string) => void;
+}) {
   // store
   const watchList = watchListStoreAction.use.watchList();
   const removeWatchList = watchListStoreAction.use.remove();
@@ -36,10 +42,10 @@ export default function WatchListIndex({ className }: { className?: string }) {
 
   // state
   const [q] = useQueryState("q");
-  const [code, setCode] = useQueryState("code");
 
   const handleClickItem = (code: string) => {
-    setCode(code);
+    // setCode(code);
+    onClickItem(code, "stock");
   };
 
   const percent = () => {
@@ -47,7 +53,7 @@ export default function WatchListIndex({ className }: { className?: string }) {
     return (Number(r) * 100) % 2 === 0 ? Number(r) : -Number(r);
   };
   const price = () => {
-    const r = (Math.random()).toFixed(3);
+    const r = Math.random().toFixed(3);
     return r;
   };
 

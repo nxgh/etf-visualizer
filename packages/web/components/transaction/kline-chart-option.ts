@@ -96,126 +96,190 @@ const MASeries = (MA: 5 | 10 | 20 | 30, data: SplitDataResult) => ({
   },
 });
 
-export const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; records: KlineRecord[] }): echarts.EChartsOption => {
-  const opt = {
-    animation: false,
-    legend: {
-      bottom: 10,
-      left: "center",
-      data: ["日K", "MA5", "MA10", "MA20", "MA30"],
+const staticOption = {
+  animation: false,
+  legend: {
+    bottom: 10,
+    left: "center",
+    data: ["日K", "MA5", "MA10", "MA20", "MA30"],
+  },
+  tooltip: {
+    // trigger: "axis",
+    // axisPointer: {
+    //   type: "cross",
+    // },
+    // borderWidth: 1,
+    // borderColor: "#ccc",
+    // padding: 10,
+    // textStyle: {
+    //   color: "#000",
+    // },
+    // position: (
+    //   point: Array<number>,
+    //   params: Object | Array<Object>,
+    //   dom: HTMLElement,
+    //   rect: {
+    //     x: number;
+    //     y: number;
+    //     width: number;
+    //     height: number;
+    //   },
+    //   size: {
+    //     contentSize: [number, number];
+    //     viewSize: [number, number];
+    //   }
+    // ): Array<number> | {} => {
+    //   const obj = {
+    //     top: 10,
+    //     left: 0,
+    //     right: 0,
+    //   };
+    //   const position = ["left", "right"][+(point[0] < size.viewSize[0] / 2)] as "left" | "right";
+    //   obj[position] = 30;
+    //   return obj;
+    // },
+
+    // extraCssText: "min-width: 200px",
+    formatter: (params: Array<{ name: string; seriesName: string; value: number | string }>) => {
+      console.log(params);
+      return;
     },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-      },
-      borderWidth: 1,
-      borderColor: "#ccc",
-      padding: 10,
-      textStyle: {
-        color: "#000",
-      },
-      position: (
-        point: Array<number>,
-        params: Object | Array<Object>,
-        dom: HTMLElement,
-        rect: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        },
-        size: {
-          contentSize: [number, number];
-          viewSize: [number, number];
-        }
-      ): Array<number> | {} => {
-        const obj = {
-          top: 10,
-          left: 0,
-          right: 0,
-        };
-        const position = ["left", "right"][+(point[0] < size.viewSize[0] / 2)] as "left" | "right";
-        obj[position] = 30;
-        return obj;
-      },
-      extraCssText: "min-width: 200px",
-      formatter: function (params: Array<{ name: string; seriesName: string; value: number | string }>) {
-        const result: Record<string, unknown> = {
-          date: params[0].name,
-          open: "",
-          close: "",
-          high: "",
-          low: "",
-          volume: "",
-          ma5: "",
-          ma10: "",
-          ma20: "",
-          ma30: "",
-        };
-
-        params.forEach((item) => {
-          if (item.seriesName === "日K") {
-            if (isArray(item?.value)) {
-              result.open = item.value[1]; // 开盘价
-              result.close = item.value[2]; // 收盘价
-              result.low = item.value[3]; // 最低价
-              result.high = item.value[4]; // 最高价
-              result.volume = item.value[5]; // 交易量
-              return;
-            }
-          }
-          result[item.seriesName.toLowerCase()] = item.value;
-        });
-
-        const r = calculateCandleMetrics({
-          open: Number(result.open),
-          close: Number(result.close),
-          high: Number(result.high),
-          low: Number(result.low),
-          maxHeight: 200,
-          candleWidth: 20,
-        });
-
-        const transactions = records
-          .filter((r) => r.date === params[0].name)
-          .map((i) => ({
-            type: i.type,
-            value: i.value,
-            quantity: i.quantity,
-          }));
-
-        if (r.visualMetrics) {
-          const isUp = Number(result.close) > Number(result.open);
-          return genCandleHtml(r.visualMetrics, isUp, result as any, transactions);
-        }
-      },
-    },
-    axisPointer: {
-      link: [
-        {
-          xAxisIndex: "all",
-        },
-      ],
-      label: {
-        backgroundColor: "#777",
-      },
-    },
-
-    toolbox: {
-      feature: {
-        dataView: { show: true, readOnly: false },
-      },
-    },
-
-    grid: [
+  },
+  axisPointer: {
+    link: [
       {
-        left: "5%",
-        right: "5%",
-        height: "65%",
+        xAxisIndex: "all",
       },
-      {},
     ],
+    label: {
+      backgroundColor: "#777",
+    },
+  },
+
+  toolbox: {
+    feature: {
+      dataView: { show: true, readOnly: false },
+    },
+  },
+
+  grid: [
+    {
+      left: "5%",
+      right: "5%",
+      height: "65%",
+    },
+    {},
+  ],
+  yAxis: [
+    {
+      scale: true,
+      splitArea: {
+        show: true,
+      },
+    },
+    {
+      scale: true,
+      gridIndex: 1,
+      splitNumber: 2,
+      axisLabel: { show: false },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { show: false },
+    },
+  ],
+  dataZoom: [
+    {
+      type: "inside",
+      start: 80,
+      end: 100,
+    },
+    {
+      show: true,
+      type: "slider",
+      bottom: "10%",
+      start: 0,
+      end: 100,
+    },
+  ],
+};
+
+export const genKlineOption = ({
+  data,
+  records = [],
+  onTooltipFormatter,
+}: {
+  data: SplitDataResult;
+  records: KlineRecord[];
+  onTooltipFormatter?: (params: Array<{ name: string; seriesName: string; value: number | string }>) => string;
+}): echarts.EChartsOption => {
+  const opt = {
+    // formatter: function (params: Array<{ name: string; seriesName: string; value: number | string }>) {
+    //
+    //   const result: Record<string, unknown> = {
+    //     date: params[0].name,
+    //     open: "",
+    //     close: "",
+    //     high: "",
+    //     low: "",
+    //     volume: "",
+    //     ma5: "",
+    //     ma10: "",
+    //     ma20: "",
+    //     ma30: "",
+    //   };
+
+    //   params.forEach((item) => {
+    //     if (item.seriesName === "日K") {
+    //       if (isArray(item?.value)) {
+    //         result.open = item.value[1]; // 开盘价
+    //         result.close = item.value[2]; // 收盘价
+    //         result.low = item.value[3]; // 最低价
+    //         result.high = item.value[4]; // 最高价
+    //         result.volume = item.value[5]; // 交易量
+    //         return;
+    //       }
+    //     }
+    //     result[item.seriesName.toLowerCase()] = item.value;
+    //   });
+
+    //   const r = calculateCandleMetrics({
+    //     open: Number(result.open),
+    //     close: Number(result.close),
+    //     high: Number(result.high),
+    //     low: Number(result.low),
+    //     maxHeight: 200,
+    //     candleWidth: 20,
+    //   });
+
+    //   const transactions = records
+    //     .filter((r) => r.date === params[0].name)
+    //     .map((i) => ({
+    //       type: i.type,
+    //       value: i.value,
+    //       quantity: i.quantity,
+    //     }));
+
+    //   console.log({
+    //     result,
+    //   });
+
+    //   if (r.visualMetrics) {
+    //     const isUp = Number(result.close) > Number(result.open);
+    //     return genCandleHtml(r.visualMetrics, isUp, result as any, transactions);
+    //   }
+    // },
+    //
+
+    ...staticOption,
+
+    tooltip: {
+      formatter: (params: Array<{ name: string; seriesName: string; value: number | string }>) => {
+        // console.log(params);
+        onTooltipFormatter?.(params);
+        return;
+      },
+    },
+
     xAxis: [
       {
         type: "category" as const,
@@ -242,37 +306,7 @@ export const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; 
         max: "dataMax",
       },
     ],
-    yAxis: [
-      {
-        scale: true,
-        splitArea: {
-          show: true,
-        },
-      },
-      {
-        scale: true,
-        gridIndex: 1,
-        splitNumber: 2,
-        axisLabel: { show: false },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { show: false },
-      },
-    ],
-    dataZoom: [
-      {
-        type: "inside",
-        start: 80,
-        end: 100,
-      },
-      {
-        show: true,
-        type: "slider",
-        bottom: "10%",
-        start: 0,
-        end: 100,
-      },
-    ],
+
     series: [
       {
         name: "日K",
@@ -334,8 +368,8 @@ export const genKlineOption = ({ data, records = [] }: { data: SplitDataResult; 
             })),
           ],
           tooltip: {
-            formatter: function (param: { name: string; data: any }) {
-              return param.name + "<br>" + (param.data.coord || "");
+            formatter: (param: { name: string; data: any }) => {
+              return `${param.name}<br>${param.data.coord || ""}`;
             },
           },
         },

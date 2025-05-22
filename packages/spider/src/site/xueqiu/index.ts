@@ -78,7 +78,6 @@ class XueQiu {
 
     const data = await this.fetcher.XueQiuJSON<ChartKlineJSON>(url);
 
-    console.log("data", url, data);
     if (data?.error_code !== 0) {
       throw new Error(JSON.stringify(data));
     }

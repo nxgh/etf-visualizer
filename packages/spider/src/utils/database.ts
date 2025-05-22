@@ -164,12 +164,17 @@ export const checkPostExists = async (blogIds: string[]): Promise<string[]> => {
   }
 };
 
-export const findSecurityHistoryBySymbol = async (symbol: string): Promise<SecurityHistory[] | null> => {
+export const findSecurityHistoryBySymbol = async (
+  symbol: string,
+): Promise<{ columns: string[]; rows: (number | string)[][] } | null> => {
   try {
     const [rows] = await pool.execute<mysql.RowDataPacket[]>("SELECT * FROM security_history WHERE symbol = ?", [
       symbol,
     ]);
-    return rows as SecurityHistory[];
+    return {
+      columns: Object.keys(rows[0]),
+      rows: rows.map((row) => Object.values(row)),
+    };
   } catch (error) {
     logger.error("查询证券历史数据失败", { error, symbol });
     return null;
@@ -226,6 +231,8 @@ export const insertOrUpdateSecurityHistory = async (
   }[],
 ) => {
   try {
+    if (!securityHistory.length) return true;
+
     const [result] = await pool.query(
       `INSERT INTO security_history (symbol, timestamp, open, high, low, close, volume) VALUES ? 
        ON DUPLICATE KEY UPDATE open = VALUES(open), high = VALUES(high), 
@@ -240,14 +247,25 @@ export const insertOrUpdateSecurityHistory = async (
           item.close,
           item.volume,
         ]),
-      ]
+      ],
     );
-    console.log("result", result);
-
-    logger.info("插入或更新证券历史数据成功", { symbol });
+    logger.info("插入或更新证券历史数据成功", { symbol, length: securityHistory.length });
     return true;
   } catch (error) {
     logger.error("插入或更新证券历史数据失败", { error, symbol });
     throw error;
+  }
+};
+
+export const findSecurityHistoryBySymbolAndDate = async (symbol: string, begin: string, end: string) => {
+  try {
+    const [rows] = await pool.execute<mysql.RowDataPacket[]>(
+      "SELECT * FROM security_history WHERE symbol = ? AND timestamp BETWEEN ? AND ?",
+      [symbol, dayjs(begin).toDate(), dayjs(end).toDate()],
+    );
+    return rows as SecurityHistory[];
+  } catch (error) {
+    logger.error("查询证券历史数据失败", { error, symbol, begin, end });
+    return null;
   }
 };

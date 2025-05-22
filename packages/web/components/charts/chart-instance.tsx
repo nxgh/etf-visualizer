@@ -15,7 +15,8 @@ export default function ChartInstance({ className, option, onClick, onMouseOver,
   const [echartsInstance, setEchartsInstance] = useState<echarts.ECharts | null>(null);
 
   // 初始化图表
-  useEffect(() => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
     if (!chartRef.current) return;
 
     // 创建实例
@@ -25,7 +26,6 @@ export default function ChartInstance({ className, option, onClick, onMouseOver,
     instance.on("click", (params) => {
       onClick?.(params);
     });
-
 
     // 设置初始配置
     instance.setOption(option);
