@@ -1,4 +1,4 @@
-import { logger } from "@etf-visualizer/logger";
+import { type Logger, defaultLogger } from "@etf-visualizer/logger";
 
 export const DEFAULT_HEADER_CONFIG = {
   "User-Agent":
@@ -47,86 +47,66 @@ const WEIBO_HEADER = (headers: HeadersInit | undefined = {}) => {
   };
 };
 
-export function AsyncCatch(errorMessage: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value;
-    descriptor.value = async function (this: Fetcher, ...args: unknown[]) {
-      try {
-        return await originalMethod.apply(this, args);
-      } catch (error: unknown) {
-        logger.error(`Fetcher Error: ${errorMessage}`, {
-          error: error instanceof Error ? error.stack : error,
-          args,
-        });
-        return errorMessage;
-      }
+function mergeHeaders(headers: HeadersInit | undefined = {}) {
+  const headersInstance = new Headers();
+
+  for (const [key, value] of Object.entries(headers)) {
+    headersInstance.append(key, value);
+  }
+  return headersInstance;
+}
+
+type Platform = "danjuan" | "xueqiu" | "weibo";
+
+const PLATFORM_HEADERS: Record<Platform, (headers?: HeadersInit) => HeadersInit> = {
+  danjuan: DAN_JUAN_HEADER,
+  xueqiu: XUE_QIU_HEADER,
+  weibo: WEIBO_HEADER,
+};
+
+async function fetchWithPlatform(platform: Platform, url: string, options?: RequestInit) {
+  try {
+    const opt = {
+      ...options,
+      headers: mergeHeaders(PLATFORM_HEADERS[platform](options?.headers)),
     };
-    return descriptor;
-  };
-}
-
-class Fetcher {
-  static DAN_JUAN_HEADER = DAN_JUAN_HEADER;
-  static XUE_QIU_HEADER = XUE_QIU_HEADER;
-  static WEIBO_HEADER = WEIBO_HEADER;
-
-  headers: HeadersInit | undefined = {};
-  logger = logger;
-
-  constructor(headers: HeadersInit | undefined = {}) {
-    this.headers = headers;
-  }
-
-  mergeHeaders(headers: HeadersInit | undefined = {}) {
-    const headersInstance = new Headers();
-
-    for (const [key, value] of Object.entries(headers)) {
-      headersInstance.append(key, value);
-    }
-    return headersInstance;
-  }
-
-  @AsyncCatch("Failed to fetch from Xueqiu")
-  async XueQiu(url: string, options?: RequestInit) {
-    return await fetch(url, {
-      ...options,
-      headers: this.mergeHeaders(XUE_QIU_HEADER(this.headers)),
-    });
-  }
-  async XueQiuJSON<T>(url: string, options?: RequestInit): Promise<T> {
-    const resp = await this.XueQiu(url, options);
-    return (await resp.json()) as T;
-  }
-
-  @AsyncCatch("Failed to fetch from DanJuan")
-  async DanJuan(url: string, options?: RequestInit) {
-    return await fetch(url, {
-      ...options,
-      headers: this.mergeHeaders(DAN_JUAN_HEADER(this.headers)),
-    });
-  }
-  async DanJuanJSON<T>(url: string, options?: RequestInit): Promise<T> {
-    const resp = await this.DanJuan(url, options);
-    return (await resp.json()) as T;
-  }
-
-  @AsyncCatch("Failed to fetch from Weibo")
-  async Weibo(url: string, options?: RequestInit) {
-    return await fetch(url, {
-      ...options,
-      headers: this.mergeHeaders(WEIBO_HEADER(this.headers)),
-    });
-  }
-
-  async WeiboJSON<T>(url: string, options?: RequestInit): Promise<T> {
-    const resp = await this.Weibo(url, options);
-
-    const json = (await resp.json()) as T;
-    logger.info("WeiboJSON", { json });
-    return json;
+    return await fetch(url, opt);
+  } catch (error) {
+    throw error;
   }
 }
 
-export default Fetcher;
+async function fetchJSON<T>(platform: Platform, url: string, options?: RequestInit): Promise<T> {
+  const resp = await fetchWithPlatform(platform, url, options);
+  return (await resp.json()) as T;
+}
 
-export type { Fetcher };
+export async function fetchDanJuan<T = Response>(
+  url: string,
+  options?: RequestInit & { parseJSON?: boolean },
+): Promise<T extends Response ? Response : T> {
+  const { parseJSON = true, ...fetchOptions } = options || {};
+  return (
+    parseJSON ? fetchJSON<T>("danjuan", url, fetchOptions) : fetchWithPlatform("danjuan", url, fetchOptions)
+  ) as Promise<T extends Response ? Response : T>;
+}
+
+export async function fetchXueQiu<T = Response>(
+  url: string,
+  options?: RequestInit & { parseJSON?: boolean },
+): Promise<T extends Response ? Response : T> {
+  const { parseJSON = true, ...fetchOptions } = options || {};
+  return (
+    parseJSON ? fetchJSON<T>("xueqiu", url, fetchOptions) : fetchWithPlatform("xueqiu", url, fetchOptions)
+  ) as Promise<T extends Response ? Response : T>;
+}
+
+export async function fetchWeibo<T = Response>(
+  url: string,
+  options?: RequestInit & { parseJSON?: boolean },
+): Promise<T extends Response ? Response : T> {
+  const { parseJSON = true, ...fetchOptions } = options || {};
+  return (
+    parseJSON ? fetchJSON<T>("weibo", url, fetchOptions) : fetchWithPlatform("weibo", url, fetchOptions)
+  ) as Promise<T extends Response ? Response : T>;
+}

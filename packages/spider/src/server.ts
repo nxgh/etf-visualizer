@@ -6,9 +6,8 @@ import { logger } from "@etf-visualizer/logger";
 import { createFactory } from "hono/factory";
 
 import type { Hono } from "hono";
-import registerRestRoutes from "./routes/route.ts";
+import { registerRestRoutes, createAppRouter } from "./routes/index.ts";
 import { trpcServer } from "@hono/trpc-server";
-import appRouter from "./routes/rpc-route.ts";
 
 export interface ServerConfig {
   port: number;
@@ -19,6 +18,8 @@ export interface ServerInstance {
   app: Hono;
   start: (config: ServerConfig) => Promise<void>;
 }
+
+const appRouter = createAppRouter(logger);
 
 export const registerRoutes = (app: Hono) => {
   registerRestRoutes(app);
@@ -60,3 +61,8 @@ export async function createServer(): Promise<ServerInstance> {
     },
   };
 }
+
+// 如果直接运行此文件，则启动服务器
+
+const server = await createServer();
+await server.start({ port: Number(get(process.env, "SERVER_PORT", 3200)) });

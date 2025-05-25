@@ -1,5 +1,2 @@
-export type { AppRpcRouter } from "./rpc-route.ts";
-export type { RestRouteType } from "./route.ts";
-
-export { default as registerRestRoutes } from "./route.ts";
-export { default as tRpcRouter } from "./rpc-route.ts";
+export { registerRestRoutes, type RestRoute } from "./route.ts";
+export { createAppRouter, type RpcRouter } from "./rpc-route.ts";

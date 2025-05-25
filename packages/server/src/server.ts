@@ -37,3 +37,7 @@ export async function createServer(): Promise<ServerInstance> {
     },
   };
 }
+// 如果直接运行此文件，则启动服务器
+
+const server = await createServer();
+await server.start({ port: Number(get(process.env, "SERVER_PORT", 3200)) });
