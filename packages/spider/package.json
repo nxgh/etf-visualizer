@@ -20,7 +20,7 @@
   "scripts": {
     "build": "pkgroll --clean-dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenvx run -f ../../.env --  tsx watch src/index.ts "
+    "dev": "dotenvx run -f ../../.env --  tsx watch src/server.ts "
   },
   "type": "module",
   "keywords": [],
@@ -28,7 +28,6 @@
   "license": "ISC",
   "dependencies": {
     "@dotenvx/dotenvx": "^1.41.0",
-    "@etf-visualizer/logger": "workspace:*",
     "@hono/node-server": "^1.14.0",
     "@hono/trpc-server": "^0.3.4",
     "@trpc/server": "^11.1.2",

@@ -13,7 +13,7 @@ const winstonLogger = createLogger({
         format.printf((info: Record<string, unknown>): string => {
           const { message } = info;
           return message as string;
-        }),
+        })
       ),
     }),
     new transports.File({ filename: `${logsPath}/error.log`, level: "error" }),
@@ -23,7 +23,7 @@ const winstonLogger = createLogger({
       format: format.combine(
         format.printf(({ context, level, message, time }) => {
           return `${message}  `;
-        }),
+        })
       ),
     }),
   ],
@@ -90,22 +90,4 @@ export const logger = {
   error,
   warn,
   debug,
-};
-
-export { winstonLogger };
-
-type LoggerType = (message: string, rest: Record<string, unknown>) => void;
-
-export interface Logger {
-  info: LoggerType;
-  error: LoggerType;
-  warn: LoggerType;
-  debug: LoggerType;
-}
-
-export const defaultLogger: Logger = {
-  info: (message, ...rest) => console.log(message, ...rest),
-  error: (message, ...rest) => console.error(message, ...rest),
-  warn: (message, ...rest) => console.warn(message, ...rest),
-  debug: (message, ...rest) => console.debug(message, ...rest),
 };

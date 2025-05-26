@@ -2,7 +2,7 @@ import { z } from "zod";
 import { XueQiuService, WeiboService } from "#/services/index.ts";
 
 import { initTRPC } from "@trpc/server";
-import { defaultLogger, type Logger } from "@etf-visualizer/logger";
+import { defaultLogger, type Logger } from "../utils/logger.ts";
 const t = initTRPC.create();
 
 export const router = t.router;
@@ -13,7 +13,9 @@ const createAppRouter = (logger: Logger = defaultLogger) => {
   const weiboService = new WeiboService(logger);
   return router({
     search: publicProcedure.input(z.string()).query(async ({ input }) => {
+    
       const result = await xueQiuService.searchByKeyword(input);
+   
       return result;
     }),
     kline: publicProcedure

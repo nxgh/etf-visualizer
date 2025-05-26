@@ -4,7 +4,7 @@ import { streamSSE } from "hono/streaming";
 
 import XueQiuService from "#/services/xueqiu.ts";
 import WeiboService from "#/services/weibo.ts";
-import { defaultLogger, type Logger } from "@etf-visualizer/logger";
+import { defaultLogger, type Logger } from "../utils/logger.ts";
 
 const route = new Hono().basePath("/spider");
 
@@ -14,7 +14,9 @@ export const registerRestRoutes = (app: Hono, logger: Logger = defaultLogger) =>
 
   route.get("/search", async (c) => {
     const { keyword } = c.req.query();
+
     const result = await xueQiuService.searchByKeyword(keyword);
+
     return c.json(result);
   });
   route.get("/kline", async (c) => {

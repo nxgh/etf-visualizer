@@ -9,7 +9,7 @@ import {
 
 import dayjs from "dayjs";
 import * as XueQiu from "#/site/xueqiu/index.ts";
-import type { Logger } from "@etf-visualizer/logger";
+import type { Logger } from "#/utils/logger.ts";
 
 export async function fetchStockDetailAndKline(symbol: string) {
   // 查询 db 是否存在 symbol 数据

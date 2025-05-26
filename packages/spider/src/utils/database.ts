@@ -1,5 +1,5 @@
 import type { BlogParsed } from "#/site/weibo/types/type.js";
-import { logger } from "@etf-visualizer/logger";
+import { defaultLogger as logger } from "../utils/logger.ts";
 import dayjs from "dayjs";
 import mysql from "mysql2/promise";
 

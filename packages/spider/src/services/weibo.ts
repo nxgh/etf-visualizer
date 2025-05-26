@@ -10,7 +10,7 @@ import {
   type WeiboUser,
 } from "#/utils/database.ts";
 import { sleep } from "#/utils/utils.ts";
-import type { Logger } from "@etf-visualizer/logger";
+import type { Logger } from "#/utils/logger.ts";
 import type { SSEStreamingApi } from "hono/streaming";
 
 export async function parseBlogList(list: BlogJSONType["data"]["list"]): Promise<BlogParsed[]> {

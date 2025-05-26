@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { get } from "lodash-es";
 import dayjs from "dayjs";
-import { logger } from "@etf-visualizer/logger";
+import { defaultLogger as logger } from "./utils/logger.ts";
 
 import { createFactory } from "hono/factory";
 
