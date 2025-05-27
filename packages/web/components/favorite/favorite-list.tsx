@@ -42,7 +42,15 @@ function useObserverWidthResize() {
   return { width, ref };
 }
 
-const FavoriteTable = ({ dataSource, removeWatchList }: { dataSource: any; removeWatchList: (code: string) => void }) => {
+const FavoriteTable = ({
+  dataSource,
+  removeWatchList,
+  onClickItem,
+}: {
+  dataSource: any;
+  removeWatchList: (code: string) => void;
+  onClickItem: (code: string) => void;
+}) => {
   const columns = [
     {
       title: "名称",
@@ -84,7 +92,22 @@ const FavoriteTable = ({ dataSource, removeWatchList }: { dataSource: any; remov
     },
   ];
 
-  return <Table columns={columns} dataSource={dataSource} rowKey="code" pagination={false} />;
+  return (
+    <Table
+      onRow={(record) => {
+        return {
+          onClick: (event) => {
+            onClickItem(record.code);
+          }, // 点击行
+        };
+      }}
+      size="small"
+      columns={columns}
+      dataSource={dataSource}
+      rowKey="code"
+      pagination={false}
+    />
+  );
 };
 
 // 涨跌% label
@@ -145,7 +168,7 @@ export function FavoriteList({ className, onClickItem }: { className?: string; o
           </div>
         </ScrollArea>
       ) : (
-        <FavoriteTable dataSource={watchList} removeWatchList={removeWatchList} />
+        <FavoriteTable dataSource={watchList} removeWatchList={removeWatchList} onClickItem={handleClickItem} />
       )}
     </div>
   );

@@ -61,7 +61,7 @@ const columns: ColumnsType<TransactionRecord> = [
   // },
 ] as const;
 
-export function TransactionTable({ className, code, editable = true }: { className?: string; code: string; editable?: boolean }) {
+export function TransactionTable({ className, code, editable = true }: { className?: string; code?: string; editable?: boolean }) {
   const dataSource = transactionStoreAction.use.transaction();
   const insertTransaction = transactionStoreAction.use.insert();
   const updateTransaction = transactionStoreAction.use.update();

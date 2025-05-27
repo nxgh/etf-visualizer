@@ -14,9 +14,9 @@ export const createPersistStore = <T extends object>(
         name,
         storage: createJSONStorage(() => storage),
       }),
-      { 
+      {
         name,
-        enabled: process.env.NODE_ENV === "development"
+        enabled: process.env.NODE_ENV === "development",
       }
     )
   );
