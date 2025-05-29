@@ -61,11 +61,30 @@ const columns: ColumnsType<TransactionRecord> = [
   // },
 ] as const;
 
-export function TransactionTable({ className, code, editable = true }: { className?: string; code?: string; editable?: boolean }) {
-  const dataSource = transactionStoreAction.use.transaction();
-  const insertTransaction = transactionStoreAction.use.insert();
-  const updateTransaction = transactionStoreAction.use.update();
-  const removeTransaction = transactionStoreAction.use.remove();
+export interface TransactionTableProps {
+  className?: string;
+  code?: string;
+  editable?: boolean;
+  dataSource: TransactionRecord[];
+  insertTransaction: (code: string) => void;
+  removeTransaction: (id: string) => void;
+  updateTransaction: (item: TransactionRecord) => void;
+  onChange: (item: TransactionRecord, param: { key: string; value: string }) => void;
+}
+
+export function TransactionTable({
+  className,
+  code,
+  editable = true,
+  dataSource,
+  insertTransaction,
+  removeTransaction,
+  updateTransaction,
+}: TransactionTableProps) {
+  // const dataSource = transactionStoreAction.use.transaction();
+  // const insertTransaction = transactionStoreAction.use.insert();
+  // const updateTransaction = transactionStoreAction.use.update();
+  // const removeTransaction = transactionStoreAction.use.remove();
 
   const onChange = (item: TransactionRecord, param: { key: string; value: string }) => {
     updateTransaction({

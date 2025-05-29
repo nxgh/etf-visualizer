@@ -4,10 +4,10 @@ interface IProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   title: string;
-  description: string;
-  footer: React.ReactNode;
+  description?: string;
+  footer?: React.ReactNode;
   children: React.ReactNode;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
 }
 
 export default function SimpleDialog({ open, setOpen, title, description, footer, children, trigger }: IProps) {

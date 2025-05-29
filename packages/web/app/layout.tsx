@@ -4,7 +4,7 @@ import "#styles/global.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
-import SideBar from "#components/layout/side-bar";
+import SideBar from "app/side-bar";
 import { getSyncDataAction } from "#actions/index";
 import { ConfigProvider } from "antd";
 
