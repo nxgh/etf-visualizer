@@ -1,10 +1,16 @@
 import { NavUser } from "#components/nav-user";
 import { cn } from "@shadcn/lib/utils";
-import { Gem, Shapes, Database } from "lucide-react";
+import { Gem, Shapes, Database, Home } from "lucide-react";
 
 import Link from "next/link";
 
 const routes = [
+  {
+    name: "首页",
+    href: "/",
+    icon: <Home className="!size-6 text-white" />,
+    className: "mb-4 size-10 bg-black p-1 flex items-center justify-center rounded-lg",
+  },
   {
     name: "自选",
     href: "/favorite",
