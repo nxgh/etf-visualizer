@@ -8,6 +8,19 @@ interface StrategyStore {
   update: (params: StrategyConfig) => void;
 }
 
+const defaultStrategyConfig: StrategyConfig = {
+  id: "",
+  strategyName: "网格交易",
+  basePrice: 0,
+  buyVolume: 0,
+  priceIncrease: 0,
+  priceDecline: 0,
+  stressTest: 0,
+  gridStepIncrement: 0,
+  profitRetention: 0,
+  source: "",
+};
+
 const strategyStore = createPersistStore<StrategyStore>(
   "strategy",
   {

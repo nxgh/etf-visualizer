@@ -4,16 +4,17 @@ import { withTimestamp } from "./helper";
 /**
  * 创建网格交易记录
  */
-export function createTransactionItem(params: BaseParams<TransactionRecord>): TransactionRecord {
+export function createTransactionItem(params: Partial<TransactionRecord>): TransactionRecord {
   const defaultConfig: TransactionRecord = withTimestamp({
     id: Date.now().toString(),
-    level: 0,
     date: new Date().toISOString(),
-    securityName: "",
     code: "",
     price: 0,
     quantity: 0,
     source: "",
+    category: "",
+    remark: "",
+    fee: 0,
   });
 
   return {

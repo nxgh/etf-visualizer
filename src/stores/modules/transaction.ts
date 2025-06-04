@@ -1,10 +1,11 @@
+import { pick } from "lodash-es";
 import { createPersistStore, createSelectors } from "../core";
 
 import type { TransactionRecord } from "../types/type.d";
 import { createTransactionItem } from "../utils/transaction";
 interface TransactionStore {
   transaction: TransactionRecord[];
-  insert: (params: BaseParams<TransactionRecord>) => void;
+  insert: (params: Partial<TransactionRecord>) => void;
   update: (params: TransactionRecord) => void;
   remove: (code: string) => void;
   init: (transaction: TransactionRecord[]) => void;
@@ -15,10 +16,22 @@ const transactionStore = createPersistStore<TransactionStore>(
   {
     transaction: [],
   },
-  (set) => ({
+  (set, get) => ({
     transaction: [],
-    insert: (params: BaseParams<TransactionRecord>) => {
-      set((state) => ({ transaction: [...state.transaction, createTransactionItem(params)] }), undefined, "transaction/insert");
+    insert: (params: Partial<TransactionRecord>) => {
+      const list = get().transaction;
+
+      const findItem = list.find((item) => {
+        const keys = ["code", "date", "price", "quantity"] as const;
+        return keys.every((key) => item[key] === params[key]);
+      });
+      if (findItem) {
+        throw new Error(`${params.code} 在 ${params.date} 已存在`);
+      }
+
+      const newItem = createTransactionItem(params);
+
+      set((state) => ({ transaction: [...state.transaction, newItem] }), undefined, "transaction/insert");
     },
     update: (params: Partial<TransactionRecord>) => {
       set(
@@ -66,5 +79,22 @@ const transactionStore = createPersistStore<TransactionStore>(
 // };
 
 const transactionStoreAction = createSelectors(transactionStore);
+
+export const useInsertTransaction = () => {
+  const transaction = transactionStoreAction.use.transaction();
+  const insert = transactionStoreAction.use.insert();
+
+  return (params: Partial<TransactionRecord>) => {
+    // insert(params);
+    // 1. 时间 + Code 唯一
+    //
+    if (params.date && params.code) {
+      const findItem = transaction.find((item) => item.date === params.date && item.code === params.code);
+      if (findItem) {
+        throw new Error("已存在");
+      }
+    }
+  };
+};
 
 export { transactionStore, transactionStoreAction };

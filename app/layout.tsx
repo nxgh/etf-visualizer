@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ConfigProvider } from "antd";
+import "@ant-design/v5-patch-for-react-19";
 
 import "#styles/global.css";
 import SideBar from "#layouts/side-bar";

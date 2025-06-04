@@ -7,40 +7,8 @@ import { cn } from "@shadcn/lib/utils";
 import { ScrollArea } from "@shadcn/ui/scroll-area";
 
 import { watchListStoreAction } from "#stores/index";
-import { useEffect, useRef, useState } from "react";
-import { SimpleTable } from "@shadcn/component";
-import { throttle } from "lodash-es";
 import { Table } from "@shadcn/antd/table";
-
-function useObserverWidthResize() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    if (ref.current) {
-      // 创建节流的 setWidth 函数，每 200ms 最多执行一次
-      const throttledSetWidth = throttle((width: number) => {
-        setWidth(width);
-        console.log(width);
-      }, 200);
-
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          throttledSetWidth(entry.contentRect.width);
-        }
-      });
-
-      observer.observe(ref.current);
-
-      return () => {
-        observer.disconnect();
-        throttledSetWidth.cancel();
-      };
-    }
-  }, []);
-
-  return { width, ref };
-}
+import { useObserverWidthResize } from "#utils/use-observer-width-resize";
 
 const FavoriteTable = ({
   dataSource,

@@ -10,10 +10,10 @@ export function Favorite() {
 
   useEffect(() => {
     const symbols = watchList.map((item) => item.code);
-    quoteAction(symbols).then((res) => {
-      console.log(res);
-      setData(res);
-    });
+    // quoteAction(symbols).then((res) => {
+    //   console.log(res);
+    //   setData(res);
+    // });
   }, [watchList]);
 
   return (

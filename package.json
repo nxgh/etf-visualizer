@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@dotenvx/dotenvx": "^1.41.0",
     "@hono/trpc-server": "^0.3.4",
     "@hookform/resolvers": "^5.0.1",

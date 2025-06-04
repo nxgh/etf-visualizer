@@ -25,7 +25,7 @@ export default function Page() {
           <Favorite />
         </SimpleCard>
 
-        <SimpleCard title="交易记录" className="w-[420px] h-[300px]">
+        <SimpleCard title="交易记录" className="w-[720px] h-[300px]">
           <LastOperation  />
         </SimpleCard>
 

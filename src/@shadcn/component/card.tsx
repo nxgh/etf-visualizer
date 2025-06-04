@@ -13,7 +13,7 @@ export default function SimpleCard({ children, className, title, footer }: IProp
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">{children}</CardContent>
+      <CardContent className="flex-1 flex flex-col overflow-hidden">{children}</CardContent>
       <CardFooter>{footer}</CardFooter>
     </Card>
   );
